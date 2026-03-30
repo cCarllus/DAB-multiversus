@@ -318,8 +318,53 @@
   transform: scaleX(0);
 }
 
-/* Remove the old combined hover+active rule */
+/* ─── Tab Dividers — etched metal separators ─── */
 
+.menu-nav-tab__divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2px;
+  height: 32px;
+  flex-shrink: 0;
+  pointer-events: none;
+  transform: skewX(-8deg);
+}
+
+/* Dark groove (left edge) */
+.menu-nav-tab__divider::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.55) 15%,
+    rgba(0, 0, 0, 0.7) 50%,
+    rgba(0, 0, 0, 0.55) 85%,
+    transparent 100%
+  );
+}
+
+/* Light highlight (right edge — metal catch light) */
+.menu-nav-tab__divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(230, 234, 240, 0.08) 15%,
+    rgba(230, 234, 240, 0.14) 50%,
+    rgba(230, 234, 240, 0.08) 85%,
+    transparent 100%
+  );
+}
 .menu-panel,
 .menu-card,
 .menu-chat-panel {
