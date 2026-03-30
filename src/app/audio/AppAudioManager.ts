@@ -1,7 +1,7 @@
 import { STORAGE_KEYS } from '@shared/constants/storageKeys';
 import type { TransitionCueId, UiCueId } from '@shared/types/audio';
 
-const INTERACTIVE_SELECTOR = 'button, [data-route-target], [data-action], a[href]';
+const INTERACTIVE_SELECTOR = 'button, [data-action], a[href]';
 
 interface ToneOptions {
   duration: number;

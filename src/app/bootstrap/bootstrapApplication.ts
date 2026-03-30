@@ -1,13 +1,6 @@
 import { AppAudioManager } from '@app/audio/AppAudioManager';
-import { createApplicationShell, getRouteTarget } from '@app/layout/createApplicationShell';
-import { AppNavigator } from '@app/navigation/AppNavigator';
-import {
-  APP_ROUTES,
-  DEFAULT_ROUTE_ID,
-  getRouteDefinition,
-  isAppRouteId,
-} from '@app/navigation/routes';
-import { SCREEN_REGISTRY } from '@app/screens';
+import { createApplicationShell } from '@app/layout/createApplicationShell';
+import { createHomePage } from '@app/pages/home/createHomePage';
 import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
 import type { DesktopBridge } from '@shared/types/desktop';
 
@@ -26,49 +19,37 @@ function createDesktopBridgeFallback(): DesktopBridge {
 
 export function bootstrapApplication(host: HTMLElement): void {
   const desktop = window.desktop ?? createDesktopBridgeFallback();
-  const shell = createApplicationShell(host, APP_ROUTES, desktop, __APP_VERSION__);
-  const navigator = new AppNavigator(APP_ROUTES, DEFAULT_ROUTE_ID);
+  const shell = createApplicationShell(host);
   const audio = new AppAudioManager();
   const runtime = new BabylonRuntime(shell.canvas);
 
   audio.bindInteractionSurface(shell.interactiveLayer);
   runtime.start();
 
-  const renderRoute = (): void => {
-    const currentRoute = navigator.currentRoute;
-    const routeDefinition = getRouteDefinition(currentRoute);
-    const screen = SCREEN_REGISTRY[currentRoute]({
+  const renderHomePage = (): void => {
+    shell.setPage(
+      createHomePage({
       appVersion: __APP_VERSION__,
       audioMuted: audio.isMuted(),
       desktop,
-    });
-
-    shell.setActiveRoute(routeDefinition);
-    shell.setScreen(screen);
+      }),
+    );
   };
 
-  navigator.subscribe((currentRoute, previousRoute) => {
-    if (previousRoute && previousRoute !== currentRoute) {
-      audio.playTransitionCue('screen-shift');
-    }
-
-    renderRoute();
-  }, true);
+  renderHomePage();
 
   shell.interactiveLayer.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
-    const routeTarget = getRouteTarget(target);
-
-    if (routeTarget && isAppRouteId(routeTarget)) {
-      navigator.navigate(routeTarget);
-      return;
-    }
-
     const action = target?.closest<HTMLElement>('[data-action]')?.dataset.action;
 
     if (action === 'toggle-mute') {
       audio.toggleMute();
-      renderRoute();
+      renderHomePage();
+      return;
+    }
+
+    if (action === 'play-now') {
+      audio.playTransitionCue('screen-shift');
     }
   });
 
