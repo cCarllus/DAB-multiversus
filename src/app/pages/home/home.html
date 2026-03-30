@@ -1,18 +1,23 @@
 <section class="relative h-full overflow-hidden bg-transparent text-[var(--color-text-primary)]">
   <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.06),transparent_28%),linear-gradient(180deg,rgba(11,15,20,0.08)_0%,rgba(11,15,20,0.42)_100%)]"></div>
 
-  <header class="menu-navbar app-region-drag relative z-30 flex h-[76px] items-center gap-3 border-b border-[color:rgba(230,234,240,0.06)] bg-[linear-gradient(180deg,rgba(11,15,20,0.97)_0%,rgba(11,15,20,0.84)_100%)] px-5">
-    <div class="app-region-no-drag flex items-center gap-2">
+  <header class="menu-navbar app-region-drag relative z-30 flex h-[72px] items-center px-5">
+    <!-- Noise grain overlay -->
+    <div class="menu-navbar__noise" aria-hidden="true"></div>
+    <!-- Top reflection line -->
+    <div class="menu-navbar__reflection" aria-hidden="true"></div>
+    <!-- Bottom inner shadow -->
+    <div class="menu-navbar__inner-shadow" aria-hidden="true"></div>
+
+    <div class="app-region-no-drag flex items-center gap-1">
       <button class="menu-toolbar-button" type="button" aria-label="Settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 6.75h15M7.5 12h9m-12 5.25h15" />
-          <circle cx="9" cy="6.75" r="1.5" />
-          <circle cx="15" cy="12" r="1.5" />
-          <circle cx="12" cy="17.25" r="1.5" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
       </button>
       <button class="menu-toolbar-button" type="button" aria-label="Back">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-5 w-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
         </svg>
       </button>
@@ -24,7 +29,9 @@
       </span>
     </button>
 
-    <nav class="app-region-no-drag flex min-w-0 items-stretch" aria-label="Primary navigation">
+    <div class="menu-navbar__separator" aria-hidden="true"></div>
+
+    <nav class="menu-navbar__nav app-region-no-drag" aria-label="Primary navigation">
       <button class="menu-nav-tab" type="button">Heroes</button>
       <button class="menu-nav-tab menu-nav-tab--active" type="button">Store</button>
       <button class="menu-nav-tab" type="button">Watch</button>
@@ -32,19 +39,21 @@
       <button class="menu-nav-tab" type="button">Arcade</button>
     </nav>
 
-    <div class="ml-auto hidden min-w-[250px] flex-col items-end justify-center xl:flex app-region-no-drag">
-      <span class="text-[10px] uppercase tracking-[0.28em] text-[color:rgba(154,164,178,0.55)]">Season Zero // __APP_SUBTITLE__ Shell</span>
-      <span class="text-xs tracking-[0.08em] text-[var(--color-text-secondary)]">__PLAYER_ALIAS__ online · v__APP_VERSION__</span>
+    <div class="menu-navbar__separator" aria-hidden="true"></div>
+
+    <div class="ml-auto hidden min-w-[220px] flex-col items-end justify-center xl:flex app-region-no-drag">
+      <span class="menu-navbar__season-label">Season Zero // __APP_SUBTITLE__</span>
+      <span class="menu-navbar__player-label">__PLAYER_ALIAS__ · v__APP_VERSION__</span>
     </div>
 
-    <div class="app-region-no-drag ml-4 flex items-center gap-2">
+    <div class="app-region-no-drag ml-4 flex items-center gap-1">
       <button class="menu-action-button menu-action-button--alert" type="button" aria-label="Inbox">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5A2.25 2.25 0 0 1 19.5 19.5H4.5a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5A2.25 2.25 0 0 0 2.25 6.75m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75" />
         </svg>
       </button>
       <button class="menu-action-button" type="button" aria-label="Security Center">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 2.25 2.25L15 9.75" />
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5 12 2.25 20.25 4.5v6.75c0 5.25-3.75 10.5-8.25 12-4.5-1.5-8.25-6.75-8.25-12V4.5Z" />
         </svg>
@@ -57,32 +66,32 @@
         aria-label="__AUDIO_LABEL__"
         title="__AUDIO_LABEL__"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4 __AUDIO_ON_CLASS__">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 __AUDIO_ON_CLASS__">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75 8.25 9.75h-3v4.5h3L12 17.25V6.75Z" />
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25a5.25 5.25 0 0 1 0 7.5M19.5 5.25a9 9 0 0 1 0 13.5" />
         </svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4 __AUDIO_OFF_CLASS__">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 __AUDIO_OFF_CLASS__">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75 8.25 9.75h-3v4.5h3L12 17.25V6.75Z" />
           <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 9.75 5.25 5.25m0-5.25-5.25 5.25" />
         </svg>
       </button>
     </div>
 
-    <div class="app-region-no-drag ml-3 flex items-center gap-1 border-l border-[color:rgba(230,234,240,0.08)] pl-3">
+    <div class="app-region-no-drag ml-2 flex items-center gap-0">
       <button class="menu-window-button" type="button" data-action="window-minimize" aria-label="Minimize">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[18px] w-[18px]">
           <path stroke-linecap="round" d="M5 12h14" />
         </svg>
       </button>
       <button class="menu-window-button menu-window-button--close" type="button" data-action="window-close" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-[18px] w-[18px]">
           <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12M18 6 6 18" />
         </svg>
       </button>
     </div>
   </header>
 
-  <div class="relative z-20 grid h-[calc(100%-76px)] grid-cols-[300px_minmax(0,1fr)_320px] grid-rows-[minmax(0,1fr)_170px] gap-4 p-4 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
+  <div class="relative z-20 grid h-[calc(100%-72px)] grid-cols-[300px_minmax(0,1fr)_320px] grid-rows-[minmax(0,1fr)_170px] gap-4 p-4 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
     <aside class="menu-panel menu-scroll row-span-2 flex min-h-0 flex-col gap-4 overflow-y-auto rounded-[12px] p-4">
       <article class="menu-profile-card">
         <div class="menu-profile-card__banner">

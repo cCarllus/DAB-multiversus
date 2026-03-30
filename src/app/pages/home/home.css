@@ -1,33 +1,170 @@
+/* ================================================================
+   NAVBAR — AAA Game Client Surface
+   Textured dark stone / brushed metal / matte slate
+   ================================================================ */
+
 .menu-navbar {
+  position: relative;
+  z-index: 30;
+  /* Multi-stop gradient simulating uneven stone surface */
+  background:
+    linear-gradient(
+      180deg,
+      #1A2027 0%,
+      #161B22 18%,
+      #0F1419 52%,
+      #12171D 78%,
+      #0F1419 100%
+    );
+  /* Soft bottom fade instead of hard border */
   box-shadow:
-    0 14px 40px rgba(0, 0, 0, 0.35),
-    inset 0 -1px 0 rgba(230, 234, 240, 0.05);
+    0 6px 28px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  /* Slight horizontal brightness variation — not uniform */
+  background-size: 100% 100%;
 }
+
+/* Subtle noise / grain overlay — creates stone texture feel */
+.menu-navbar__noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+/* Top reflection line — thin metallic highlight */
+.menu-navbar__reflection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(230, 234, 240, 0.03) 10%,
+      rgba(230, 234, 240, 0.08) 35%,
+      rgba(230, 234, 240, 0.12) 50%,
+      rgba(230, 234, 240, 0.08) 65%,
+      rgba(230, 234, 240, 0.03) 90%,
+      transparent 100%
+    );
+}
+
+/* Bottom inner shadow — depth against content below */
+.menu-navbar__inner-shadow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.18) 100%
+    );
+}
+
+/* Subtle vignette on edges */
+.menu-navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.15) 0%,
+      transparent 8%,
+      transparent 92%,
+      rgba(0, 0, 0, 0.15) 100%
+    );
+}
+
+/* Subtle brightness variation across the bar — game engine feel */
+.menu-navbar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 40% 0%,
+      rgba(42, 50, 59, 0.12) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 75% 100%,
+      rgba(26, 32, 39, 0.08) 0%,
+      transparent 40%
+    );
+}
+
+/* Lightweight separator marks between sections */
+.menu-navbar__separator {
+  width: 1px;
+  height: 28px;
+  margin: 0 12px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(230, 234, 240, 0.06) 30%,
+    rgba(230, 234, 240, 0.06) 70%,
+    transparent 100%
+  );
+  flex-shrink: 0;
+}
+
+/* Season / player info labels */
+.menu-navbar__season-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(154, 164, 178, 0.45);
+}
+
+.menu-navbar__player-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Toolbar & Action Buttons ─── */
 
 .menu-toolbar-button,
 .menu-action-button,
 .menu-window-button {
+  position: relative;
   display: grid;
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.625rem;
+  border-radius: 0;
   background: transparent;
-  color: var(--color-text-secondary);
+  color: #9AA4B2;
   transition:
-    color 180ms ease,
-    transform 180ms ease,
-    background-color 180ms ease,
-    box-shadow 180ms ease;
+    color 200ms ease,
+    transform 160ms ease;
 }
 
 .menu-toolbar-button:hover,
-.menu-action-button:hover,
+.menu-action-button:hover {
+  color: var(--color-accent-gold);
+  transform: none;
+}
+
 .menu-window-button:hover {
   color: var(--color-text-primary);
-  background: transparent;
-  box-shadow: none;
-  transform: scale(1.02);
+  transform: none;
 }
 
 .menu-toolbar-button:active,
@@ -37,118 +174,151 @@
 .menu-card-link:active,
 .menu-primary-subtle-button:active,
 .menu-enter-battle-button:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
+/* Inbox notification dot */
 .menu-action-button--alert::after {
   content: '';
   position: absolute;
-  top: 0.35rem;
-  right: 0.35rem;
-  width: 0.45rem;
-  height: 0.45rem;
+  top: 0.3rem;
+  right: 0.25rem;
+  width: 0.4rem;
+  height: 0.4rem;
   border-radius: 999px;
   background: var(--color-accent-gold);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.72);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+}
+
+/* Window controls — minimal, integrated */
+.menu-window-button {
+  width: 2rem;
+  height: 2rem;
+  color: rgba(154, 164, 178, 0.5);
 }
 
 .menu-window-button--close {
-  color: rgba(232, 69, 69, 0.72);
+  color: rgba(232, 69, 69, 0.5);
 }
 
 .menu-window-button--close:hover {
-  color: #fff3f3;
-  background: transparent;
-  box-shadow: none;
+  color: #e84545;
 }
+
+/* ─── Brand Plate ─── */
 
 .menu-brand__plate {
   position: relative;
   display: grid;
   place-items: center;
-  width: 4.6rem;
-  height: 3rem;
-  clip-path: polygon(12% 0, 100% 0, 88% 100%, 0 100%);
+  width: 3.2rem;
+  height: 3.2rem;
+  margin: 0 4px;
   background: transparent;
-  box-shadow: none;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition: transform 200ms ease;
+}
+
+.menu-brand__plate img {
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.15));
+  transition: filter 200ms ease;
 }
 
 .menu-brand:hover .menu-brand__plate {
-  transform: translateY(-1px);
-  box-shadow: none;
+  transform: scale(1.06);
 }
+
+.menu-brand:hover .menu-brand__plate img {
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.3));
+}
+
+/* ─── Nav Container ─── */
+
+.menu-navbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+}
+
+/* ─── Nav Tabs — Floating text, NO boxes, NO clip-path ─── */
 
 .menu-nav-tab {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 8.5rem;
-  height: 2.9rem;
-  margin-left: -0.75rem;
-  padding: 0 1.75rem;
-  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
-  border: 1px solid rgba(230, 234, 240, 0.05);
-  background:
-    linear-gradient(180deg, rgba(18, 24, 33, 0.88) 0%, rgba(11, 15, 20, 0.92) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  color: var(--color-text-secondary);
-  font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: 0.28em;
+  height: 100%;
+  padding: 0 1.5rem;
+  border: none;
+  background: transparent;
+  clip-path: none;
+  box-shadow: none;
+  /* BIGGER font — game UI weight */
+  color: #9AA4B2;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   transition:
-    color 180ms ease,
-    transform 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
+    color 200ms ease;
 }
 
-.menu-nav-tab:first-child {
-  margin-left: 0;
-}
-
+/* Gold underline — only on active */
 .menu-nav-tab::after {
   content: '';
   position: absolute;
-  right: 18%;
-  bottom: 0.35rem;
-  left: 18%;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
   height: 2px;
-  border-radius: 999px;
-  background: var(--color-accent-gold);
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.32);
+  border-radius: 1px 1px 0 0;
+  background: #D4AF37;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
   opacity: 0;
-  transform: scaleX(0.4);
-  transition: opacity 180ms ease, transform 180ms ease;
+  transform: scaleX(0);
+  transition:
+    opacity 250ms ease,
+    transform 250ms ease;
 }
 
-.menu-nav-tab:hover {
+/* Active tab — gold text + underline + subtle glow halo */
+.menu-nav-tab--active {
   color: var(--color-text-primary);
-  border-color: rgba(212, 175, 55, 0.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 10px 24px rgba(0, 0, 0, 0.22);
-  transform: scale(1.02);
+  text-shadow: 0 0 18px rgba(212, 175, 55, 0.2);
 }
 
-.menu-nav-tab:hover::after,
 .menu-nav-tab--active::after {
   opacity: 1;
   transform: scaleX(1);
 }
 
-.menu-nav-tab--active {
-  color: var(--color-text-primary);
-  border-color: rgba(212, 175, 55, 0.28);
-  background:
-    linear-gradient(180deg, rgba(18, 24, 33, 0.86) 0%, rgba(11, 15, 20, 0.92) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 0 22px rgba(212, 175, 55, 0.08);
+/* Subtle highlight glow BEHIND active text */
+.menu-nav-tab--active::before {
+  content: '';
+  position: absolute;
+  inset: 25% 15%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(212, 175, 55, 0.06) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
 }
+
+/* Hover — brightness increase + gold tint, NO underline */
+.menu-nav-tab:hover {
+  color: var(--color-text-primary);
+}
+
+/* Hover should NOT show underline (per spec) */
+.menu-nav-tab:not(.menu-nav-tab--active):hover::after {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+/* Remove the old combined hover+active rule */
 
 .menu-panel,
 .menu-card,
@@ -547,28 +717,32 @@
 
 @media (max-width: 1480px) {
   .menu-nav-tab {
-    min-width: 7.5rem;
-    padding: 0 1.2rem;
-    letter-spacing: 0.2em;
+    padding: 0 1.1rem;
+    letter-spacing: 0.18em;
   }
 }
 
 @media (max-width: 1320px) {
   .menu-navbar {
-    gap: 0.65rem;
     padding-right: 1rem;
     padding-left: 1rem;
   }
 
   .menu-nav-tab {
-    min-width: 6.7rem;
-    height: 2.7rem;
-    font-size: 0.68rem;
+    padding: 0 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+  }
+
+  .menu-navbar__separator {
+    margin: 0 6px;
   }
 }
 
 @media (max-width: 1180px) {
   .menu-nav-tab {
-    min-width: 6rem;
+    padding: 0 0.65rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
   }
 }
