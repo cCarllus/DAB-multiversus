@@ -2,7 +2,7 @@ import { AppAudioManager } from '@app/audio/AppAudioManager';
 import { createApplicationShell } from '@app/layout/createApplicationShell';
 import { createHomePage } from '@app/pages/home/createHomePage';
 import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
-import type { DesktopBridge, DesktopWindowState } from '@shared/types/desktop';
+import type { DesktopBridge } from '@shared/types/desktop';
 
 function createDesktopBridgeFallback(): DesktopBridge {
   return {
@@ -29,8 +29,6 @@ export function bootstrapApplication(host: HTMLElement): void {
   const shell = createApplicationShell(host);
   const audio = new AppAudioManager();
   const runtime = new BabylonRuntime(shell.canvas);
-  let currentWindowState: DesktopWindowState = { isMaximized: false };
-  let unsubscribeWindowControls: () => void = () => undefined;
 
   audio.bindInteractionSurface(shell.interactiveLayer);
   runtime.start();
@@ -43,22 +41,9 @@ export function bootstrapApplication(host: HTMLElement): void {
         desktop,
       }),
     );
-
-    syncWindowControlsState(shell.interactiveLayer, currentWindowState);
   };
 
   renderHomePage();
-
-  void desktop.windowControls?.getState().then((state) => {
-    currentWindowState = state;
-    syncWindowControlsState(shell.interactiveLayer, state);
-  });
-
-  unsubscribeWindowControls =
-    desktop.windowControls?.onStateChange((state) => {
-      currentWindowState = state;
-      syncWindowControlsState(shell.interactiveLayer, state);
-    }) ?? (() => undefined);
 
   shell.interactiveLayer.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
@@ -80,14 +65,6 @@ export function bootstrapApplication(host: HTMLElement): void {
       return;
     }
 
-    if (action === 'window-toggle-maximize') {
-      void desktop.windowControls?.toggleMaximize().then((state) => {
-        currentWindowState = state;
-        syncWindowControlsState(shell.interactiveLayer, state);
-      });
-      return;
-    }
-
     if (action === 'window-close') {
       void desktop.windowControls?.close();
     }
@@ -105,23 +82,6 @@ export function bootstrapApplication(host: HTMLElement): void {
   });
 
   window.addEventListener('beforeunload', () => {
-    unsubscribeWindowControls();
     runtime.dispose();
   });
-}
-
-function syncWindowControlsState(root: HTMLElement, state: DesktopWindowState): void {
-  const maximizeButton = root.querySelector<HTMLElement>('[data-window-maximize-button]');
-  const expandIcon = root.querySelector<SVGElement>('[data-window-icon="expand"]');
-  const restoreIcon = root.querySelector<SVGElement>('[data-window-icon="restore"]');
-
-  if (!maximizeButton || !expandIcon || !restoreIcon) {
-    return;
-  }
-
-  maximizeButton.setAttribute('aria-label', state.isMaximized ? 'Restore window' : 'Maximize window');
-  maximizeButton.setAttribute('title', state.isMaximized ? 'Restore window' : 'Maximize window');
-  maximizeButton.dataset.windowState = state.isMaximized ? 'maximized' : 'normal';
-  expandIcon.classList.toggle('hidden', state.isMaximized);
-  restoreIcon.classList.toggle('hidden', !state.isMaximized);
 }

@@ -35,6 +35,9 @@ export function createMainWindow(): BrowserWindow {
     frame: false,
     hasShadow: true,
     icon: process.platform === 'darwin' ? undefined : runtimeIconPath,
+    maximizable: false,
+    fullscreenable: false,
+    resizable: false,
     title: 'Dead As Battle',
     webPreferences: {
       contextIsolation: true,
