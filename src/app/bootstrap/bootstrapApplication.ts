@@ -65,6 +65,11 @@ export function bootstrapApplication(host: HTMLElement): void {
       return;
     }
 
+    if (action === 'window-maximize') {
+      void desktop.windowControls?.toggleMaximize();
+      return;
+    }
+
     if (action === 'window-close') {
       void desktop.windowControls?.close();
     }
