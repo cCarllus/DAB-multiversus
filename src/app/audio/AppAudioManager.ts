@@ -12,10 +12,6 @@ interface ToneOptions {
 }
 
 export class AppAudioManager {
-  private ambienceNodes: AudioNode[] = [];
-
-  private ambienceGain: GainNode | null = null;
-
   private audioContext: AudioContext | null = null;
 
   private hoverTarget: HTMLElement | null = null;
@@ -74,51 +70,6 @@ export class AppAudioManager {
     return this.muted;
   }
 
-  public startMenuAmbience(): void {
-    const context = this.ensureContext();
-
-    if (!context || !this.ambienceGain || this.ambienceNodes.length > 0) {
-      return;
-    }
-
-    const ambienceBed = context.createGain();
-    ambienceBed.gain.value = 0.072;
-
-    const filter = context.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 520;
-    filter.Q.value = 0.8;
-
-    const drone = context.createOscillator();
-    drone.type = 'sine';
-    drone.frequency.value = 52;
-
-    const shimmer = context.createOscillator();
-    shimmer.type = 'triangle';
-    shimmer.frequency.value = 104;
-    shimmer.detune.value = 5;
-
-    const lfo = context.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.08;
-
-    const lfoDepth = context.createGain();
-    lfoDepth.gain.value = 0.015;
-
-    lfo.connect(lfoDepth);
-    lfoDepth.connect(ambienceBed.gain);
-    drone.connect(filter);
-    shimmer.connect(filter);
-    filter.connect(ambienceBed);
-    ambienceBed.connect(this.ambienceGain);
-
-    drone.start();
-    shimmer.start();
-    lfo.start();
-
-    this.ambienceNodes = [drone, shimmer, lfo, lfoDepth, filter, ambienceBed];
-  }
-
   public playUiCue(cueId: UiCueId): void {
     if (cueId === 'hover') {
       this.playTone({
@@ -160,20 +111,16 @@ export class AppAudioManager {
     const context = new window.AudioContext();
     const masterGain = context.createGain();
     const uiGain = context.createGain();
-    const ambienceGain = context.createGain();
 
     masterGain.gain.value = this.muted ? 0 : 0.9;
     uiGain.gain.value = 0.85;
-    ambienceGain.gain.value = 0.85;
 
     uiGain.connect(masterGain);
-    ambienceGain.connect(masterGain);
     masterGain.connect(context.destination);
 
     this.audioContext = context;
     this.masterGain = masterGain;
     this.uiGain = uiGain;
-    this.ambienceGain = ambienceGain;
 
     return context;
   }
@@ -236,9 +183,7 @@ export class AppAudioManager {
       context.state === 'suspended' ? context.resume() : Promise.resolve(context.state);
 
     void resumePromise
-      .then(() => {
-        this.startMenuAmbience();
-      })
+      .then(() => undefined)
       .catch((error: unknown) => {
         console.warn('Audio unlock failed.', error);
       });

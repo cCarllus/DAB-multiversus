@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   color-scheme: dark;
   font-family: 'Rajdhani', sans-serif;
@@ -7,20 +9,30 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --text-primary: #f4f4f5;
-  --text-secondary: rgba(244, 244, 245, 0.76);
-  --text-muted: rgba(244, 244, 245, 0.46);
-  --surface-border: rgba(255, 255, 255, 0.08);
-  --cyan: #5ae4ff;
-  --orange: #ff7e42;
-  --yellow: #ffcf70;
-  --bg-base: #05070c;
+
+  --color-primary: #0b0f14;
+  --color-secondary: #121821;
+  --color-accent-gold: #d4af37;
+  --color-soft-gold: #c9a95a;
+  --color-text-primary: #e6eaf0;
+  --color-text-secondary: #9aa4b2;
+  --color-danger: #e84545;
+  --color-success: #4fa06d;
+  --color-surface-strong: rgba(18, 24, 33, 0.92);
+  --color-surface-soft: rgba(18, 24, 33, 0.72);
+  --color-surface-muted: rgba(11, 15, 20, 0.72);
+  --color-border-soft: rgba(230, 234, 240, 0.08);
+  --color-border-gold: rgba(212, 175, 55, 0.34);
+  --shadow-card: 0 18px 48px rgba(0, 0, 0, 0.35);
+  --shadow-gold: 0 0 24px rgba(212, 175, 55, 0.15);
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 html,
@@ -33,13 +45,16 @@ body,
 
 body {
   overflow: hidden;
-  background: var(--bg-base);
-  color: var(--text-primary);
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  cursor: default;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+button,
+a,
+[role='button'],
+summary {
+  cursor: pointer;
 }
 
 button,
@@ -47,18 +62,38 @@ input,
 textarea,
 select {
   font: inherit;
+  color: inherit;
 }
 
 button {
   border: 0;
   background: transparent;
-  cursor: pointer;
-  color: inherit;
 }
 
-img {
+input,
+textarea,
+[contenteditable='true'] {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+img,
+svg {
   display: block;
   max-width: 100%;
+}
+
+.font-display {
+  font-family: 'Cinzel', serif;
+}
+
+.app-region-drag {
+  -webkit-app-region: drag;
+}
+
+.app-region-no-drag {
+  -webkit-app-region: no-drag;
 }
 
 .fatal-screen {
@@ -68,13 +103,13 @@ img {
   gap: 12px;
   padding: 32px;
   background:
-    radial-gradient(circle at top, rgba(90, 228, 255, 0.18), transparent 30%),
-    linear-gradient(160deg, #05070c 0%, #090e17 45%, #04070d 100%);
+    radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 30%),
+    linear-gradient(160deg, #0b0f14 0%, #121821 45%, #0b0f14 100%);
 }
 
 .fatal-screen__eyebrow {
   margin: 0;
-  color: var(--orange);
+  color: var(--color-danger);
   letter-spacing: 0.24em;
   text-transform: uppercase;
 }

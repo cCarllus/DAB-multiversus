@@ -1,174 +1,419 @@
-<section class="launcher-page">
-  <header class="launcher-topbar">
-    <div class="launcher-topbar__left">
-      <div class="launcher-brand">
-        <div class="launcher-brand__icon-wrap">
-          <img class="launcher-brand__icon" src="__DAB_ICON_URL__" alt="Dead As Battle icon" />
-        </div>
-        <div class="launcher-brand__copy">
-          <span class="launcher-brand__eyebrow">__SHELL_LABEL__</span>
-          <strong class="launcher-brand__title">__APP_TITLE__</strong>
-        </div>
-      </div>
-      <button class="launcher-play-button" type="button" data-action="play-now">
-        <span>Play</span>
+<section class="relative h-full overflow-hidden bg-transparent text-[var(--color-text-primary)]">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.06),transparent_28%),linear-gradient(180deg,rgba(11,15,20,0.08)_0%,rgba(11,15,20,0.42)_100%)]"></div>
+
+  <header class="menu-navbar app-region-drag relative z-30 flex h-[76px] items-center gap-3 border-b border-[color:rgba(230,234,240,0.06)] bg-[linear-gradient(180deg,rgba(11,15,20,0.97)_0%,rgba(11,15,20,0.84)_100%)] px-5">
+    <div class="app-region-no-drag flex items-center gap-2">
+      <button class="menu-toolbar-button" type="button" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 6.75h15M7.5 12h9m-12 5.25h15" />
+          <circle cx="9" cy="6.75" r="1.5" />
+          <circle cx="15" cy="12" r="1.5" />
+          <circle cx="12" cy="17.25" r="1.5" />
+        </svg>
+      </button>
+      <button class="menu-toolbar-button" type="button" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
       </button>
     </div>
 
-    <nav class="launcher-topnav" aria-label="Primary">
-      <button class="launcher-topnav__item is-active" type="button">Battlegrounds</button>
-      <button class="launcher-topnav__item" type="button">Champions</button>
-      <button class="launcher-topnav__item" type="button">Store</button>
+    <button class="menu-brand app-region-no-drag" type="button" aria-label="__APP_TITLE__">
+      <span class="menu-brand__plate">
+        <img src="__DAB_ICON_URL__" alt="Dead As Battle crest" class="h-9 w-9 object-contain" />
+      </span>
+    </button>
+
+    <nav class="app-region-no-drag flex min-w-0 items-stretch" aria-label="Primary navigation">
+      <button class="menu-nav-tab" type="button">Heroes</button>
+      <button class="menu-nav-tab menu-nav-tab--active" type="button">Store</button>
+      <button class="menu-nav-tab" type="button">Watch</button>
+      <button class="menu-nav-tab" type="button">Learn</button>
+      <button class="menu-nav-tab" type="button">Arcade</button>
     </nav>
 
-    <div class="launcher-topbar__right">
-      <button class="launcher-utility-button" type="button" data-action="toggle-mute">
-        __AUDIO_LABEL__
+    <div class="ml-auto hidden min-w-[250px] flex-col items-end justify-center xl:flex app-region-no-drag">
+      <span class="text-[10px] uppercase tracking-[0.28em] text-[color:rgba(154,164,178,0.55)]">Season Zero // __APP_SUBTITLE__ Shell</span>
+      <span class="text-xs tracking-[0.08em] text-[var(--color-text-secondary)]">__PLAYER_ALIAS__ online · v__APP_VERSION__</span>
+    </div>
+
+    <div class="app-region-no-drag ml-4 flex items-center gap-2">
+      <button class="menu-action-button menu-action-button--alert" type="button" aria-label="Inbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5A2.25 2.25 0 0 1 19.5 19.5H4.5a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5H4.5A2.25 2.25 0 0 0 2.25 6.75m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75" />
+        </svg>
       </button>
-      <div class="launcher-profile">
-        <div class="launcher-profile__status">
-          <span class="launcher-profile__name">__PLAYER_ALIAS__</span>
-          <span class="launcher-profile__presence">Online</span>
-        </div>
-        <div class="launcher-profile__avatar">
-          <img src="__DAB_ICON_URL__" alt="" />
-        </div>
-      </div>
+      <button class="menu-action-button" type="button" aria-label="Security Center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 2.25 2.25L15 9.75" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5 12 2.25 20.25 4.5v6.75c0 5.25-3.75 10.5-8.25 12-4.5-1.5-8.25-6.75-8.25-12V4.5Z" />
+        </svg>
+      </button>
+      <button
+        class="menu-action-button"
+        type="button"
+        data-action="toggle-mute"
+        id="btn-audio-toggle"
+        aria-label="__AUDIO_LABEL__"
+        title="__AUDIO_LABEL__"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4 __AUDIO_ON_CLASS__">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75 8.25 9.75h-3v4.5h3L12 17.25V6.75Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25a5.25 5.25 0 0 1 0 7.5M19.5 5.25a9 9 0 0 1 0 13.5" />
+        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4 __AUDIO_OFF_CLASS__">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75 8.25 9.75h-3v4.5h3L12 17.25V6.75Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 9.75 5.25 5.25m0-5.25-5.25 5.25" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="app-region-no-drag ml-3 flex items-center gap-1 border-l border-[color:rgba(230,234,240,0.08)] pl-3">
+      <button class="menu-window-button" type="button" data-action="window-minimize" aria-label="Minimize">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4">
+          <path stroke-linecap="round" d="M5 12h14" />
+        </svg>
+      </button>
+      <button class="menu-window-button" type="button" data-action="window-toggle-maximize" data-window-maximize-button aria-label="Maximize">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4" data-window-icon="expand">
+          <rect x="6.75" y="6.75" width="10.5" height="10.5" rx="1.25" />
+        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="hidden h-4 w-4" data-window-icon="restore">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 8.25h8.25v8.25H8.25z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 15.75V6h9.75" />
+        </svg>
+      </button>
+      <button class="menu-window-button menu-window-button--close" type="button" data-action="window-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12M18 6 6 18" />
+        </svg>
+      </button>
     </div>
   </header>
 
-  <div class="launcher-workspace">
-    <aside class="launcher-sidebar">
-      <nav class="launcher-sidebar__nav" aria-label="Sections">
-        <button class="launcher-sidebar__item is-active" type="button">Home</button>
-        <button class="launcher-sidebar__item" type="button">Objectives</button>
-        <button class="launcher-sidebar__item" type="button">Match History</button>
-        <button class="launcher-sidebar__item" type="button">Patch Notes</button>
-      </nav>
+  <div class="relative z-20 grid h-[calc(100%-76px)] grid-cols-[300px_minmax(0,1fr)_320px] grid-rows-[minmax(0,1fr)_170px] gap-4 p-4 xl:grid-cols-[320px_minmax(0,1fr)_340px]">
+    <aside class="menu-panel menu-scroll row-span-2 flex min-h-0 flex-col gap-4 overflow-y-auto rounded-[12px] p-4">
+      <article class="menu-profile-card">
+        <div class="menu-profile-card__banner">
+          <div class="menu-profile-card__crest">
+            <img src="__DAB_ICON_URL__" alt="Profile crest" class="h-12 w-12 object-contain" />
+          </div>
+          <span class="menu-profile-card__tier">Tier 28</span>
+        </div>
+        <div class="menu-profile-card__body">
+          <p class="text-[11px] uppercase tracking-[0.26em] text-[color:rgba(154,164,178,0.6)]">Player Identity</p>
+          <h2 class="font-display mt-2 text-[1.4rem] uppercase tracking-[0.08em] text-[var(--color-text-primary)]">__PLAYER_ALIAS__</h2>
+          <p class="mt-1 text-sm tracking-[0.08em] text-[var(--color-text-secondary)]">Dark Sovereign · Grand Champion</p>
+          <div class="mt-4 h-2 rounded-full bg-[color:rgba(230,234,240,0.08)]">
+            <div class="h-full w-[72%] rounded-full bg-[linear-gradient(90deg,#C9A95A_0%,#D4AF37_100%)]"></div>
+          </div>
+          <div class="mt-2 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-[var(--color-text-secondary)]">
+            <span>Level 42</span>
+            <span>7,240 / 10,000 XP</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 border-t border-[color:rgba(230,234,240,0.06)]">
+          <div class="menu-stat">
+            <span class="menu-stat__value">347</span>
+            <span class="menu-stat__label">Victories</span>
+          </div>
+          <div class="menu-stat">
+            <span class="menu-stat__value">3.2</span>
+            <span class="menu-stat__label">K/D</span>
+          </div>
+          <div class="menu-stat">
+            <span class="menu-stat__value">#89</span>
+            <span class="menu-stat__label">Rank</span>
+          </div>
+        </div>
+      </article>
 
-      <div class="launcher-sidebar__meta">
-        <span class="launcher-meta__label">Runtime</span>
-        <strong class="launcher-meta__value">__RUNTIME_PLATFORM__</strong>
-        <span class="launcher-meta__label">Build</span>
-        <strong class="launcher-meta__value">v__APP_VERSION__</strong>
+      <section class="flex min-h-0 flex-1 flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display text-sm uppercase tracking-[0.2em] text-[var(--color-text-primary)]">Warband</h3>
+          <span class="rounded-full border border-[color:rgba(79,160,109,0.26)] bg-[color:rgba(79,160,109,0.12)] px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-[#89C49E]">4 Online</span>
+        </div>
+
+        <div class="menu-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
+          <article class="menu-friend-row">
+            <div class="menu-friend-avatar">
+              <span class="menu-status-dot menu-status-dot--online"></span>
+              AK
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold tracking-[0.04em] text-[var(--color-text-primary)]">Astra Knightfall</p>
+              <p class="truncate text-xs tracking-[0.08em] text-[var(--color-text-secondary)]">Assembling warband</p>
+            </div>
+          </article>
+          <article class="menu-friend-row">
+            <div class="menu-friend-avatar">
+              <span class="menu-status-dot menu-status-dot--online"></span>
+              VX
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold tracking-[0.04em] text-[var(--color-text-primary)]">Vex Ironclaw</p>
+              <p class="truncate text-xs tracking-[0.08em] text-[var(--color-text-secondary)]">Idle in proving grounds</p>
+            </div>
+          </article>
+          <article class="menu-friend-row">
+            <div class="menu-friend-avatar">
+              <span class="menu-status-dot menu-status-dot--online"></span>
+              KR
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold tracking-[0.04em] text-[var(--color-text-primary)]">Kairo Riftwalker</p>
+              <p class="truncate text-xs tracking-[0.08em] text-[var(--color-text-secondary)]">In battle</p>
+            </div>
+          </article>
+          <article class="menu-friend-row menu-friend-row--offline">
+            <div class="menu-friend-avatar">
+              <span class="menu-status-dot menu-status-dot--offline"></span>
+              LF
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold tracking-[0.04em] text-[var(--color-text-primary)]">Luma Forgeborn</p>
+              <p class="truncate text-xs tracking-[0.08em] text-[var(--color-text-secondary)]">Offline</p>
+            </div>
+          </article>
+          <article class="menu-friend-row">
+            <div class="menu-friend-avatar">
+              <span class="menu-status-dot menu-status-dot--online"></span>
+              DS
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold tracking-[0.04em] text-[var(--color-text-primary)]">Draven Soulbane</p>
+              <p class="truncate text-xs tracking-[0.08em] text-[var(--color-text-secondary)]">Queueing ranked</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <button class="menu-primary-subtle-button" type="button">Invite to party</button>
+
+      <div class="grid gap-2 rounded-[10px] border border-[color:rgba(230,234,240,0.06)] bg-[color:rgba(18,24,33,0.58)] p-3">
+        <span class="text-[10px] uppercase tracking-[0.24em] text-[var(--color-text-secondary)]">Runtime</span>
+        <strong class="font-display text-sm uppercase tracking-[0.08em] text-[var(--color-text-primary)]">__RUNTIME_PLATFORM__</strong>
+        <span class="text-[10px] uppercase tracking-[0.24em] text-[var(--color-text-secondary)]">Build</span>
+        <strong class="font-display text-sm uppercase tracking-[0.08em] text-[var(--color-text-primary)]">v__APP_VERSION__</strong>
       </div>
     </aside>
 
-    <main class="launcher-main">
-      <section class="hero-panel">
-        <div class="hero-panel__copy">
-          <span class="hero-panel__eyebrow">Initial Page</span>
-          <h1 class="hero-panel__title">
-            <span>__APP_TITLE__</span>
-            <small>__APP_SUBTITLE__</small>
-          </h1>
-          <p class="hero-panel__headline">__HOME_HEADLINE__</p>
-          <p class="hero-panel__summary">__HOME_SUMMARY__</p>
+    <main class="flex min-h-0 flex-col gap-4">
+      <section class="grid min-h-0 flex-1 grid-cols-3 grid-rows-[230px_230px_160px] gap-4">
+        <article class="menu-card menu-card--feature group col-span-2 row-span-2 overflow-hidden rounded-[12px]">
+          <div class="menu-art menu-art--hero"></div>
+          <div class="menu-card__overlay"></div>
+          <div class="relative flex h-full flex-col justify-between p-6">
+            <div class="max-w-[440px]">
+              <span class="menu-eyebrow">Featured Champion</span>
+              <h1 class="font-display mt-4 text-[clamp(3rem,5vw,5.4rem)] uppercase leading-[0.9] tracking-[0.03em] text-[var(--color-text-primary)]">__HERO_NAME__</h1>
+              <p class="mt-3 text-sm uppercase tracking-[0.34em] text-[var(--color-soft-gold)]">__HERO_TITLE__</p>
+              <p class="mt-6 max-w-[32rem] text-base leading-7 text-[var(--color-text-secondary)]">__HOME_SUMMARY__</p>
+            </div>
 
-          <div class="hero-panel__actions">
-            <button class="hero-button hero-button--primary" type="button" data-action="play-now">
-              Launch Protocol
+            <div class="flex items-end justify-between gap-6">
+              <div class="flex flex-wrap gap-2">
+                <span class="menu-chip">Conquest 5v5</span>
+                <span class="menu-chip">Ranked Queue</span>
+                <span class="menu-chip">Cross-Realm Ready</span>
+              </div>
+              <div class="hidden min-w-[220px] xl:block">
+                <div class="rounded-[10px] border border-[color:rgba(230,234,240,0.08)] bg-[color:rgba(11,15,20,0.55)] p-4 backdrop-blur-xl">
+                  <p class="text-[10px] uppercase tracking-[0.26em] text-[var(--color-text-secondary)]">Live directive</p>
+                  <p class="mt-2 text-sm leading-6 text-[var(--color-text-primary)]">Forge a party, queue into the Proving Grounds, and claim the first dominion of the Multiverse.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="menu-card menu-card--hover group relative overflow-hidden rounded-[12px]">
+          <div class="menu-art menu-art--store"></div>
+          <div class="menu-card__overlay menu-card__overlay--soft"></div>
+          <div class="relative flex h-full flex-col justify-between p-5">
+            <div>
+              <span class="menu-eyebrow">Store Spotlight</span>
+              <h2 class="font-display mt-3 text-[1.65rem] uppercase leading-tight text-[var(--color-text-primary)]">Obsidian Regent Set</h2>
+              <p class="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">Premium armor, heraldry, and banner FX forged for sovereign-tier players.</p>
+            </div>
+            <button class="menu-card-link" type="button">Open collection</button>
+          </div>
+        </article>
+
+        <article class="menu-card menu-card--hover group relative overflow-hidden rounded-[12px]">
+          <div class="menu-art menu-art--watch"></div>
+          <div class="menu-card__overlay menu-card__overlay--soft"></div>
+          <div class="relative flex h-full flex-col justify-between p-5">
+            <div>
+              <span class="menu-eyebrow">Watch Feed</span>
+              <h2 class="font-display mt-3 text-[1.65rem] uppercase leading-tight text-[var(--color-text-primary)]">Crownfall Finals</h2>
+              <p class="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">Replays, spectate queue, and meta drafts from the highest tier arenas.</p>
+            </div>
+            <button class="menu-card-link" type="button">Watch now</button>
+          </div>
+        </article>
+
+        <article class="menu-card menu-card--hover group relative overflow-hidden rounded-[12px]">
+          <div class="menu-art menu-art--learn"></div>
+          <div class="menu-card__overlay menu-card__overlay--soft"></div>
+          <div class="relative flex h-full flex-col justify-between p-5">
+            <div>
+              <span class="menu-eyebrow">Learn</span>
+              <h2 class="font-display mt-3 text-[1.35rem] uppercase leading-tight text-[var(--color-text-primary)]">Mastery Paths</h2>
+              <p class="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">Role drills, combo routes, and lane discipline authored by top warbands.</p>
+            </div>
+            <button class="menu-card-link" type="button">View guides</button>
+          </div>
+        </article>
+
+        <article class="menu-card menu-card--hover group relative overflow-hidden rounded-[12px]">
+          <div class="menu-art menu-art--arcade"></div>
+          <div class="menu-card__overlay menu-card__overlay--soft"></div>
+          <div class="relative flex h-full flex-col justify-between p-5">
+            <div>
+              <span class="menu-eyebrow">Arcade</span>
+              <h2 class="font-display mt-3 text-[1.35rem] uppercase leading-tight text-[var(--color-text-primary)]">War Games</h2>
+              <p class="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">Experimental modes, weekly mutators, and rotating community rulesets.</p>
+            </div>
+            <button class="menu-card-link" type="button">Open arcade</button>
+          </div>
+        </article>
+
+        <article class="menu-card menu-card--cta relative flex flex-col items-center justify-center overflow-hidden rounded-[12px] px-6 text-center">
+          <div class="menu-card__overlay menu-card__overlay--cta"></div>
+          <div class="relative">
+            <p class="text-[10px] uppercase tracking-[0.28em] text-[var(--color-text-secondary)]">Queue Ready</p>
+            <button class="menu-enter-battle-button mt-5" type="button" data-action="play-now" id="btn-play-now">
+              <span class="menu-enter-battle-button__label">Enter Battle</span>
             </button>
-            <button class="hero-button hero-button--ghost" type="button">
-              View Event Feed
-            </button>
+            <p class="mt-3 text-[10px] uppercase tracking-[0.28em] text-[var(--color-text-secondary)]">Ranked // Conquest</p>
           </div>
-
-          <div class="hero-panel__stats">
-            <div class="hero-stat">
-              <span class="hero-stat__label">Status</span>
-              <strong class="hero-stat__value">Launcher online</strong>
-            </div>
-            <div class="hero-stat">
-              <span class="hero-stat__label">Audio</span>
-              <strong class="hero-stat__value">Reactive shell cues</strong>
-            </div>
-            <div class="hero-stat">
-              <span class="hero-stat__label">Babylon</span>
-              <strong class="hero-stat__value">Atmosphere active</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-panel__visual">
-          <div class="sigil-orbit">
-            <div class="sigil-orbit__ring sigil-orbit__ring--outer"></div>
-            <div class="sigil-orbit__ring sigil-orbit__ring--inner"></div>
-            <img class="sigil-orbit__image" src="__DAB_SIGIL_URL__" alt="Dead As Battle sigil" />
-          </div>
-          <div class="hero-panel__signal">
-            <span class="hero-panel__signal-label">Brand Signal</span>
-            <strong class="hero-panel__signal-title">Code-first desktop front-end</strong>
-            <p class="hero-panel__signal-copy">The shell is focused on identity, launch flow, and menu presence before gameplay systems expand.</p>
-          </div>
-        </div>
+        </article>
       </section>
 
-      <section class="spotlight-grid" aria-label="Highlights">
-        <article class="spotlight-card spotlight-card--event">
-          <span class="spotlight-card__eyebrow">Live Event</span>
-          <h2 class="spotlight-card__title">Rift fracture detected across the first battleground.</h2>
-          <p class="spotlight-card__copy">Use this slot for news, live banners, and featured queue promotions once the backend feed exists.</p>
-          <button class="spotlight-card__action" type="button">Read More</button>
-        </article>
+      <section class="menu-chat-panel rounded-[12px] p-4">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="menu-eyebrow">Party Chat</p>
+            <h3 class="font-display mt-2 text-xl uppercase tracking-[0.08em] text-[var(--color-text-primary)]">Warband Channel</h3>
+          </div>
+          <span class="rounded-full border border-[color:rgba(212,175,55,0.24)] bg-[color:rgba(212,175,55,0.08)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--color-soft-gold)]">Encrypted Voice Ready</span>
+        </div>
 
-        <article class="spotlight-card spotlight-card--mode">
-          <span class="spotlight-card__eyebrow">Mode Frame</span>
-          <h2 class="spotlight-card__title">The home page is ready to hand off to the future play flow.</h2>
-          <p class="spotlight-card__copy">Queue selection, mode cards, and onboarding prompts can branch from here without changing the shell architecture.</p>
-          <button class="spotlight-card__action" type="button">Open Queue Board</button>
-        </article>
+        <div class="mt-4 grid min-h-0 flex-1 grid-cols-[1fr_220px] gap-4">
+          <div class="menu-scroll flex min-h-[84px] flex-col gap-3 overflow-y-auto pr-2">
+            <div class="menu-chat-message">
+              <span class="menu-chat-message__name">Astra Knightfall</span>
+              <p class="menu-chat-message__body">Drafting our opener around Vaelkhor. Queue when you are ready.</p>
+            </div>
+            <div class="menu-chat-message">
+              <span class="menu-chat-message__name">Vex Ironclaw</span>
+              <p class="menu-chat-message__body">Enemy lobbies are favoring split-push. Bring pressure control.</p>
+            </div>
+          </div>
 
-        <article class="spotlight-card spotlight-card--social">
-          <span class="spotlight-card__eyebrow">Community Pulse</span>
-          <h2 class="spotlight-card__title">Social and profile space already exists in the launcher.</h2>
-          <p class="spotlight-card__copy">Friends, invites, profile progression, and notifications can dock on the right without touching Babylon runtime code.</p>
-          <button class="spotlight-card__action" type="button">Inspect Feed</button>
-        </article>
+          <div class="rounded-[10px] border border-[color:rgba(230,234,240,0.06)] bg-[color:rgba(18,24,33,0.44)] p-3">
+            <p class="text-[10px] uppercase tracking-[0.22em] text-[var(--color-text-secondary)]">Squad Readiness</p>
+            <div class="mt-3 flex items-center justify-between text-sm text-[var(--color-text-primary)]">
+              <span>Voice</span>
+              <span class="text-[#89C49E]">Connected</span>
+            </div>
+            <div class="mt-2 flex items-center justify-between text-sm text-[var(--color-text-primary)]">
+              <span>Party Size</span>
+              <span>4 / 5</span>
+            </div>
+            <div class="mt-2 flex items-center justify-between text-sm text-[var(--color-text-primary)]">
+              <span>Region</span>
+              <span>Americas</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex items-center gap-3 rounded-[10px] border border-[color:rgba(230,234,240,0.08)] bg-[color:rgba(11,15,20,0.55)] px-4 py-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-5 w-5 flex-shrink-0 text-[var(--color-text-secondary)]">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12h9m-9 4.5h6m-8.25 4.5 1.5-4.5A8.25 8.25 0 1 1 20.25 12 8.25 8.25 0 0 1 12 20.25H5.25Z" />
+          </svg>
+          <input class="flex-1 bg-transparent text-sm tracking-[0.05em] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-secondary)]" type="text" placeholder="Send a tactical message to your warband..." />
+          <button class="menu-primary-subtle-button !min-w-[112px]" type="button">Send</button>
+        </div>
       </section>
     </main>
 
-    <aside class="social-panel">
-      <div class="social-panel__header">
-        <span class="social-panel__title">Social</span>
-        <span class="social-panel__badge">4 Online</span>
-      </div>
+    <aside class="menu-panel menu-scroll row-span-2 flex min-h-0 flex-col gap-4 overflow-y-auto rounded-[12px] p-4">
+      <article class="menu-card menu-card--hover relative overflow-hidden rounded-[12px]">
+        <div class="menu-art menu-art--watch opacity-70"></div>
+        <div class="menu-card__overlay"></div>
+        <div class="relative p-5">
+          <span class="menu-eyebrow">Last Match</span>
+          <h3 class="font-display mt-3 text-[1.45rem] uppercase leading-tight text-[var(--color-text-primary)]">Victory // Conquest</h3>
+          <div class="mt-5 grid grid-cols-3 gap-2">
+            <div class="menu-metric">
+              <span class="menu-metric__value">14 / 3 / 11</span>
+              <span class="menu-metric__label">K / D / A</span>
+            </div>
+            <div class="menu-metric">
+              <span class="menu-metric__value">31:42</span>
+              <span class="menu-metric__label">Duration</span>
+            </div>
+            <div class="menu-metric">
+              <span class="menu-metric__value">MVP</span>
+              <span class="menu-metric__label">Ranked</span>
+            </div>
+          </div>
+        </div>
+      </article>
 
-      <div class="social-panel__list">
-        <article class="social-contact social-contact--online">
-          <div class="social-contact__avatar">A1</div>
-          <div class="social-contact__meta">
-            <strong>Astra Null</strong>
-            <span>Assembling squad</span>
+      <article class="rounded-[12px] border border-[color:rgba(230,234,240,0.06)] bg-[color:rgba(18,24,33,0.74)] p-4 shadow-[var(--shadow-card)]">
+        <div class="flex items-center justify-between">
+          <span class="menu-eyebrow">Social Feed</span>
+          <button class="menu-toolbar-button !h-8 !w-8" type="button" aria-label="Refresh social feed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" class="h-4 w-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992V4.356m-1.636 14.507A9 9 0 1 1 21 9.75" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-4 space-y-3">
+          <div class="menu-feed-item">
+            <p class="menu-feed-item__title">Astra Knightfall queued for Dominion.</p>
+            <p class="menu-feed-item__meta">2 minutes ago</p>
           </div>
-        </article>
-        <article class="social-contact social-contact--online">
-          <div class="social-contact__avatar">VX</div>
-          <div class="social-contact__meta">
-            <strong>Vex Prime</strong>
-            <span>Idle in launcher</span>
+          <div class="menu-feed-item">
+            <p class="menu-feed-item__title">Weekly contract unlocked: Ashen Vanguard.</p>
+            <p class="menu-feed-item__meta">8 minutes ago</p>
           </div>
-        </article>
-        <article class="social-contact social-contact--match">
-          <div class="social-contact__avatar">KR</div>
-          <div class="social-contact__meta">
-            <strong>Kairo Rift</strong>
-            <span>In match</span>
+          <div class="menu-feed-item">
+            <p class="menu-feed-item__title">New featured replay: Crownfall Finals Game 3.</p>
+            <p class="menu-feed-item__meta">14 minutes ago</p>
           </div>
-        </article>
-        <article class="social-contact social-contact--away">
-          <div class="social-contact__avatar">LM</div>
-          <div class="social-contact__meta">
-            <strong>Luma Forge</strong>
-            <span>Away</span>
-          </div>
-        </article>
-      </div>
+        </div>
+      </article>
 
-      <div class="social-panel__footer">
-        <span class="social-panel__footer-label">Front-End Theme</span>
-        <strong class="social-panel__footer-value">Steel, cyan, amber, signal glow</strong>
-      </div>
+      <article class="menu-card menu-card--hover relative flex-1 overflow-hidden rounded-[12px]">
+        <div class="menu-art menu-art--arcade opacity-80"></div>
+        <div class="menu-card__overlay"></div>
+        <div class="relative flex h-full flex-col justify-between p-5">
+          <div>
+            <span class="menu-eyebrow">Featured Mode</span>
+            <h3 class="font-display mt-3 text-[1.7rem] uppercase leading-tight text-[var(--color-text-primary)]">The Shattered Crown</h3>
+            <p class="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">Mythic objectives, shared relic drafts, and late-game siege mechanics built for coordinated squads.</p>
+          </div>
+          <div class="space-y-3">
+            <div class="menu-mode-row">
+              <span>Queue Health</span>
+              <strong>Excellent</strong>
+            </div>
+            <div class="menu-mode-row">
+              <span>Average Match</span>
+              <strong>27 min</strong>
+            </div>
+            <div class="menu-mode-row">
+              <span>Players Online</span>
+              <strong>12,847</strong>
+            </div>
+            <button class="menu-primary-subtle-button w-full" type="button">Enter the Rift</button>
+          </div>
+        </div>
+      </article>
     </aside>
   </div>
 </section>

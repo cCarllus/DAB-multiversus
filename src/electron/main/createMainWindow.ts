@@ -2,6 +2,8 @@ import { join } from 'node:path';
 
 import { app, BrowserWindow, shell } from 'electron';
 
+import { bindWindowControlEvents } from './windowControls';
+
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 function resolveRuntimeIconPath(): string {
@@ -22,17 +24,18 @@ export function createMainWindow(): BrowserWindow {
   }
 
   const mainWindow = new BrowserWindow({
-    width: 1720,
-    height: 1040,
-    minWidth: 1360,
-    minHeight: 820,
+    width: 1680,
+    height: 1020,
+    minWidth: 1440,
+    minHeight: 900,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: '#04070d',
+    backgroundColor: '#0B0F14',
     center: true,
+    frame: false,
+    hasShadow: true,
     icon: process.platform === 'darwin' ? undefined : runtimeIconPath,
     title: 'Dead As Battle',
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
     webPreferences: {
       contextIsolation: true,
       devTools: Boolean(VITE_DEV_SERVER_URL),
@@ -45,6 +48,8 @@ export function createMainWindow(): BrowserWindow {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
+
+  bindWindowControlEvents(mainWindow);
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     void shell.openExternal(url);

@@ -28,25 +28,25 @@
 
 .scene-layer__wash {
   background:
-    radial-gradient(circle at 18% 20%, rgba(90, 228, 255, 0.12), transparent 25%),
-    radial-gradient(circle at 80% 18%, rgba(255, 126, 66, 0.14), transparent 24%),
-    linear-gradient(90deg, rgba(4, 7, 12, 0.92) 0%, rgba(4, 7, 12, 0.4) 44%, rgba(4, 7, 12, 0.86) 100%);
+    radial-gradient(circle at 18% 18%, rgba(212, 175, 55, 0.08), transparent 28%),
+    radial-gradient(circle at 82% 24%, rgba(201, 169, 90, 0.05), transparent 24%),
+    linear-gradient(180deg, rgba(11, 15, 20, 0.18) 0%, rgba(11, 15, 20, 0.58) 100%);
 }
 
 .scene-layer__vignette {
   background:
-    radial-gradient(circle at center, transparent 28%, rgba(4, 7, 12, 0.16) 58%, rgba(4, 7, 12, 0.86) 100%);
+    radial-gradient(circle at center, transparent 32%, rgba(11, 15, 20, 0.22) 58%, rgba(11, 15, 20, 0.84) 100%);
 }
 
 .scene-layer__scanlines {
-  opacity: 0.12;
+  opacity: 0.04;
   mix-blend-mode: screen;
-  background-image: linear-gradient(
+  background-image: repeating-linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.03) 0,
-    rgba(255, 255, 255, 0.03) 1px,
+    rgba(230, 234, 240, 0.04) 0,
+    rgba(230, 234, 240, 0.04) 1px,
     transparent 1px,
-    transparent 4px
+    transparent 3px
   );
 }
 

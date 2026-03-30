@@ -32,8 +32,8 @@ export function createMenuWorld(scene: Scene): MenuWorld {
   const skyMaterial = new StandardMaterial('menu-sky-material', scene);
   skyMaterial.backFaceCulling = false;
   skyMaterial.disableLighting = true;
-  skyMaterial.emissiveColor = new Color3(0.06, 0.09, 0.14);
-  skyMaterial.alpha = 0.92;
+  skyMaterial.emissiveColor = new Color3(0.05, 0.07, 0.09);
+  skyMaterial.alpha = 0.96;
   sky.material = skyMaterial;
 
   const floor = MeshBuilder.CreateGround(
@@ -49,9 +49,9 @@ export function createMenuWorld(scene: Scene): MenuWorld {
   floor.position.y = -2.45;
 
   const gridMaterial = new GridMaterial('menu-grid-material', scene);
-  gridMaterial.mainColor = new Color3(0.03, 0.04, 0.08);
-  gridMaterial.lineColor = new Color3(0.38, 0.9, 1);
-  gridMaterial.opacity = 0.36;
+  gridMaterial.mainColor = new Color3(0.043, 0.059, 0.078);
+  gridMaterial.lineColor = new Color3(0.58, 0.48, 0.2);
+  gridMaterial.opacity = 0.18;
   gridMaterial.gridRatio = 1.8;
   gridMaterial.majorUnitFrequency = 8;
   floor.material = gridMaterial;
@@ -69,8 +69,8 @@ export function createMenuWorld(scene: Scene): MenuWorld {
   platform.position.y = -1.58;
 
   const platformMaterial = new StandardMaterial('menu-platform-material', scene);
-  platformMaterial.diffuseColor = new Color3(0.06, 0.08, 0.12);
-  platformMaterial.emissiveColor = new Color3(0.05, 0.11, 0.18);
+  platformMaterial.diffuseColor = new Color3(0.07, 0.08, 0.1);
+  platformMaterial.emissiveColor = new Color3(0.14, 0.11, 0.06);
   platform.material = platformMaterial;
 
   const outerRing = MeshBuilder.CreateTorus(
@@ -100,8 +100,8 @@ export function createMenuWorld(scene: Scene): MenuWorld {
   innerRing.rotation.x = Math.PI / 2;
 
   const ringMaterial = new StandardMaterial('menu-ring-material', scene);
-  ringMaterial.diffuseColor = new Color3(0.08, 0.12, 0.18);
-  ringMaterial.emissiveColor = new Color3(0.15, 0.82, 1);
+  ringMaterial.diffuseColor = new Color3(0.09, 0.08, 0.06);
+  ringMaterial.emissiveColor = new Color3(0.66, 0.56, 0.24);
   outerRing.material = ringMaterial;
   innerRing.material = ringMaterial;
 
@@ -117,24 +117,24 @@ export function createMenuWorld(scene: Scene): MenuWorld {
   core.position = new Vector3(0, 1.3, 0);
 
   const coreMaterial = new StandardMaterial('menu-core-material', scene);
-  coreMaterial.diffuseColor = new Color3(0.12, 0.05, 0.03);
-  coreMaterial.emissiveColor = new Color3(1, 0.45, 0.18);
+  coreMaterial.diffuseColor = new Color3(0.18, 0.08, 0.04);
+  coreMaterial.emissiveColor = new Color3(0.86, 0.62, 0.2);
   core.material = coreMaterial;
 
   const accentLight = new PointLight('menu-accent-light', new Vector3(0, 1.35, 0), scene);
-  accentLight.diffuse = new Color3(1, 0.55, 0.24);
-  accentLight.intensity = 16;
+  accentLight.diffuse = new Color3(0.86, 0.68, 0.26);
+  accentLight.intensity = 10.5;
   accentLight.range = 18;
 
-  const cyanLight = new PointLight('menu-cyan-light', new Vector3(-8, 7, -5), scene);
-  cyanLight.diffuse = new Color3(0.36, 0.86, 1);
-  cyanLight.intensity = 9;
-  cyanLight.range = 32;
+  const rimLight = new PointLight('menu-rim-light', new Vector3(-8, 6, -6), scene);
+  rimLight.diffuse = new Color3(0.26, 0.3, 0.38);
+  rimLight.intensity = 4.2;
+  rimLight.range = 26;
 
   const shardMaterial = new StandardMaterial('menu-shard-material', scene);
-  shardMaterial.diffuseColor = new Color3(0.05, 0.08, 0.14);
-  shardMaterial.emissiveColor = new Color3(0.7, 0.82, 1);
-  shardMaterial.alpha = 0.86;
+  shardMaterial.diffuseColor = new Color3(0.09, 0.1, 0.12);
+  shardMaterial.emissiveColor = new Color3(0.34, 0.35, 0.38);
+  shardMaterial.alpha = 0.72;
 
   const shards: FloatingShard[] = Array.from({ length: 14 }, (_, index) => {
     const pivot = new TransformNode(`menu-shard-pivot-${index}`, scene);
@@ -185,12 +185,12 @@ export function createMenuWorld(scene: Scene): MenuWorld {
   skyline.position = new Vector3(0, -0.2, 13.5);
 
   const skylineMaterial = new StandardMaterial('menu-skyline-material', scene);
-  skylineMaterial.diffuseColor = new Color3(0.03, 0.05, 0.08);
-  skylineMaterial.emissiveColor = new Color3(0.07, 0.11, 0.18);
-  skylineMaterial.alpha = 0.34;
+  skylineMaterial.diffuseColor = new Color3(0.03, 0.04, 0.06);
+  skylineMaterial.emissiveColor = new Color3(0.16, 0.14, 0.1);
+  skylineMaterial.alpha = 0.22;
   skyline.material = skylineMaterial;
 
-  scene.clearColor = new Color4(0.01, 0.02, 0.04, 1);
+  scene.clearColor = new Color4(0.043, 0.059, 0.078, 1);
 
   return {
     core,

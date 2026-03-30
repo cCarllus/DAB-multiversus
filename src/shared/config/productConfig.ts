@@ -1,10 +1,14 @@
 export const PRODUCT_CONFIG = {
   title: 'Dead As Battle',
-  subtitle: 'Multiversus',
-  shellLabel: 'Desktop launch protocol',
-  tagline: 'A code-first front-end forged for multiversal conflict.',
-  homeHeadline: 'Enter the launcher before the first fracture opens.',
+  subtitle: 'Multiverse',
+  shellLabel: 'The Proving Grounds',
+  tagline: 'From the ashes of fallen realms, champions rise.',
+  homeHeadline: 'The veil between worlds grows thin. Choose your champion.',
   homeSummary:
-    'This first version is focused on product identity, immersive menu flow, audio behavior, and the desktop shell that will hand off to the full game runtime later.',
-  playerAlias: 'DAB Commander',
+    'Legends from shattered dimensions converge in an arena of ancient power. Forge alliances, master forbidden arts, and claim dominion across the Multiverse.',
+  playerAlias: 'Dark Sovereign',
+  heroName: 'Vaelkhor the Undying',
+  heroTitle: 'Lord of the Ashen Throne',
+  seasonName: 'Season of the Shattered Crown',
+  seasonNumber: 1,
 } as const;
