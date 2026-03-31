@@ -1,7 +1,9 @@
 import { STORAGE_KEYS } from '@shared/constants/storageKeys';
 import type { TransitionCueId, UiCueId } from '@shared/types/audio';
+import menuBackgroundSoundUrl from '@assets/audio/menu/default_background_sound.ogg';
 
 const INTERACTIVE_SELECTOR = 'button, [data-action], a[href]';
+const MENU_AMBIENCE_VOLUME = 0.5;
 
 interface ToneOptions {
   duration: number;
@@ -13,6 +15,8 @@ interface ToneOptions {
 
 export class AppAudioManager {
   private audioContext: AudioContext | null = null;
+
+  private backgroundMusic: HTMLAudioElement | null = null;
 
   private hoverTarget: HTMLElement | null = null;
 
@@ -34,6 +38,26 @@ export class AppAudioManager {
 
   public isMuted(): boolean {
     return this.muted;
+  }
+
+  public startBackgroundMusic(): void {
+    const backgroundMusic = this.ensureBackgroundMusic();
+
+    if (!backgroundMusic || this.muted) {
+      return;
+    }
+
+    void this.playBackgroundMusic(backgroundMusic);
+  }
+
+  public dispose(): void {
+    if (!this.backgroundMusic) {
+      return;
+    }
+
+    this.backgroundMusic.pause();
+    this.backgroundMusic.currentTime = 0;
+    this.backgroundMusic = null;
   }
 
   public playTransitionCue(cueId: TransitionCueId): void {
@@ -65,6 +89,14 @@ export class AppAudioManager {
         this.audioContext.currentTime,
         0.03,
       );
+    }
+
+    if (this.backgroundMusic) {
+      this.backgroundMusic.muted = this.muted;
+
+      if (!this.muted) {
+        void this.playBackgroundMusic(this.backgroundMusic);
+      }
     }
 
     return this.muted;
@@ -125,6 +157,26 @@ export class AppAudioManager {
     return context;
   }
 
+  private ensureBackgroundMusic(): HTMLAudioElement | null {
+    if (this.backgroundMusic) {
+      return this.backgroundMusic;
+    }
+
+    if (typeof window === 'undefined' || !window.Audio) {
+      return null;
+    }
+
+    const backgroundMusic = new window.Audio(menuBackgroundSoundUrl);
+    backgroundMusic.loop = true;
+    backgroundMusic.preload = 'auto';
+    backgroundMusic.volume = MENU_AMBIENCE_VOLUME;
+    backgroundMusic.muted = this.muted;
+
+    this.backgroundMusic = backgroundMusic;
+
+    return backgroundMusic;
+  }
+
   private readonly handleClick = (event: Event): void => {
     const target = event.target as HTMLElement | null;
     const interactive = target?.closest<HTMLElement>(INTERACTIVE_SELECTOR);
@@ -175,18 +227,24 @@ export class AppAudioManager {
 
     const context = this.ensureContext();
 
-    if (!context) {
+    if (context) {
+      const resumePromise =
+        context.state === 'suspended' ? context.resume() : Promise.resolve(context.state);
+
+      void resumePromise
+        .then(() => undefined)
+        .catch((error: unknown) => {
+          console.warn('Audio unlock failed.', error);
+        });
+    }
+
+    const backgroundMusic = this.ensureBackgroundMusic();
+
+    if (!backgroundMusic || this.muted) {
       return;
     }
 
-    const resumePromise =
-      context.state === 'suspended' ? context.resume() : Promise.resolve(context.state);
-
-    void resumePromise
-      .then(() => undefined)
-      .catch((error: unknown) => {
-        console.warn('Audio unlock failed.', error);
-      });
+    void this.playBackgroundMusic(backgroundMusic);
   };
 
   private isDisabled(element: HTMLElement): boolean {
@@ -232,6 +290,14 @@ export class AppAudioManager {
 
     oscillator.start(now);
     oscillator.stop(now + options.duration + 0.02);
+  }
+
+  private async playBackgroundMusic(backgroundMusic: HTMLAudioElement): Promise<void> {
+    try {
+      await backgroundMusic.play();
+    } catch (error: unknown) {
+      console.warn('Menu background music could not start automatically.', error);
+    }
   }
 
   private readMutePreference(): boolean {

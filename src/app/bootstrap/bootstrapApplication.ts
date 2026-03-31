@@ -44,6 +44,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   };
 
   renderHomePage();
+  audio.startBackgroundMusic();
 
   shell.interactiveLayer.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
@@ -87,6 +88,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   });
 
   window.addEventListener('beforeunload', () => {
+    audio.dispose();
     runtime.dispose();
   });
 }

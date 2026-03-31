@@ -42,6 +42,7 @@ export function createMainWindow(): BrowserWindow {
     resizable: false,
     title: 'Dead As Battle',
     webPreferences: {
+      autoplayPolicy: 'no-user-gesture-required',
       contextIsolation: true,
       devTools: Boolean(VITE_DEV_SERVER_URL),
       nodeIntegration: false,
