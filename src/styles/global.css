@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  color-scheme: dark;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: #000;
+  color: #e5e7eb;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #000;
+  color: #e5e7eb;
+  font:
+    500 14px/1.4 'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  user-select: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+img,
+svg {
+  display: block;
+}
+
+.fatal-screen {
+  display: grid;
+  place-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 32px;
+  background:
+    radial-gradient(circle at top, rgba(248, 113, 113, 0.18), transparent 30%),
+    linear-gradient(180deg, #08090d 0%, #000 100%);
+  color: #f8fafc;
+  text-align: center;
+}
+
+.fatal-screen__eyebrow {
+  margin: 0 0 12px;
+  color: #f97316;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.fatal-screen h1 {
+  margin: 0 0 10px;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1;
+}
+
+.fatal-screen p {
+  max-width: 560px;
+  margin: 0 auto;
+  color: #cbd5e1;
+}

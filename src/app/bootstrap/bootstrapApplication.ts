@@ -37,6 +37,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     shell.setPage(
       createHomePage({
         appVersion: __APP_VERSION__,
+        audioMuted: audio.isMuted(),
         desktop,
       }),
     );

@@ -1,9 +1,3 @@
-import '@fontsource/cinzel/400.css';
-import '@fontsource/cinzel/700.css';
-import '@fontsource/rajdhani/400.css';
-import '@fontsource/rajdhani/600.css';
-import '@fontsource/rajdhani/700.css';
-
 import { bootstrapApplication } from '@app/bootstrap/bootstrapApplication';
 
 import './styles/global.css';
