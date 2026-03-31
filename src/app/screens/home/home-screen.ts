@@ -10,7 +10,7 @@ import '../../pages/home/home.css';
 
 interface HomeScreenOptions {
   appVersion: string;
-  audioMuted: boolean;
+  musicMuted: boolean;
   desktop: DesktopBridge;
   exitModal?: {
     errorMessage?: string | null;
@@ -22,11 +22,11 @@ interface HomeScreenOptions {
 
 export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
   const rootElement = createElementFromTemplate(homeTemplate, {
-    AUDIO_BUTTON_STATE_CLASS: options.audioMuted
+    MUSIC_BUTTON_STATE_CLASS: options.musicMuted
       ? 'home-voice-button--muted'
       : 'home-voice-button--live',
-    AUDIO_ICON_ID: options.audioMuted ? 'icon-mic-off' : 'icon-mic',
-    AUDIO_STATE_LABEL: options.audioMuted ? 'Enable interface audio' : 'Mute interface audio',
+    MUSIC_ICON_ID: options.musicMuted ? 'icon-mic-off' : 'icon-mic',
+    MUSIC_STATE_LABEL: options.musicMuted ? 'Ativar a musica do launcher' : 'Mutar a musica do launcher',
     APP_SUBTITLE: PRODUCT_CONFIG.subtitle,
     APP_TITLE: PRODUCT_CONFIG.title,
     APP_VERSION: options.appVersion,

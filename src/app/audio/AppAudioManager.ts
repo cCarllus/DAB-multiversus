@@ -1,9 +1,17 @@
 import { STORAGE_KEYS } from '@shared/constants/storageKeys';
-import type { TransitionCueId, UiCueId } from '@shared/types/audio';
+import type { AudioChannel, TransitionCueId, UiCueId } from '@shared/types/audio';
 import menuBackgroundSoundUrl from '@assets/audio/menu/default_background_sound.ogg';
+import confirmButtonsSoundUrl from '@assets/audio/ui/confirm-buttons-sound.ogg';
+import mouseClickSoundUrl from '@assets/audio/ui/mouse-click-sound.ogg';
+import mouseHoverSoundUrl from '@assets/audio/ui/mouse-hover-sound.ogg';
 
 const INTERACTIVE_SELECTOR = 'button, [data-action], a[href]';
-const MENU_AMBIENCE_VOLUME = 0.5;
+const DEFAULT_MUSIC_VOLUME = 0.5;
+const DEFAULT_SOUND_VOLUME = 0.9;
+const UI_BUS_VOLUME = 0.85;
+const UI_CLICK_VOLUME = 0.78;
+const UI_CONFIRM_VOLUME = 0.72;
+const UI_HOVER_VOLUME = 0.62;
 
 interface ToneOptions {
   duration: number;
@@ -18,15 +26,36 @@ export class AppAudioManager {
 
   private backgroundMusic: HTMLAudioElement | null = null;
 
+  private clickSound: HTMLAudioElement | null = null;
+
+  private confirmSound: HTMLAudioElement | null = null;
+
   private hoverTarget: HTMLElement | null = null;
+
+  private hoverSound: HTMLAudioElement | null = null;
 
   private isUnlocked = false;
 
   private masterGain: GainNode | null = null;
 
-  private muted = this.readMutePreference();
+  private musicMuted = false;
+
+  private musicVolume = DEFAULT_MUSIC_VOLUME;
+
+  private soundMuted = false;
+
+  private soundVolume = DEFAULT_SOUND_VOLUME;
 
   private uiGain: GainNode | null = null;
+
+  public constructor() {
+    const mutePreferences = this.readMutePreferences();
+
+    this.musicMuted = mutePreferences.musicMuted;
+    this.soundMuted = this.resolveInitialSoundMuted(mutePreferences.soundMuted);
+    this.musicVolume = this.readVolumePreference('music', DEFAULT_MUSIC_VOLUME);
+    this.soundVolume = this.readVolumePreference('sound', DEFAULT_SOUND_VOLUME);
+  }
 
   public bindInteractionSurface(surface: HTMLElement): void {
     surface.addEventListener('pointerdown', this.handleUnlock, { capture: true, once: true });
@@ -37,13 +66,29 @@ export class AppAudioManager {
   }
 
   public isMuted(): boolean {
-    return this.muted;
+    return this.musicMuted;
+  }
+
+  public isMusicMuted(): boolean {
+    return this.musicMuted;
+  }
+
+  public isSoundMuted(): boolean {
+    return this.soundMuted;
+  }
+
+  public getMusicVolume(): number {
+    return this.musicVolume;
+  }
+
+  public getSoundVolume(): number {
+    return this.soundVolume;
   }
 
   public startBackgroundMusic(): void {
     const backgroundMusic = this.ensureBackgroundMusic();
 
-    if (!backgroundMusic || this.muted) {
+    if (!backgroundMusic || this.musicMuted) {
       return;
     }
 
@@ -51,13 +96,29 @@ export class AppAudioManager {
   }
 
   public dispose(): void {
-    if (!this.backgroundMusic) {
-      return;
+    if (this.backgroundMusic) {
+      this.backgroundMusic.pause();
+      this.backgroundMusic.currentTime = 0;
+      this.backgroundMusic = null;
     }
 
-    this.backgroundMusic.pause();
-    this.backgroundMusic.currentTime = 0;
-    this.backgroundMusic = null;
+    if (this.confirmSound) {
+      this.confirmSound.pause();
+      this.confirmSound.currentTime = 0;
+      this.confirmSound = null;
+    }
+
+    if (this.clickSound) {
+      this.clickSound.pause();
+      this.clickSound.currentTime = 0;
+      this.clickSound = null;
+    }
+
+    if (this.hoverSound) {
+      this.hoverSound.pause();
+      this.hoverSound.currentTime = 0;
+      this.hoverSound = null;
+    }
   }
 
   public playTransitionCue(cueId: TransitionCueId): void {
@@ -80,54 +141,54 @@ export class AppAudioManager {
   }
 
   public toggleMute(): boolean {
-    this.muted = !this.muted;
-    this.persistMutePreference();
+    return this.toggleMusicMute();
+  }
 
-    if (this.audioContext && this.masterGain) {
-      this.masterGain.gain.setTargetAtTime(
-        this.muted ? 0 : 0.9,
-        this.audioContext.currentTime,
-        0.03,
-      );
+  public toggleMusicMute(): boolean {
+    this.musicMuted = !this.musicMuted;
+    this.persistMutePreference('music');
+    this.applyMusicState();
+
+    if (!this.musicMuted && this.backgroundMusic) {
+      void this.playBackgroundMusic(this.backgroundMusic);
     }
 
-    if (this.backgroundMusic) {
-      this.backgroundMusic.muted = this.muted;
+    return this.musicMuted;
+  }
 
-      if (!this.muted) {
-        void this.playBackgroundMusic(this.backgroundMusic);
-      }
-    }
+  public toggleSoundMute(): boolean {
+    this.soundMuted = !this.soundMuted;
+    this.persistMutePreference('sound');
+    this.applySoundState();
 
-    return this.muted;
+    return this.soundMuted;
+  }
+
+  public setMusicVolume(volume: number): number {
+    this.musicVolume = this.clampVolume(volume);
+    this.persistVolumePreference('music');
+    this.applyMusicState();
+    return this.musicVolume;
+  }
+
+  public setSoundVolume(volume: number): number {
+    this.soundVolume = this.clampVolume(volume);
+    this.persistVolumePreference('sound');
+    this.applySoundState();
+    return this.soundVolume;
   }
 
   public playUiCue(cueId: UiCueId): void {
     if (cueId === 'hover') {
-      this.playTone({
-        duration: 0.09,
-        endFrequency: 720,
-        frequency: 480,
-        gain: 0.016,
-        type: 'triangle',
-      });
+      this.playBufferedCue('hover');
     }
 
     if (cueId === 'click') {
-      this.playTone({
-        duration: 0.14,
-        endFrequency: 140,
-        frequency: 220,
-        gain: 0.03,
-        type: 'sawtooth',
-      });
-      this.playTone({
-        duration: 0.08,
-        endFrequency: 920,
-        frequency: 680,
-        gain: 0.012,
-        type: 'square',
-      });
+      this.playBufferedCue('click');
+    }
+
+    if (cueId === 'confirm') {
+      this.playBufferedCue('confirm');
     }
   }
 
@@ -144,8 +205,8 @@ export class AppAudioManager {
     const masterGain = context.createGain();
     const uiGain = context.createGain();
 
-    masterGain.gain.value = this.muted ? 0 : 0.9;
-    uiGain.gain.value = 0.85;
+    masterGain.gain.value = this.soundMuted ? 0 : this.soundVolume;
+    uiGain.gain.value = UI_BUS_VOLUME;
 
     uiGain.connect(masterGain);
     masterGain.connect(context.destination);
@@ -169,12 +230,69 @@ export class AppAudioManager {
     const backgroundMusic = new window.Audio(menuBackgroundSoundUrl);
     backgroundMusic.loop = true;
     backgroundMusic.preload = 'auto';
-    backgroundMusic.volume = MENU_AMBIENCE_VOLUME;
-    backgroundMusic.muted = this.muted;
+    backgroundMusic.volume = this.musicVolume;
+    backgroundMusic.muted = this.musicMuted;
 
     this.backgroundMusic = backgroundMusic;
 
     return backgroundMusic;
+  }
+
+  private ensureConfirmSound(): HTMLAudioElement | null {
+    if (this.confirmSound) {
+      return this.confirmSound;
+    }
+
+    if (typeof window === 'undefined' || !window.Audio) {
+      return null;
+    }
+
+    const confirmSound = new window.Audio(confirmButtonsSoundUrl);
+    confirmSound.preload = 'auto';
+    confirmSound.volume = UI_CONFIRM_VOLUME * this.soundVolume;
+    confirmSound.muted = this.soundMuted;
+
+    this.confirmSound = confirmSound;
+
+    return confirmSound;
+  }
+
+  private ensureClickSound(): HTMLAudioElement | null {
+    if (this.clickSound) {
+      return this.clickSound;
+    }
+
+    if (typeof window === 'undefined' || !window.Audio) {
+      return null;
+    }
+
+    const clickSound = new window.Audio(mouseClickSoundUrl);
+    clickSound.preload = 'auto';
+    clickSound.volume = UI_CLICK_VOLUME * this.soundVolume;
+    clickSound.muted = this.soundMuted;
+
+    this.clickSound = clickSound;
+
+    return clickSound;
+  }
+
+  private ensureHoverSound(): HTMLAudioElement | null {
+    if (this.hoverSound) {
+      return this.hoverSound;
+    }
+
+    if (typeof window === 'undefined' || !window.Audio) {
+      return null;
+    }
+
+    const hoverSound = new window.Audio(mouseHoverSoundUrl);
+    hoverSound.preload = 'auto';
+    hoverSound.volume = UI_HOVER_VOLUME * this.soundVolume;
+    hoverSound.muted = this.soundMuted;
+
+    this.hoverSound = hoverSound;
+
+    return hoverSound;
   }
 
   private readonly handleClick = (event: Event): void => {
@@ -185,7 +303,8 @@ export class AppAudioManager {
       return;
     }
 
-    this.playUiCue('click');
+    const cue = this.resolveUiCue(interactive);
+    this.playUiCue(cue);
   };
 
   private readonly handlePointerOut = (event: Event): void => {
@@ -240,7 +359,7 @@ export class AppAudioManager {
 
     const backgroundMusic = this.ensureBackgroundMusic();
 
-    if (!backgroundMusic || this.muted) {
+    if (!backgroundMusic || this.musicMuted) {
       return;
     }
 
@@ -251,16 +370,30 @@ export class AppAudioManager {
     return element instanceof HTMLButtonElement ? element.disabled : false;
   }
 
-  private persistMutePreference(): void {
+  private persistMutePreference(channel: AudioChannel): void {
     try {
-      window.localStorage.setItem(STORAGE_KEYS.audioMuted, JSON.stringify(this.muted));
+      window.localStorage.setItem(
+        channel === 'music' ? STORAGE_KEYS.musicMuted : STORAGE_KEYS.soundMuted,
+        JSON.stringify(channel === 'music' ? this.musicMuted : this.soundMuted),
+      );
     } catch (error: unknown) {
       console.warn('Mute preference could not be persisted.', error);
     }
   }
 
+  private persistVolumePreference(channel: AudioChannel): void {
+    try {
+      window.localStorage.setItem(
+        channel === 'music' ? STORAGE_KEYS.musicVolume : STORAGE_KEYS.soundVolume,
+        JSON.stringify(channel === 'music' ? this.musicVolume : this.soundVolume),
+      );
+    } catch (error: unknown) {
+      console.warn('Volume preference could not be persisted.', error);
+    }
+  }
+
   private playTone(options: ToneOptions): void {
-    if (this.muted) {
+    if (this.soundMuted) {
       return;
     }
 
@@ -292,6 +425,40 @@ export class AppAudioManager {
     oscillator.stop(now + options.duration + 0.02);
   }
 
+  private playBufferedCue(cueId: 'click' | 'confirm' | 'hover'): void {
+    if (this.soundMuted) {
+      return;
+    }
+
+    const audioElement =
+      cueId === 'hover'
+        ? this.ensureHoverSound()
+        : cueId === 'click'
+          ? this.ensureClickSound()
+          : cueId === 'confirm'
+            ? this.ensureConfirmSound()
+            : null;
+
+    const volume =
+      cueId === 'hover'
+        ? UI_HOVER_VOLUME * this.soundVolume
+        : cueId === 'click'
+          ? UI_CLICK_VOLUME * this.soundVolume
+          : UI_CONFIRM_VOLUME * this.soundVolume;
+
+    if (!audioElement) {
+      return;
+    }
+
+    audioElement.currentTime = 0;
+    audioElement.muted = this.soundMuted;
+    audioElement.volume = volume;
+
+    void audioElement.play().catch((error: unknown) => {
+      console.warn(`UI cue "${cueId}" could not start.`, error);
+    });
+  }
+
   private async playBackgroundMusic(backgroundMusic: HTMLAudioElement): Promise<void> {
     try {
       await backgroundMusic.play();
@@ -300,12 +467,133 @@ export class AppAudioManager {
     }
   }
 
-  private readMutePreference(): boolean {
+  private readMutePreferences(): { musicMuted: boolean; soundMuted: boolean } {
     try {
-      const storedValue = window.localStorage.getItem(STORAGE_KEYS.audioMuted);
-      return storedValue ? (JSON.parse(storedValue) as boolean) : false;
+      const storedMusicMuted = this.readStoredBoolean(STORAGE_KEYS.musicMuted);
+      const storedSoundMuted = this.readStoredBoolean(STORAGE_KEYS.soundMuted);
+
+      if (storedMusicMuted !== null || storedSoundMuted !== null) {
+        return {
+          musicMuted: storedMusicMuted ?? false,
+          soundMuted: storedSoundMuted ?? false,
+        };
+      }
+
+      const legacyMuted = this.readStoredBoolean(STORAGE_KEYS.audioMuted);
+
+      if (legacyMuted !== null) {
+        this.migrateLegacyMutePreference(legacyMuted);
+      }
+
+      return {
+        musicMuted: legacyMuted ?? false,
+        soundMuted: false,
+      };
     } catch {
+      return {
+        musicMuted: false,
+        soundMuted: false,
+      };
+    }
+  }
+
+  private readStoredBoolean(key: string): boolean | null {
+    const storedValue = window.localStorage.getItem(key);
+
+    if (storedValue === null) {
+      return null;
+    }
+
+    return Boolean(JSON.parse(storedValue) as boolean);
+  }
+
+  private readVolumePreference(channel: AudioChannel, fallback: number): number {
+    try {
+      const channelKey = channel === 'music' ? STORAGE_KEYS.musicVolume : STORAGE_KEYS.soundVolume;
+      const storedValue = window.localStorage.getItem(channelKey);
+
+      if (storedValue === null) {
+        return fallback;
+      }
+
+      const parsedValue = Number(JSON.parse(storedValue));
+      return Number.isFinite(parsedValue) ? this.clampVolume(parsedValue) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  private applyMusicState(): void {
+    if (!this.backgroundMusic) {
+      return;
+    }
+
+    this.backgroundMusic.volume = this.musicVolume;
+    this.backgroundMusic.muted = this.musicMuted;
+  }
+
+  private applySoundState(): void {
+    if (this.audioContext && this.masterGain) {
+      this.masterGain.gain.setTargetAtTime(
+        this.soundMuted ? 0 : this.soundVolume,
+        this.audioContext.currentTime,
+        0.03,
+      );
+    }
+
+    if (this.confirmSound) {
+      this.confirmSound.muted = this.soundMuted;
+      this.confirmSound.volume = UI_CONFIRM_VOLUME * this.soundVolume;
+    }
+
+    if (this.clickSound) {
+      this.clickSound.muted = this.soundMuted;
+      this.clickSound.volume = UI_CLICK_VOLUME * this.soundVolume;
+    }
+
+    if (this.hoverSound) {
+      this.hoverSound.muted = this.soundMuted;
+      this.hoverSound.volume = UI_HOVER_VOLUME * this.soundVolume;
+    }
+  }
+
+  private clampVolume(value: number): number {
+    return Math.min(1, Math.max(0, value));
+  }
+
+  private migrateLegacyMutePreference(legacyMuted: boolean): void {
+    try {
+      window.localStorage.setItem(STORAGE_KEYS.musicMuted, JSON.stringify(legacyMuted));
+      window.localStorage.setItem(STORAGE_KEYS.soundMuted, JSON.stringify(false));
+      window.localStorage.removeItem(STORAGE_KEYS.audioMuted);
+    } catch (error: unknown) {
+      console.warn('Legacy mute preference could not be migrated.', error);
+    }
+  }
+
+  private resolveInitialSoundMuted(storedSoundMuted: boolean): boolean {
+    if (!storedSoundMuted) {
       return false;
     }
+
+    try {
+      // The launcher currently exposes only music mute controls in the UI.
+      // Reset stale sound-mute state so effect cues do not get trapped off.
+      window.localStorage.setItem(STORAGE_KEYS.soundMuted, JSON.stringify(false));
+    } catch (error: unknown) {
+      console.warn('Sound mute preference could not be normalized.', error);
+    }
+
+    return false;
+  }
+
+  private resolveUiCue(interactive: HTMLElement): UiCueId {
+    const cue = interactive.dataset.uiCue;
+
+    if (cue === 'hover' || cue === 'click' || cue === 'confirm') {
+      return cue;
+    }
+
+    return 'click';
   }
 }

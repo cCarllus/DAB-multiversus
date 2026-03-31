@@ -16,7 +16,7 @@ interface CreateAppRouterOptions {
 }
 
 interface HomeRouteOptions {
-  audioMuted: boolean;
+  musicMuted: boolean;
   exitModal?: {
     errorMessage?: string | null;
     isLoggingOut: boolean;
@@ -50,7 +50,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
       options.shell.setPage(
         createHomeScreen({
           appVersion: options.appVersion,
-          audioMuted: homeOptions.audioMuted,
+          musicMuted: homeOptions.musicMuted,
           desktop: options.desktop,
           exitModal: homeOptions.exitModal,
           user: homeOptions.user,

@@ -74,7 +74,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     }
 
     router.showHome({
-      audioMuted: audio.isMuted(),
+      musicMuted: audio.isMusicMuted(),
       exitModal:
         exitModalState.status === 'closed'
           ? undefined
@@ -109,6 +109,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   const renderLoginPage = (): void => {
     router.showLogin({
       appVersion: __APP_VERSION__,
+      musicMuted: audio.isMusicMuted(),
       errorMessage: loginState.errorMessage,
       identifier: loginState.identifier,
       isSubmitting: loginState.isSubmitting,
@@ -257,11 +258,18 @@ export function bootstrapApplication(host: HTMLElement): void {
     const target = event.target as HTMLElement | null;
     const action = target?.closest<HTMLElement>('[data-action]')?.dataset.action;
 
-    if (action === 'toggle-mute') {
-      audio.toggleMute();
+    if (action === 'toggle-music-mute') {
+      audio.toggleMusicMute();
       if (authService.getCurrentSession()?.user) {
         renderHomePage();
+      } else {
+        renderLoginPage();
       }
+      return;
+    }
+
+    if (action === 'toggle-sound-mute') {
+      audio.toggleSoundMute();
       return;
     }
 

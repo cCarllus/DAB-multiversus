@@ -1,17 +1,12 @@
 <section class="login-screen" aria-label="Dead As Battle login">
   <div class="login-screen__backdrop" aria-hidden="true">
-    <div class="login-screen__aura login-screen__aura--left"></div>
-    <div class="login-screen__aura login-screen__aura--right"></div>
+    <video class="login-screen__background-video" data-login-background-video autoplay loop muted playsinline preload="auto"></video>
+    <div class="login-screen__backdrop-overlay"></div>
     <div class="login-screen__grid"></div>
   </div>
 
   <div class="login-screen__layout">
     <section class="login-hero" aria-label="Launcher introduction">
-      <div class="login-hero__crest" aria-hidden="true">
-        <span class="login-hero__crest-ring"></span>
-        <span class="login-hero__crest-core"></span>
-      </div>
-
       <div class="login-hero__copy">
         <p class="login-hero__eyebrow">Dead As Battle</p>
         <h1 class="login-hero__title">The proving grounds open only to authenticated challengers.</h1>
@@ -33,6 +28,19 @@
           <span class="login-hero__rule-label">Auth channel</span>
           <strong class="login-hero__rule-value">HTTP API + PostgreSQL session store</strong>
         </div>
+      </div>
+
+      <div class="login-hero__controls">
+        <label class="login-hero__toggle" data-action="toggle-music-mute">
+          <input
+            class="login-hero__toggle-input"
+            data-login-music-muted
+            type="checkbox"
+            name="musicMuted"
+          />
+          <span class="login-hero__toggle-box" aria-hidden="true"></span>
+          <span class="login-hero__toggle-label">Desativar a música de login</span>
+        </label>
       </div>
     </section>
 
@@ -98,7 +106,7 @@
           <p class="login-form__hint" data-login-remember-hint></p>
           <p class="login-form__error" data-login-error role="alert"></p>
 
-          <button class="login-form__submit" data-login-submit type="submit">
+          <button class="login-form__submit" data-login-submit data-ui-cue="confirm" type="submit">
             <span class="login-form__submit-glow" aria-hidden="true"></span>
             <span class="login-form__submit-label">Iniciar sessão</span>
           </button>

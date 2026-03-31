@@ -1,5 +1,6 @@
 import { createElementFromTemplate } from '@app/utils/html';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
+import loginBackgroundVideo from '@assets/images/ui/videos/background_video.mp4';
 
 import type { LoginFormValues } from './auth-types';
 import loginScreenTemplate from './login-screen.html?raw';
@@ -7,6 +8,7 @@ import './login-screen.css';
 
 export interface LoginScreenOptions {
   appVersion: string;
+  musicMuted: boolean;
   errorMessage?: string | null;
   identifier?: string;
   isSubmitting: boolean;
@@ -26,6 +28,8 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
   const submitButton = rootElement.querySelector<HTMLButtonElement>('[data-login-submit]');
   const submitLabel = rootElement.querySelector<HTMLElement>('.login-form__submit-label');
   const brandImage = rootElement.querySelector<HTMLImageElement>('[data-login-brand-image]');
+  const musicMuteCheckbox = rootElement.querySelector<HTMLInputElement>('[data-login-music-muted]');
+  const backgroundVideo = rootElement.querySelector<HTMLVideoElement>('[data-login-background-video]');
   const versionElement = rootElement.querySelector<HTMLElement>('[data-login-version]');
 
   if (
@@ -38,12 +42,21 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
     !submitButton ||
     !submitLabel ||
     !brandImage ||
+    !musicMuteCheckbox ||
+    !backgroundVideo ||
     !versionElement
   ) {
     throw new Error('Login screen could not be initialized.');
   }
 
   brandImage.src = titleGameNameImage;
+  backgroundVideo.src = loginBackgroundVideo;
+  backgroundVideo.defaultMuted = true;
+  backgroundVideo.muted = true;
+  backgroundVideo.loop = true;
+  backgroundVideo.autoplay = true;
+  backgroundVideo.playsInline = true;
+  musicMuteCheckbox.checked = options.musicMuted;
   versionElement.textContent = `v${options.appVersion}`;
   identifierInput.value = options.identifier ?? '';
   rememberCheckbox.checked = options.rememberDevice;

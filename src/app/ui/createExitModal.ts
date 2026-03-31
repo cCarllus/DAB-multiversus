@@ -34,6 +34,7 @@ export function createExitModal(options: ExitModalOptions): HTMLElement {
             type="button"
             class="exit-modal__button exit-modal__button--logout"
             data-action="auth-logout"
+            data-ui-cue="confirm"
             ${options.isLoggingOut ? 'disabled' : ''}
           >
             ${options.isLoggingOut ? 'Saindo...' : 'Logout'}
@@ -42,6 +43,7 @@ export function createExitModal(options: ExitModalOptions): HTMLElement {
             type="button"
             class="exit-modal__button exit-modal__button--close"
             data-action="launcher-force-close"
+            data-ui-cue="confirm"
             ${options.isLoggingOut ? 'disabled' : ''}
           >
             Fechar launcher
