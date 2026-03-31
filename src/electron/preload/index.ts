@@ -1,6 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-import type { DesktopBridge, DesktopWindowState } from '@shared/types/desktop';
+import type {
+  DesktopBridge,
+  DesktopRememberedAuthSession,
+  DesktopWindowState,
+} from '@shared/types/desktop';
 
 const DESKTOP_WINDOW_CHANNELS = {
   close: 'desktop-window:close',
@@ -10,7 +14,26 @@ const DESKTOP_WINDOW_CHANNELS = {
   toggleMaximize: 'desktop-window:toggle-maximize',
 } as const;
 
+const DESKTOP_AUTH_STORAGE_CHANNELS = {
+  clear: 'desktop-auth-storage:clear',
+  get: 'desktop-auth-storage:get',
+  isAvailable: 'desktop-auth-storage:is-available',
+  set: 'desktop-auth-storage:set',
+} as const;
+
 const desktopBridge: DesktopBridge = {
+  authStorage: {
+    clearRememberedSession: () =>
+      ipcRenderer.invoke(DESKTOP_AUTH_STORAGE_CHANNELS.clear) as Promise<void>,
+    getRememberedSession: () =>
+      ipcRenderer.invoke(
+        DESKTOP_AUTH_STORAGE_CHANNELS.get,
+      ) as Promise<DesktopRememberedAuthSession | null>,
+    isPersistentStorageAvailable: () =>
+      ipcRenderer.invoke(DESKTOP_AUTH_STORAGE_CHANNELS.isAvailable) as Promise<boolean>,
+    setRememberedSession: (session) =>
+      ipcRenderer.invoke(DESKTOP_AUTH_STORAGE_CHANNELS.set, session) as Promise<void>,
+  },
   environment: process.env.VITE_DEV_SERVER_URL ? 'development' : 'production',
   isPackaged: !process.env.VITE_DEV_SERVER_URL,
   platform: process.platform,

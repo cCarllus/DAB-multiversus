@@ -1,7 +1,11 @@
 node_modules
+server/node_modules
 dist
 dist-electron
+server/dist
 release
 .electron-dev
 .DS_Store
 *.log
+.env
+server/.env

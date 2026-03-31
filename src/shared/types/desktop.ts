@@ -2,6 +2,19 @@ export interface DesktopWindowState {
   isMaximized: boolean;
 }
 
+export interface DesktopRememberedAuthSession {
+  refreshToken: string;
+  sessionExpiresAt: string;
+  savedAt: string;
+}
+
+export interface DesktopAuthStorage {
+  clearRememberedSession: () => Promise<void>;
+  getRememberedSession: () => Promise<DesktopRememberedAuthSession | null>;
+  isPersistentStorageAvailable: () => Promise<boolean>;
+  setRememberedSession: (session: DesktopRememberedAuthSession) => Promise<void>;
+}
+
 export interface DesktopWindowControls {
   close: () => Promise<void>;
   getState: () => Promise<DesktopWindowState>;
@@ -11,6 +24,7 @@ export interface DesktopWindowControls {
 }
 
 export interface DesktopBridge {
+  authStorage?: DesktopAuthStorage;
   environment: 'development' | 'production';
   isPackaged: boolean;
   platform: string;

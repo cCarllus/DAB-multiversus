@@ -1,0 +1,121 @@
+<section class="login-screen" aria-label="Dead As Battle login">
+  <div class="login-screen__backdrop" aria-hidden="true">
+    <div class="login-screen__aura login-screen__aura--left"></div>
+    <div class="login-screen__aura login-screen__aura--right"></div>
+    <div class="login-screen__grid"></div>
+  </div>
+
+  <div class="login-screen__layout">
+    <section class="login-hero" aria-label="Launcher introduction">
+      <div class="login-hero__crest" aria-hidden="true">
+        <span class="login-hero__crest-ring"></span>
+        <span class="login-hero__crest-core"></span>
+      </div>
+
+      <div class="login-hero__copy">
+        <p class="login-hero__eyebrow">Dead As Battle</p>
+        <h1 class="login-hero__title">The proving grounds open only to authenticated challengers.</h1>
+        <p class="login-hero__summary">
+          Enter the launcher through the first real secure access flow. Trusted devices stay linked for 30 days. Shared machines fall back to session-only access automatically.
+        </p>
+      </div>
+
+      <div class="login-hero__rules" aria-label="Authentication highlights">
+        <div class="login-hero__rule">
+          <span class="login-hero__rule-label">Remembered device</span>
+          <strong class="login-hero__rule-value">30-day refresh session</strong>
+        </div>
+        <div class="login-hero__rule">
+          <span class="login-hero__rule-label">Unchecked device</span>
+          <strong class="login-hero__rule-value">Session cleared when the launcher closes</strong>
+        </div>
+        <div class="login-hero__rule">
+          <span class="login-hero__rule-label">Auth channel</span>
+          <strong class="login-hero__rule-value">HTTP API + PostgreSQL session store</strong>
+        </div>
+      </div>
+    </section>
+
+    <aside class="login-panel" aria-label="Authentication form">
+      <div class="login-panel__window-controls">
+        <button type="button" class="login-panel__window-button" data-action="window-minimize" aria-label="Minimize launcher">
+          &minus;
+        </button>
+        <button type="button" class="login-panel__window-button login-panel__window-button--danger" data-action="window-close" aria-label="Close launcher">
+          &times;
+        </button>
+      </div>
+
+      <div class="login-panel__body">
+        <div class="login-panel__brand">
+          <img class="login-panel__brand-mark" data-brand-mark alt="" />
+          <div class="login-panel__brand-copy">
+            <span class="login-panel__brand-subtitle">Launcher Access</span>
+            <strong class="login-panel__brand-title">Dead As Battle</strong>
+          </div>
+        </div>
+
+        <div class="login-panel__intro">
+          <p class="login-panel__eyebrow">Initial Sign-In</p>
+          <h2 class="login-panel__title">Iniciar sessão</h2>
+          <p class="login-panel__summary">
+            Use seu e-mail ou nome de usuário para entrar no launcher e chegar à tela inicial autenticada.
+          </p>
+        </div>
+
+        <form class="login-form" data-login-form novalidate>
+          <label class="login-form__field">
+            <span class="login-form__label">Email ou nome de usuário</span>
+            <input
+              class="login-form__input"
+              data-login-identifier
+              type="text"
+              name="identifier"
+              autocomplete="username"
+              spellcheck="false"
+              maxlength="320"
+              placeholder="seu@email.com"
+            />
+          </label>
+
+          <label class="login-form__field">
+            <span class="login-form__label">Senha</span>
+            <input
+              class="login-form__input"
+              data-login-password
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              maxlength="128"
+              placeholder="Digite sua senha"
+            />
+          </label>
+
+          <label class="login-form__remember">
+            <input class="login-form__checkbox" data-login-remember type="checkbox" name="rememberDevice" />
+            <span class="login-form__checkbox-ui" aria-hidden="true"></span>
+            <span class="login-form__remember-copy">Remember this device for 30 days</span>
+          </label>
+
+          <p class="login-form__hint" data-login-remember-hint></p>
+          <p class="login-form__error" data-login-error role="alert"></p>
+
+          <button class="login-form__submit" data-login-submit type="submit">
+            <span class="login-form__submit-glow" aria-hidden="true"></span>
+            <span class="login-form__submit-label">Iniciar sessão</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="login-panel__footer">
+        <button type="button" class="login-panel__placeholder-button" disabled>
+          Criar conta em breve
+        </button>
+        <button type="button" class="login-panel__placeholder-link" disabled>
+          Recuperação de senha em breve
+        </button>
+        <span class="login-panel__version" data-login-version></span>
+      </div>
+    </aside>
+  </div>
+</section>

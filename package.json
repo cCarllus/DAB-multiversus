@@ -11,7 +11,9 @@
   "scripts": {
     "clean": "rimraf dist dist-electron release",
     "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron:build\" \"npm:dev:electron:run\"",
+    "dev:full": "concurrently -k \"npm:dev:server\" \"npm:dev\"",
     "dev:renderer": "vite",
+    "dev:server": "npm --prefix server run dev",
     "dev:electron:build": "tsc -p tsconfig.electron.json --watch --preserveWatchOutput",
     "dev:electron:run": "wait-on tcp:5173 dist-electron/electron/main/index.js && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 node scripts/run-electron-dev.cjs .",
     "build": "npm run clean && npm run build:renderer && npm run build:electron",
@@ -19,7 +21,7 @@
     "build:electron": "tsc -p tsconfig.electron.json",
     "preview": "vite preview",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json && tsc --noEmit -p tsconfig.node.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json && tsc --noEmit -p tsconfig.node.json && npm --prefix server run typecheck",
     "format": "prettier --write .",
     "dist": "npm run build && electron-builder"
   },
@@ -29,8 +31,8 @@
     "asar": true,
     "extraResources": [
       {
-        "from": "build-resources/dab-icon.png",
-        "to": "icons/dab-icon.png"
+        "from": "src/assets/images/ui/icons/icon-desktop-game.png",
+        "to": "icons/icon-desktop-game.png"
       }
     ],
     "files": [
@@ -44,15 +46,15 @@
     },
     "mac": {
       "category": "public.app-category.games",
-      "icon": "build-resources/dab-icon.icns",
+      "icon": "build-resources/icon-desktop-game.icns",
       "target": "dmg"
     },
     "win": {
-      "icon": "build-resources/dab-icon.ico",
+      "icon": "build-resources/icon-desktop-game.ico",
       "target": "nsis"
     },
     "linux": {
-      "icon": "build-resources/dab-icon.png",
+      "icon": "build-resources/icon-desktop-game.png",
       "target": "AppImage"
     }
   },

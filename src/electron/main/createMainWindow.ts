@@ -8,10 +8,10 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 function resolveRuntimeIconPath(): string {
   if (VITE_DEV_SERVER_URL) {
-    return join(process.cwd(), 'src/assets/images/dab-icon.png');
+    return join(process.cwd(), 'src/assets/images/ui/icons/icon-desktop-game.png');
   }
 
-  return join(process.resourcesPath, 'icons/dab-icon.png');
+  return join(process.resourcesPath, 'icons/icon-desktop-game.png');
 }
 
 export function createMainWindow(): BrowserWindow {
