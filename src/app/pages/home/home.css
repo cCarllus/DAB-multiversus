@@ -478,22 +478,8 @@
   padding: 0 18px 0 20px;
 }
 
-.home-topbar__mini-block--shield {
+.home-topbar__mini-block--notifications {
   padding: 0 24px 0 20px;
-}
-
-.home-topbar__shield-wrap {
-  position: relative;
-}
-
-.home-topbar__shield-strike {
-  position: absolute;
-  top: -2px;
-  right: -4px;
-  width: 2px;
-  height: 26px;
-  background: currentColor;
-  transform: rotate(15deg);
 }
 
 .home-topbar__mini-block--gold {

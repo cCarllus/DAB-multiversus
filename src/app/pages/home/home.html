@@ -33,6 +33,16 @@
         stroke-width="1.7"
       ></path>
     </symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24">
+      <path
+        d="M9 18h6 M10.3 20a1.9 1.9 0 0 0 3.4 0 M6 17.2h12l-1.7-2.1V10a4.3 4.3 0 1 0-8.6 0v5.1L6 17.2Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.7"
+      ></path>
+    </symbol>
     <symbol id="icon-hexagon" viewBox="0 0 24 24">
       <polygon
         points="8,3.5 16,3.5 21,12 16,20.5 8,20.5 3,12"
@@ -292,14 +302,11 @@
 
         <button
           type="button"
-          class="home-topbar__mini-block home-topbar__mini-block--shield"
-          aria-label="Security"
+          class="home-topbar__mini-block home-topbar__mini-block--notifications"
+          aria-label="Notifications"
         >
           <span class="home-topbar__mini-content">
-            <span class="home-topbar__shield-wrap">
-              <svg class="home-icon home-icon--medium"><use href="#icon-shield"></use></svg>
-              <span class="home-topbar__shield-strike"></span>
-            </span>
+            <svg class="home-icon home-icon--medium"><use href="#icon-bell"></use></svg>
           </span>
         </button>
 
