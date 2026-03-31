@@ -17,6 +17,11 @@ interface CreateAppRouterOptions {
 
 interface HomeRouteOptions {
   audioMuted: boolean;
+  exitModal?: {
+    errorMessage?: string | null;
+    isLoggingOut: boolean;
+    status: 'open' | 'closing';
+  };
   user: AuthUser;
 }
 
@@ -47,6 +52,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
           appVersion: options.appVersion,
           audioMuted: homeOptions.audioMuted,
           desktop: options.desktop,
+          exitModal: homeOptions.exitModal,
           user: homeOptions.user,
         }),
       );

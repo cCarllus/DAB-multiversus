@@ -1,0 +1,43 @@
+.launcher-modal-dismiss {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: var(--launcher-color-parchment-soft);
+  background: linear-gradient(180deg, rgba(12, 17, 24, 0.98) 0%, rgba(7, 11, 17, 0.98) 100%);
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.34);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transform: translate(50%, -50%);
+  transition:
+    transform 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.launcher-modal-dismiss:hover:not(:disabled) {
+  color: var(--launcher-color-gold-bright);
+  background: linear-gradient(180deg, rgba(18, 29, 43, 0.98) 0%, rgba(10, 17, 26, 0.98) 100%);
+  border-color: rgba(var(--launcher-color-gold-bright-rgb), 0.48);
+  transform: translate(50%, calc(-50% - 1px));
+}
+
+.launcher-modal-dismiss:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.launcher-modal-dismiss__icon {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  transform: translateY(-1px);
+}

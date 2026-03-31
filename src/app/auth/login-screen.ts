@@ -1,5 +1,5 @@
-import titleGameNameUrl from '@assets/images/ui/icons/icon-desktop-game.png';
 import { createElementFromTemplate } from '@app/utils/html';
+import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 
 import type { LoginFormValues } from './auth-types';
 import loginScreenTemplate from './login-screen.html?raw';
@@ -25,8 +25,8 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
   const errorElement = rootElement.querySelector<HTMLElement>('[data-login-error]');
   const submitButton = rootElement.querySelector<HTMLButtonElement>('[data-login-submit]');
   const submitLabel = rootElement.querySelector<HTMLElement>('.login-form__submit-label');
+  const brandImage = rootElement.querySelector<HTMLImageElement>('[data-login-brand-image]');
   const versionElement = rootElement.querySelector<HTMLElement>('[data-login-version]');
-  const brandMark = rootElement.querySelector<HTMLImageElement>('[data-brand-mark]');
 
   if (
     !formElement ||
@@ -37,14 +37,13 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
     !errorElement ||
     !submitButton ||
     !submitLabel ||
-    !versionElement ||
-    !brandMark
+    !brandImage ||
+    !versionElement
   ) {
     throw new Error('Login screen could not be initialized.');
   }
 
-  brandMark.src = titleGameNameUrl;
-
+  brandImage.src = titleGameNameImage;
   versionElement.textContent = `v${options.appVersion}`;
   identifierInput.value = options.identifier ?? '';
   rememberCheckbox.checked = options.rememberDevice;

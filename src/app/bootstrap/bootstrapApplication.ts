@@ -1,10 +1,12 @@
 import { AppAudioManager } from '@app/audio/AppAudioManager';
 import { AuthService, resolveAuthErrorMessage } from '@app/auth/auth-service';
-import type { LoginFormValues } from '@app/auth/auth-types';
+import { type LoginFormValues } from '@app/auth/auth-types';
 import { createApplicationShell } from '@app/layout/createApplicationShell';
 import { createAppRouter } from '@app/navigation/app-router';
 import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
 import type { DesktopBridge } from '@shared/types/desktop';
+
+const EXIT_MODAL_TRANSITION_MS = 180;
 
 function createDesktopBridgeFallback(): DesktopBridge {
   return {
@@ -54,6 +56,12 @@ export function bootstrapApplication(host: HTMLElement): void {
     isSubmitting: false,
     rememberDevice: true,
   };
+  let exitModalState = {
+    errorMessage: null as string | null,
+    isLoggingOut: false,
+    status: 'closed' as 'closed' | 'open' | 'closing',
+  };
+  let exitModalCloseTimer: number | null = null;
 
   audio.bindInteractionSurface(shell.interactiveLayer);
   runtime.start();
@@ -67,8 +75,35 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     router.showHome({
       audioMuted: audio.isMuted(),
+      exitModal:
+        exitModalState.status === 'closed'
+          ? undefined
+          : {
+              errorMessage: exitModalState.errorMessage,
+              isLoggingOut: exitModalState.isLoggingOut,
+              status: exitModalState.status,
+            },
       user: session.user,
     });
+  };
+
+  const clearExitModalCloseTimer = (): void => {
+    if (exitModalCloseTimer === null) {
+      return;
+    }
+
+    window.clearTimeout(exitModalCloseTimer);
+    exitModalCloseTimer = null;
+  };
+
+  const openExitModal = (): void => {
+    clearExitModalCloseTimer();
+    exitModalState = {
+      errorMessage: null,
+      isLoggingOut: false,
+      status: 'open',
+    };
+    renderHomePage();
   };
 
   const renderLoginPage = (): void => {
@@ -119,6 +154,71 @@ export function bootstrapApplication(host: HTMLElement): void {
       });
   };
 
+  const handleLogoutFromModal = (): void => {
+    if (exitModalState.isLoggingOut) {
+      return;
+    }
+
+    const previousSession = authService.getCurrentSession();
+
+    exitModalState = {
+      ...exitModalState,
+      errorMessage: null,
+      isLoggingOut: true,
+      status: 'open',
+    };
+    renderHomePage();
+
+    void authService
+      .logout()
+      .then(() => {
+        exitModalState = {
+          errorMessage: null,
+          isLoggingOut: false,
+          status: 'closed',
+        };
+        loginState = {
+          errorMessage: null,
+          identifier: previousSession?.user?.email ?? '',
+          isSubmitting: false,
+          rememberDevice: true,
+        };
+        renderLoginPage();
+      })
+      .catch((error: unknown) => {
+        exitModalState = {
+          errorMessage: resolveAuthErrorMessage(error),
+          isLoggingOut: false,
+          status: 'open',
+        };
+        renderHomePage();
+      });
+  };
+
+  const closeExitModal = (): void => {
+    if (exitModalState.isLoggingOut || exitModalState.status !== 'open') {
+      return;
+    }
+
+    exitModalState = {
+      errorMessage: null,
+      isLoggingOut: false,
+      status: 'closing',
+    };
+    renderHomePage();
+
+    clearExitModalCloseTimer();
+    exitModalCloseTimer = window.setTimeout(() => {
+      exitModalState = {
+        errorMessage: null,
+        isLoggingOut: false,
+        status: 'closed',
+      };
+      exitModalCloseTimer = null;
+      renderHomePage();
+    }, EXIT_MODAL_TRANSITION_MS);
+  };
+
   void (async () => {
     router.showBoot('Validating remembered session signature...');
     rememberDeviceSupported = await authService.supportsRememberedSessions();
@@ -127,6 +227,11 @@ export function bootstrapApplication(host: HTMLElement): void {
       const restoredSession = await authService.initialize();
 
       if (restoredSession?.user) {
+        exitModalState = {
+          errorMessage: null,
+          isLoggingOut: false,
+          status: 'closed',
+        };
         renderHomePage();
       } else {
         loginState = {
@@ -176,6 +281,26 @@ export function bootstrapApplication(host: HTMLElement): void {
     }
 
     if (action === 'window-close') {
+      if (authService.getCurrentSession()?.user) {
+        openExitModal();
+        return;
+      }
+
+      void desktop.windowControls?.close();
+      return;
+    }
+
+    if (action === 'auth-logout') {
+      handleLogoutFromModal();
+      return;
+    }
+
+    if (action === 'dismiss-exit-modal') {
+      closeExitModal();
+      return;
+    }
+
+    if (action === 'launcher-force-close') {
       void desktop.windowControls?.close();
     }
   });
@@ -192,6 +317,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   });
 
   window.addEventListener('beforeunload', () => {
+    clearExitModalCloseTimer();
     void authService.handleBeforeUnload();
     audio.dispose();
     runtime.dispose();

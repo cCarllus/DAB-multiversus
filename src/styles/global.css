@@ -22,10 +22,47 @@
     'No Continue',
     system-ui,
     sans-serif;
+  --launcher-color-bg: #000;
+  --launcher-color-ink-980: #010a13;
+  --launcher-color-ink-950: #06111b;
+  --launcher-color-ink-900: #0b1824;
+  --launcher-color-ink-850: #132232;
+  --launcher-color-graphite-700: #1a222b;
+  --launcher-color-graphite-600: #2b3440;
+  --launcher-color-graphite-500: #4c5561;
+  --launcher-color-parchment: #f5efe1;
+  --launcher-color-parchment-soft: #c7baa1;
+  --launcher-color-parchment-muted: #8b8578;
+  --launcher-color-gold-rgb: 212, 166, 58;
+  --launcher-color-gold-bright-rgb: 255, 227, 141;
+  --launcher-color-gold-deep-rgb: 154, 97, 19;
+  --launcher-color-gold: #d4a63a;
+  --launcher-color-gold-bright: #ffe38d;
+  --launcher-color-gold-deep: #9a6113;
+  --launcher-color-gold-soft: rgba(212, 166, 58, 0.22);
+  --launcher-gold-cta-gradient:
+    linear-gradient(90deg,
+      var(--launcher-color-gold-deep) 0%,
+      var(--launcher-color-gold) 34%,
+      var(--launcher-color-gold-bright) 50%,
+      var(--launcher-color-gold) 66%,
+      var(--launcher-color-gold-deep) 100%);
+  --launcher-gold-cta-border: rgba(var(--launcher-color-gold-bright-rgb), 0.6);
+  --launcher-gold-cta-shadow: rgba(var(--launcher-color-gold-rgb), 0.24);
+  --launcher-color-azure: #2f7fa8;
+  --launcher-color-azure-bright: #69a9cf;
+  --launcher-color-azure-soft: rgba(47, 127, 168, 0.22);
+  --launcher-color-success: #3fbf73;
+  --launcher-color-success-bright: #6fe0a0;
+  --launcher-color-danger: #c55a5a;
+  --launcher-border-soft: rgba(255, 255, 255, 0.08);
+  --launcher-border-faint: rgba(255, 255, 255, 0.05);
+  --launcher-border-gold: rgba(212, 166, 58, 0.28);
+  --launcher-shadow-heavy: 0 16px 40px rgba(0, 0, 0, 0.52);
   color-scheme: dark;
   font-family: var(--font-ui);
-  background: #000;
-  color: #e5e7eb;
+  background: var(--launcher-color-bg);
+  color: var(--launcher-color-parchment);
 }
 
 *,
@@ -44,8 +81,8 @@ body,
 
 body {
   overflow: hidden;
-  background: #000;
-  color: #e5e7eb;
+  background: var(--launcher-color-bg);
+  color: var(--launcher-color-parchment);
   font: 500 14px/1.44 var(--font-ui);
   letter-spacing: 0.02em;
   user-select: none;
@@ -76,15 +113,16 @@ svg {
   height: 100%;
   padding: 32px;
   background:
-    radial-gradient(circle at top, rgba(248, 113, 113, 0.18), transparent 30%),
-    linear-gradient(180deg, #08090d 0%, #000 100%);
-  color: #f8fafc;
+    radial-gradient(circle at top, rgba(var(--launcher-color-gold-rgb), 0.2), transparent 30%),
+    radial-gradient(circle at top right, rgba(47, 127, 168, 0.14), transparent 24%),
+    linear-gradient(180deg, var(--launcher-color-ink-950) 0%, #000 100%);
+  color: var(--launcher-color-parchment);
   text-align: center;
 }
 
 .fatal-screen__eyebrow {
   margin: 0 0 12px;
-  color: #f97316;
+  color: var(--launcher-color-gold);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.28em;
@@ -102,5 +140,5 @@ svg {
 .fatal-screen p {
   max-width: 560px;
   margin: 0 auto;
-  color: #cbd5e1;
+  color: var(--launcher-color-parchment-soft);
 }

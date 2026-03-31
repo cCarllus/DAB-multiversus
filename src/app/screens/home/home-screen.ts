@@ -2,6 +2,7 @@ import { createElementFromTemplate } from '@app/utils/html';
 import { PRODUCT_CONFIG } from '@shared/config/productConfig';
 import type { DesktopBridge } from '@shared/types/desktop';
 
+import { createExitModal } from '@app/ui/createExitModal';
 import { resolveAuthDisplayName, type AuthUser } from '@app/auth/auth-types';
 
 import homeTemplate from '../../pages/home/home.html?raw';
@@ -11,11 +12,16 @@ interface HomeScreenOptions {
   appVersion: string;
   audioMuted: boolean;
   desktop: DesktopBridge;
+  exitModal?: {
+    errorMessage?: string | null;
+    isLoggingOut: boolean;
+    status: 'open' | 'closing';
+  };
   user: AuthUser;
 }
 
 export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
-  return createElementFromTemplate(homeTemplate, {
+  const rootElement = createElementFromTemplate(homeTemplate, {
     AUDIO_BUTTON_STATE_CLASS: options.audioMuted
       ? 'home-voice-button--muted'
       : 'home-voice-button--live',
@@ -34,4 +40,17 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
     SEASON_NAME: PRODUCT_CONFIG.seasonName,
     SHELL_LABEL: PRODUCT_CONFIG.shellLabel,
   });
+
+  if (options.exitModal) {
+    rootElement.append(
+      createExitModal({
+        errorMessage: options.exitModal.errorMessage,
+        isClosing: options.exitModal.status === 'closing',
+        isLoggingOut: options.exitModal.isLoggingOut,
+        userLabel: resolveAuthDisplayName(options.user),
+      }),
+    );
+  }
+
+  return rootElement;
 }
