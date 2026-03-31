@@ -1,14 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@font-face {
+  font-family: 'No Continue';
+  src: url('../assets/fonts/no-continue.regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
 
 :root {
-  color-scheme: dark;
-  font-family:
-    'Inter',
+  --font-display:
+    'No Continue',
     system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
     sans-serif;
+  --font-ui:
+    'No Continue',
+    system-ui,
+    sans-serif;
+  color-scheme: dark;
+  font-family: var(--font-ui);
   background: #000;
   color: #e5e7eb;
 }
@@ -31,13 +39,8 @@ body {
   overflow: hidden;
   background: #000;
   color: #e5e7eb;
-  font:
-    500 14px/1.4 'Inter',
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font: 400 14px/1.44 var(--font-ui);
+  letter-spacing: 0.03em;
   user-select: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -45,7 +48,8 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -82,8 +86,10 @@ svg {
 
 .fatal-screen h1 {
   margin: 0 0 10px;
+  font-family: var(--font-display);
   font-size: clamp(28px, 4vw, 44px);
   line-height: 1;
+  letter-spacing: 0.04em;
 }
 
 .fatal-screen p {
