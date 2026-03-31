@@ -56,13 +56,7 @@ export function registerWindowControlHandlers(): void {
 
   ipcMain.handle(DESKTOP_WINDOW_CHANNELS.toggleMaximize, (event) => {
     const browserWindow = resolveWindow(event);
-
-    if (browserWindow.isMaximized()) {
-      browserWindow.unmaximize();
-    } else {
-      browserWindow.maximize();
-    }
-
+    browserWindow.setMaximizable(false);
     return getWindowState(browserWindow);
   });
 

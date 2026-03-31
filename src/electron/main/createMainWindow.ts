@@ -33,10 +33,12 @@ export function createMainWindow(): BrowserWindow {
     backgroundColor: '#0B0F14',
     center: true,
     frame: false,
-    hasShadow: true,
+    hasShadow: false,
     icon: process.platform === 'darwin' ? undefined : runtimeIconPath,
     maximizable: false,
     fullscreenable: false,
+    movable: true,
+    roundedCorners: false,
     resizable: false,
     title: 'Dead As Battle',
     webPreferences: {

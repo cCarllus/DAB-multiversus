@@ -51,6 +51,24 @@
         stroke-width="2.2"
       ></path>
     </symbol>
+    <symbol id="icon-minus" viewBox="0 0 24 24">
+      <path
+        d="M6 12h12"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2.4"
+      ></path>
+    </symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24">
+      <path
+        d="M6 6 18 18 M18 6 6 18"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="2.2"
+      ></path>
+    </symbol>
     <symbol id="icon-power" viewBox="0 0 24 24">
       <path
         d="M12 3v8 M7.1 5.8A8 8 0 1 0 16.9 5.8"
@@ -189,38 +207,47 @@
     <div class="home-screen__background-noise"></div>
   </div>
 
-  <div class="home-screen__fps">60 FPS</div>
-
   <div class="home-screen__frame">
     <nav class="home-topbar" aria-label="Primary navigation">
       <div class="home-topbar__left">
         <button
           type="button"
-          class="home-topbar__wedge home-topbar__wedge--utility"
+          class="home-topbar__wedge home-topbar__wedge--settings"
           aria-label="Settings"
         >
-          <span class="home-topbar__wedge-content">
+          <span class="home-topbar__wedge-content home-topbar__wedge-content--single">
             <svg class="home-icon home-icon--medium"><use href="#icon-settings"></use></svg>
-            <span class="home-topbar__divider" aria-hidden="true"></span>
-            <span class="home-topbar__chevrons" aria-hidden="true">
-              <svg class="home-icon home-icon--small home-icon--filled is-flipped">
-                <use href="#icon-play"></use>
-              </svg>
-              <svg class="home-icon home-icon--small home-icon--filled is-flipped">
-                <use href="#icon-play"></use>
-              </svg>
-            </span>
           </span>
         </button>
 
-        <div class="home-topbar__logo-block" aria-hidden="true">
-          <div class="home-topbar__logo-core">
-            <span class="home-topbar__logo-diamond"></span>
-            <span class="home-topbar__logo-spark home-topbar__logo-spark--left"></span>
-            <span class="home-topbar__logo-spark home-topbar__logo-spark--right"></span>
-            <span class="home-topbar__logo-gem"></span>
-          </div>
-        </div>
+        <button
+          type="button"
+          class="home-topbar__wedge home-topbar__wedge--arrows"
+          aria-label="Navigation"
+        >
+          <span class="home-topbar__wedge-content home-topbar__wedge-content--arrows">
+            <svg class="home-icon home-icon--small home-icon--filled is-flipped">
+              <use href="#icon-play"></use>
+            </svg>
+            <svg class="home-icon home-icon--small home-icon--filled">
+              <use href="#icon-play"></use>
+            </svg>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="home-topbar__play-block"
+          data-action="play-now"
+          aria-label="Play"
+        >
+          <span class="home-topbar__play-content">
+            <svg class="home-icon home-icon--small home-icon--filled">
+              <use href="#icon-play"></use>
+            </svg>
+            <span>Play</span>
+          </span>
+        </button>
 
         <button type="button" class="home-topbar__tab">
           <span class="home-topbar__tab-label">Heroes</span>
@@ -253,9 +280,22 @@
           </span>
         </button>
 
-        <button type="button" class="home-topbar__mini-block" aria-label="Inbox and security">
+        <button
+          type="button"
+          class="home-topbar__mini-block home-topbar__mini-block--mail"
+          aria-label="Inbox"
+        >
           <span class="home-topbar__mini-content">
             <svg class="home-icon home-icon--medium"><use href="#icon-mail"></use></svg>
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="home-topbar__mini-block home-topbar__mini-block--shield"
+          aria-label="Security"
+        >
+          <span class="home-topbar__mini-content">
             <span class="home-topbar__shield-wrap">
               <svg class="home-icon home-icon--medium"><use href="#icon-shield"></use></svg>
               <span class="home-topbar__shield-strike"></span>
@@ -266,25 +306,22 @@
         <button
           type="button"
           class="home-topbar__mini-block home-topbar__mini-block--gold"
-          aria-label="Add currency"
+          data-action="window-minimize"
+          aria-label="Minimize launcher"
         >
           <span class="home-topbar__mini-content">
-            <span class="home-topbar__hexagon-wrap">
-              <svg class="home-icon home-icon--large"><use href="#icon-hexagon"></use></svg>
-              <svg class="home-icon home-icon--small home-topbar__hexagon-plus">
-                <use href="#icon-plus"></use>
-              </svg>
-            </span>
+            <svg class="home-icon home-icon--medium"><use href="#icon-minus"></use></svg>
           </span>
         </button>
 
         <button
           type="button"
           class="home-topbar__mini-block home-topbar__mini-block--power"
-          aria-label="Power"
+          data-action="window-close"
+          aria-label="Close launcher"
         >
           <span class="home-topbar__mini-content">
-            <svg class="home-icon home-icon--medium"><use href="#icon-power"></use></svg>
+            <svg class="home-icon home-icon--medium"><use href="#icon-close"></use></svg>
           </span>
         </button>
       </div>
