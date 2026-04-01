@@ -7,6 +7,11 @@ import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
 import type { DesktopBridge } from '@shared/types/desktop';
 
 const EXIT_MODAL_TRANSITION_MS = 180;
+const DEV_TEST_LOGIN: LoginFormValues = {
+  identifier: 'teste@dab.local',
+  password: 'SenhaForte123!',
+  rememberDevice: true,
+};
 
 function createDesktopBridgeFallback(): DesktopBridge {
   return {
@@ -47,6 +52,10 @@ export function bootstrapApplication(host: HTMLElement): void {
   const audio = new AppAudioManager();
   const runtime = new BabylonRuntime(shell.canvas);
   const authService = new AuthService(desktop, __APP_VERSION__);
+  const enableDevLoginShortcut =
+    desktop.environment === 'development' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
 
   let rememberDeviceSupported = false;
   let loginState = {
@@ -108,12 +117,15 @@ export function bootstrapApplication(host: HTMLElement): void {
   const renderLoginPage = (): void => {
     router.showLogin({
       appVersion: __APP_VERSION__,
+      devShortcutLabel: 'Entrar com usuario de teste',
+      enableDevShortcut: enableDevLoginShortcut,
       musicMuted: audio.isMusicMuted(),
       errorMessage: loginState.errorMessage,
       identifier: loginState.identifier,
       isSubmitting: loginState.isSubmitting,
       rememberDevice: loginState.rememberDevice,
       rememberDeviceSupported,
+      onDevShortcutSubmit: () => handleLoginSubmit(DEV_TEST_LOGIN),
       onSubmit: handleLoginSubmit,
     });
   };

@@ -8,12 +8,15 @@ import './login-screen.css';
 
 export interface LoginScreenOptions {
   appVersion: string;
+  devShortcutLabel?: string;
+  enableDevShortcut?: boolean;
   musicMuted: boolean;
   errorMessage?: string | null;
   identifier?: string;
   isSubmitting: boolean;
   rememberDevice: boolean;
   rememberDeviceSupported: boolean;
+  onDevShortcutSubmit?: () => void | Promise<void>;
   onSubmit: (values: LoginFormValues) => void | Promise<void>;
 }
 
@@ -27,6 +30,8 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
   const errorElement = rootElement.querySelector<HTMLElement>('[data-login-error]');
   const submitButton = rootElement.querySelector<HTMLButtonElement>('[data-login-submit]');
   const submitLabel = rootElement.querySelector<HTMLElement>('.login-form__submit-label');
+  const devShortcutButton = rootElement.querySelector<HTMLButtonElement>('[data-login-dev-shortcut]');
+  const devShortcutLabel = rootElement.querySelector<HTMLElement>('[data-login-dev-shortcut-label]');
   const brandImage = rootElement.querySelector<HTMLImageElement>('[data-login-brand-image]');
   const musicMuteCheckbox = rootElement.querySelector<HTMLInputElement>('[data-login-music-muted]');
   const backgroundVideo = rootElement.querySelector<HTMLVideoElement>('[data-login-background-video]');
@@ -41,6 +46,8 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
     !errorElement ||
     !submitButton ||
     !submitLabel ||
+    !devShortcutButton ||
+    !devShortcutLabel ||
     !brandImage ||
     !musicMuteCheckbox ||
     !backgroundVideo ||
@@ -65,6 +72,10 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
   passwordInput.disabled = options.isSubmitting;
   submitButton.disabled = options.isSubmitting;
   submitLabel.textContent = options.isSubmitting ? 'Conectando...' : 'Iniciar sessão';
+  devShortcutButton.hidden = !options.enableDevShortcut;
+  devShortcutButton.disabled =
+    options.isSubmitting || !options.enableDevShortcut || !options.onDevShortcutSubmit;
+  devShortcutLabel.textContent = options.devShortcutLabel ?? 'Entrar com conta de teste';
 
   rememberHint.textContent = options.rememberDeviceSupported
     ? 'O refresh token é salvo com o armazenamento seguro do Electron e reaproveitado por até 30 dias.'
@@ -90,6 +101,21 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
       password: passwordInput.value,
       rememberDevice: rememberCheckbox.checked,
     });
+  });
+
+  devShortcutButton.addEventListener('click', () => {
+    if (
+      options.isSubmitting ||
+      !options.enableDevShortcut ||
+      !options.onDevShortcutSubmit
+    ) {
+      return;
+    }
+
+    identifierInput.value = 'teste@dab.local';
+    passwordInput.value = 'SenhaForte123!';
+    rememberCheckbox.checked = true;
+    void options.onDevShortcutSubmit();
   });
 
   return rootElement;
