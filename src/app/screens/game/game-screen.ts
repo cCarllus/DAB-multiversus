@@ -4,7 +4,7 @@ import {
   type AuthUser,
 } from '@app/services/auth/auth-types';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
-import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.png';
+import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.webp';
 import type { AppI18n } from '@shared/i18n';
 
 import './game-screen.css';
