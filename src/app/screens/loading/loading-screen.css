@@ -1,0 +1,371 @@
+.loading-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--launcher-color-parchment);
+  background:
+    radial-gradient(circle at center, rgba(4, 13, 20, 0.96) 0%, rgba(2, 7, 12, 1) 68%),
+    #020a13;
+  isolation: isolate;
+}
+
+.loading-screen__vignette,
+.loading-screen__sunburst,
+.loading-screen__horizon,
+.loading-screen__diamond,
+.loading-screen__stage,
+.loading-screen__ring,
+.loading-screen__ring-markers,
+.loading-screen__energy {
+  position: absolute;
+}
+
+.loading-screen__vignette,
+.loading-screen__sunburst,
+.loading-screen__horizon {
+  inset: 0;
+  pointer-events: none;
+}
+
+.loading-screen__vignette {
+  background: radial-gradient(circle at center, transparent 18%, rgba(1, 6, 10, 0.96) 88%);
+}
+
+.loading-screen__sunburst {
+  opacity: 0.24;
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      transparent 0deg 3deg,
+      rgba(var(--launcher-color-gold-rgb), 0.028) 3deg 3.8deg
+    );
+}
+
+.loading-screen__horizon {
+  top: 50%;
+  bottom: auto;
+  height: 1px;
+  transform: translateY(-50%);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(var(--launcher-color-gold-rgb), 0.18) 18%,
+      rgba(var(--launcher-color-gold-rgb), 0.26) 50%,
+      rgba(var(--launcher-color-gold-rgb), 0.18) 82%,
+      transparent
+    );
+}
+
+.loading-screen__diamond {
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.36);
+  background: rgba(2, 10, 19, 0.92);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.loading-screen__diamond--left {
+  left: 15%;
+}
+
+.loading-screen__diamond--right {
+  right: 15%;
+}
+
+.loading-screen__stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: min(78vw, 720px);
+  aspect-ratio: 1;
+}
+
+.loading-screen__ring {
+  border-radius: 50%;
+}
+
+.loading-screen__ring--outer {
+  width: min(72vw, 620px);
+  aspect-ratio: 1;
+  border: 1px dashed rgba(var(--launcher-color-gold-rgb), 0.12);
+  opacity: 0.54;
+  animation: loading-ring-rotate 34s linear infinite;
+}
+
+.loading-screen__ring--mid {
+  width: min(56vw, 492px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.22);
+  box-shadow:
+    inset 0 0 32px rgba(var(--launcher-color-gold-rgb), 0.06),
+    0 0 44px rgba(var(--launcher-color-gold-rgb), 0.06);
+}
+
+.loading-screen__ring--inner {
+  width: min(52vw, 454px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.12);
+}
+
+.loading-screen__ring-markers {
+  width: min(56vw, 492px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.loading-screen__ring-markers--outer {
+  width: min(72vw, 620px);
+  transform: rotate(45deg);
+}
+
+.loading-screen__ring-markers span {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.5);
+  background: rgba(2, 10, 19, 0.96);
+  transform: rotate(45deg);
+}
+
+.loading-screen__ring-markers span:nth-child(1) {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.loading-screen__ring-markers span:nth-child(2) {
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%) rotate(45deg);
+}
+
+.loading-screen__ring-markers span:nth-child(3) {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%) rotate(45deg);
+}
+
+.loading-screen__ring-markers span:nth-child(4) {
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.loading-screen__energy {
+  inset: auto;
+  bottom: 24%;
+  width: 180px;
+  height: 220px;
+  border-radius: 50%;
+  opacity: 0.26;
+  filter: blur(28px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.loading-screen__energy--blue {
+  left: calc(50% - 190px);
+  background:
+    radial-gradient(circle at 50% 100%, rgba(var(--launcher-color-azure-bright-rgb), 0.72) 0%, rgba(var(--launcher-color-azure-rgb), 0.36) 30%, transparent 76%);
+  animation: loading-energy-blue 7.5s ease-in-out infinite;
+}
+
+.loading-screen__energy--red {
+  right: calc(50% - 190px);
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255, 126, 118, 0.68) 0%, rgba(182, 52, 60, 0.26) 32%, transparent 76%);
+  animation: loading-energy-red 8.2s ease-in-out infinite;
+}
+
+.loading-screen__content {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: min(62vw, 420px);
+  margin-top: 18px;
+  text-align: center;
+}
+
+.loading-screen__brand {
+  width: min(320px, 72%);
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter:
+    drop-shadow(0 14px 20px rgba(0, 0, 0, 0.54))
+    drop-shadow(0 0 24px rgba(var(--launcher-color-gold-rgb), 0.14));
+}
+
+.loading-screen__eyebrow,
+.loading-screen__version {
+  margin: 0;
+  color: rgba(var(--launcher-color-gold-rgb), 0.92);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.loading-screen__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2vw, 32px);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.loading-screen__status {
+  max-width: 360px;
+  margin: 0;
+  color: rgba(245, 239, 225, 0.74);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.loading-screen__progress {
+  position: relative;
+  width: min(260px, 100%);
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.48);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(1, 6, 10, 0.96) 0%, rgba(6, 12, 18, 0.96) 100%);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.24),
+    inset 0 0 8px rgba(var(--launcher-color-gold-rgb), 0.12);
+}
+
+.loading-screen__progress-fill,
+.loading-screen__progress-glow {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transition: transform 280ms cubic-bezier(0.18, 0.88, 0.28, 1);
+}
+
+.loading-screen__progress-fill {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(var(--launcher-color-gold-deep-rgb), 0.9) 0%,
+      rgba(var(--launcher-color-gold-rgb), 0.98) 34%,
+      rgba(var(--launcher-color-gold-bright-rgb), 1) 58%,
+      rgba(var(--launcher-color-gold-rgb), 0.94) 100%
+    );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 0 16px rgba(var(--launcher-color-gold-rgb), 0.32);
+}
+
+.loading-screen__progress-glow {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.36), transparent);
+  animation: loading-progress-shimmer 1.8s linear infinite;
+}
+
+.loading-screen__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(260px, 100%);
+  min-height: 18px;
+  color: rgba(245, 239, 225, 0.56);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.loading-screen__percent {
+  color: rgba(var(--launcher-color-gold-rgb), 0.94);
+}
+
+.loading-screen__detail {
+  text-align: right;
+}
+
+@keyframes loading-ring-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loading-energy-blue {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translateY(12px) scale(1);
+  }
+
+  50% {
+    opacity: 0.34;
+    transform: translateY(-10px) scale(1.08);
+  }
+}
+
+@keyframes loading-energy-red {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: translateY(16px) scale(1);
+  }
+
+  50% {
+    opacity: 0.3;
+    transform: translateY(-12px) scale(1.08);
+  }
+}
+
+@keyframes loading-progress-shimmer {
+  from {
+    transform: translateX(-120%);
+  }
+
+  to {
+    transform: translateX(180%);
+  }
+}
+
+@media (max-width: 900px) {
+  .loading-screen__stage {
+    width: min(100vw, 560px);
+  }
+
+  .loading-screen__energy {
+    width: 120px;
+    height: 180px;
+  }
+
+  .loading-screen__energy--blue {
+    left: calc(50% - 140px);
+  }
+
+  .loading-screen__energy--red {
+    right: calc(50% - 140px);
+  }
+
+  .loading-screen__content {
+    width: min(84vw, 380px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen__ring--outer,
+  .loading-screen__energy,
+  .loading-screen__progress-glow {
+    animation: none;
+  }
+}

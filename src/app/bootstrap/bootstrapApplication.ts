@@ -13,6 +13,133 @@ const DEV_TEST_LOGIN: LoginFormValues = {
   rememberDevice: true,
 };
 
+type AppSurface = 'boot' | 'game' | 'loading' | 'login' | 'menu';
+
+interface LoadingStep {
+  detail?: string;
+  holdMs: number;
+  progress: number;
+  status: string;
+}
+
+interface LoadingSequence {
+  eyebrow: string;
+  steps: LoadingStep[];
+  title: string;
+}
+
+const LOGIN_TO_MENU_SEQUENCE: LoadingSequence = {
+  eyebrow: 'Secure Session Link',
+  title: 'Loading launcher',
+  steps: [
+    {
+      detail: 'JWT access link accepted',
+      holdMs: 220,
+      progress: 0.18,
+      status: 'Vinculando a sessão autenticada',
+    },
+    {
+      detail: 'Launcher shell and navigation',
+      holdMs: 260,
+      progress: 0.42,
+      status: 'Montando a interface principal',
+    },
+    {
+      detail: 'Background scene and profile modules',
+      holdMs: 320,
+      progress: 0.74,
+      status: 'Carregando assets iniciais do menu',
+    },
+    {
+      detail: 'The proving grounds are ready',
+      holdMs: 200,
+      progress: 1,
+      status: 'Entrada liberada para o menu',
+    },
+  ],
+};
+
+const RESUME_TO_MENU_SEQUENCE: LoadingSequence = {
+  eyebrow: 'Remembered Device',
+  title: 'Restoring launcher',
+  steps: [
+    {
+      detail: 'Refresh token rotated successfully',
+      holdMs: 180,
+      progress: 0.28,
+      status: 'Revalidando a sessão salva',
+    },
+    {
+      detail: 'Rehydrating launcher state',
+      holdMs: 220,
+      progress: 0.66,
+      status: 'Reconstruindo os módulos do menu',
+    },
+    {
+      detail: 'Returning to the proving grounds',
+      holdMs: 170,
+      progress: 1,
+      status: 'Entrada autenticada restaurada',
+    },
+  ],
+};
+
+const MENU_TO_GAME_SEQUENCE: LoadingSequence = {
+  eyebrow: 'Arena Deployment',
+  title: 'Loading battle',
+  steps: [
+    {
+      detail: 'Champion slot and arena sigils',
+      holdMs: 240,
+      progress: 0.18,
+      status: 'Travando a configuração da partida',
+    },
+    {
+      detail: 'Combat shell and match bridge',
+      holdMs: 280,
+      progress: 0.44,
+      status: 'Sincronizando o handoff do jogo',
+    },
+    {
+      detail: 'Streaming battle-side assets',
+      holdMs: 320,
+      progress: 0.78,
+      status: 'Carregando os assets iniciais da arena',
+    },
+    {
+      detail: 'Arena ready for deployment',
+      holdMs: 220,
+      progress: 1,
+      status: 'A arena está pronta',
+    },
+  ],
+};
+
+const GAME_TO_MENU_SEQUENCE: LoadingSequence = {
+  eyebrow: 'Launcher Recall',
+  title: 'Returning to menu',
+  steps: [
+    {
+      detail: 'Detaching battle shell',
+      holdMs: 180,
+      progress: 0.32,
+      status: 'Encerrando a transição do jogo',
+    },
+    {
+      detail: 'Rehydrating launcher chrome',
+      holdMs: 220,
+      progress: 0.72,
+      status: 'Restaurando o menu principal',
+    },
+    {
+      detail: 'Menu ready',
+      holdMs: 180,
+      progress: 1,
+      status: 'Menu preparado novamente',
+    },
+  ],
+};
+
 function createDesktopBridgeFallback(): DesktopBridge {
   return {
     authStorage: {
@@ -58,12 +185,14 @@ export function bootstrapApplication(host: HTMLElement): void {
     window.location.hostname === '127.0.0.1';
 
   let rememberDeviceSupported = false;
+  let activeSurface: AppSurface = 'boot';
   let loginState = {
     errorMessage: null as string | null,
     identifier: '',
     isSubmitting: false,
     rememberDevice: true,
   };
+  let loadingSequenceId = 0;
   let exitModalState = {
     errorMessage: null as string | null,
     isLoggingOut: false,
@@ -74,13 +203,24 @@ export function bootstrapApplication(host: HTMLElement): void {
   audio.bindInteractionSurface(shell.interactiveLayer);
   runtime.start();
 
-  const renderHomePage = (): void => {
+  const cancelLoadingSequence = (): void => {
+    loadingSequenceId += 1;
+  };
+
+  const wait = (ms: number): Promise<void> =>
+    new Promise((resolve) => {
+      window.setTimeout(resolve, ms);
+    });
+
+  const renderMenuPage = (): void => {
     const session = authService.getCurrentSession();
 
     if (!session?.user) {
       throw new Error('Home page requires an authenticated user session.');
     }
 
+    cancelLoadingSequence();
+    activeSurface = 'menu';
     router.showHome({
       musicMuted: audio.isMusicMuted(),
       exitModal:
@@ -93,6 +233,72 @@ export function bootstrapApplication(host: HTMLElement): void {
             },
       user: session.user,
     });
+  };
+
+  const renderGamePage = (): void => {
+    const session = authService.getCurrentSession();
+
+    if (!session?.user) {
+      throw new Error('Game page requires an authenticated user session.');
+    }
+
+    cancelLoadingSequence();
+    activeSurface = 'game';
+    router.showGame({
+      user: session.user,
+    });
+  };
+
+  const runLoadingSequence = async (sequence: LoadingSequence): Promise<boolean> => {
+    const transitionId = ++loadingSequenceId;
+    const firstStep = sequence.steps[0];
+    const loadingScreen = router.showLoading({
+      detail: firstStep?.detail,
+      eyebrow: sequence.eyebrow,
+      progress: 0,
+      status: firstStep?.status ?? 'Loading',
+      title: sequence.title,
+    });
+
+    activeSurface = 'loading';
+
+    for (const step of sequence.steps) {
+      if (transitionId !== loadingSequenceId) {
+        return false;
+      }
+
+      loadingScreen.setState({
+        detail: step.detail,
+        progress: step.progress,
+        status: step.status,
+      });
+
+      await wait(step.holdMs);
+    }
+
+    return transitionId === loadingSequenceId;
+  };
+
+  const transitionToMenu = async (
+    sequence: LoadingSequence = LOGIN_TO_MENU_SEQUENCE,
+  ): Promise<void> => {
+    const completed = await runLoadingSequence(sequence);
+
+    if (!completed) {
+      return;
+    }
+
+    renderMenuPage();
+  };
+
+  const transitionToGame = async (): Promise<void> => {
+    const completed = await runLoadingSequence(MENU_TO_GAME_SEQUENCE);
+
+    if (!completed) {
+      return;
+    }
+
+    renderGamePage();
   };
 
   const clearExitModalCloseTimer = (): void => {
@@ -111,10 +317,12 @@ export function bootstrapApplication(host: HTMLElement): void {
       isLoggingOut: false,
       status: 'open',
     };
-    renderHomePage();
+    renderMenuPage();
   };
 
   const renderLoginPage = (): void => {
+    cancelLoadingSequence();
+    activeSurface = 'login';
     router.showLogin({
       appVersion: __APP_VERSION__,
       devShortcutLabel: 'Entrar com usuario de teste',
@@ -154,7 +362,8 @@ export function bootstrapApplication(host: HTMLElement): void {
     void authService
       .login(values)
       .then(() => {
-        renderHomePage();
+        audio.playTransitionCue('screen-shift');
+        void transitionToMenu(LOGIN_TO_MENU_SEQUENCE);
       })
       .catch((error: unknown) => {
         loginState = {
@@ -179,7 +388,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       isLoggingOut: true,
       status: 'open',
     };
-    renderHomePage();
+    renderMenuPage();
 
     void authService
       .logout()
@@ -203,7 +412,7 @@ export function bootstrapApplication(host: HTMLElement): void {
           isLoggingOut: false,
           status: 'open',
         };
-        renderHomePage();
+        renderMenuPage();
       });
   };
 
@@ -217,7 +426,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       isLoggingOut: false,
       status: 'closing',
     };
-    renderHomePage();
+    renderMenuPage();
 
     clearExitModalCloseTimer();
     exitModalCloseTimer = window.setTimeout(() => {
@@ -227,11 +436,13 @@ export function bootstrapApplication(host: HTMLElement): void {
         status: 'closed',
       };
       exitModalCloseTimer = null;
-      renderHomePage();
+      renderMenuPage();
     }, EXIT_MODAL_TRANSITION_MS);
   };
 
   void (async () => {
+    cancelLoadingSequence();
+    activeSurface = 'boot';
     router.showBoot('Validating remembered session signature...');
     rememberDeviceSupported = await authService.supportsRememberedSessions();
 
@@ -244,7 +455,8 @@ export function bootstrapApplication(host: HTMLElement): void {
           isLoggingOut: false,
           status: 'closed',
         };
-        renderHomePage();
+        audio.playTransitionCue('screen-shift');
+        await transitionToMenu(RESUME_TO_MENU_SEQUENCE);
       } else {
         loginState = {
           ...loginState,
@@ -271,9 +483,11 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     if (action === 'toggle-music-mute') {
       audio.toggleMusicMute();
-      if (authService.getCurrentSession()?.user) {
-        renderHomePage();
-      } else {
+      if (activeSurface === 'menu') {
+        renderMenuPage();
+      } else if (activeSurface === 'game') {
+        renderGamePage();
+      } else if (activeSurface === 'login') {
         renderLoginPage();
       }
       return;
@@ -286,6 +500,9 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     if (action === 'play-now') {
       audio.playTransitionCue('screen-shift');
+      if (activeSurface === 'menu') {
+        void transitionToGame();
+      }
       return;
     }
 
@@ -321,6 +538,12 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     if (action === 'launcher-force-close') {
       void desktop.windowControls?.close();
+      return;
+    }
+
+    if (action === 'game-return-menu') {
+      audio.playTransitionCue('screen-shift');
+      void transitionToMenu(GAME_TO_MENU_SEQUENCE);
     }
   });
 
