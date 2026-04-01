@@ -13,11 +13,20 @@ const AUTH_STORAGE_CHANNELS = {
 } as const;
 
 const AUTH_STORAGE_FILENAME = 'auth-session.bin';
+const AUTH_STORAGE_DEV_FILENAME = 'auth-session.dev.json';
 
 let handlersRegistered = false;
 
 function getAuthStorageFilePath(): string {
   return join(app.getPath('userData'), AUTH_STORAGE_FILENAME);
+}
+
+function getDevAuthStorageFilePath(): string {
+  return join(app.getPath('userData'), AUTH_STORAGE_DEV_FILENAME);
+}
+
+function supportsDevFallbackStorage(): boolean {
+  return !app.isPackaged;
 }
 
 function validateRememberedSession(
@@ -41,7 +50,16 @@ function validateRememberedSession(
 async function readRememberedSession(): Promise<DesktopRememberedAuthSession | null> {
   try {
     if (!safeStorage.isEncryptionAvailable()) {
-      return null;
+      if (!supportsDevFallbackStorage()) {
+        return null;
+      }
+
+      const rawPayload = await fs.readFile(getDevAuthStorageFilePath(), 'utf8');
+      const parsedPayload = JSON.parse(rawPayload) as unknown;
+
+      validateRememberedSession(parsedPayload);
+
+      return parsedPayload;
     }
 
     const encryptedPayload = await fs.readFile(getAuthStorageFilePath());
@@ -65,7 +83,15 @@ async function readRememberedSession(): Promise<DesktopRememberedAuthSession | n
 
 async function writeRememberedSession(session: DesktopRememberedAuthSession): Promise<void> {
   if (!safeStorage.isEncryptionAvailable()) {
-    throw new Error('Electron secure storage is unavailable on this system.');
+    if (!supportsDevFallbackStorage()) {
+      throw new Error('Electron secure storage is unavailable on this system.');
+    }
+
+    await fs.writeFile(getDevAuthStorageFilePath(), JSON.stringify(session), {
+      encoding: 'utf8',
+      mode: 0o600,
+    });
+    return;
   }
 
   const serializedSession = JSON.stringify(session);
@@ -74,12 +100,20 @@ async function writeRememberedSession(session: DesktopRememberedAuthSession): Pr
   await fs.writeFile(getAuthStorageFilePath(), encryptedSession, {
     mode: 0o600,
   });
+  await fs.rm(getDevAuthStorageFilePath(), {
+    force: true,
+  });
 }
 
 async function clearRememberedSession(): Promise<void> {
-  await fs.rm(getAuthStorageFilePath(), {
-    force: true,
-  });
+  await Promise.all([
+    fs.rm(getAuthStorageFilePath(), {
+      force: true,
+    }),
+    fs.rm(getDevAuthStorageFilePath(), {
+      force: true,
+    }),
+  ]);
 }
 
 export function registerAuthStorageHandlers(): void {
@@ -90,7 +124,7 @@ export function registerAuthStorageHandlers(): void {
   handlersRegistered = true;
 
   ipcMain.handle(AUTH_STORAGE_CHANNELS.isAvailable, () => {
-    return safeStorage.isEncryptionAvailable();
+    return safeStorage.isEncryptionAvailable() || supportsDevFallbackStorage();
   });
 
   ipcMain.handle(AUTH_STORAGE_CHANNELS.get, async () => {

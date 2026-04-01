@@ -97,18 +97,6 @@ export class AuthApiClient {
     });
   }
 
-  logoutKeepAlive(payload: LogoutPayload, accessToken?: string): void {
-    void fetch(`${this.baseUrl}/auth/logout`, {
-      body: JSON.stringify(payload),
-      headers: {
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-        'Content-Type': 'application/json',
-      },
-      keepalive: true,
-      method: 'POST',
-    }).catch(() => undefined);
-  }
-
   private async request<T>(path: string, init: RequestInit): Promise<T> {
     try {
       const response = await fetch(`${this.baseUrl}${path}`, {

@@ -290,20 +290,22 @@ export function bootstrapApplication(host: HTMLElement): void {
       isSubmitting: loginState.isSubmitting,
       onLocaleChange: handleLocaleChange,
       onDevShortcutSubmit: handleDevShortcutSubmit,
-      rememberDevice: loginState.rememberDevice,
+      rememberDevice: rememberDeviceSupported && loginState.rememberDevice,
       rememberDeviceSupported,
       onSubmit: handleLoginSubmit,
     });
   };
 
   const handleLoginSubmit = (values: LoginFormValues): void => {
+    const rememberDevice = rememberDeviceSupported && values.rememberDevice;
+
     if (!values.identifier || !values.password) {
       loginState = {
         ...loginState,
         errorMessage: i18n.t('auth.validation.missingCredentials'),
         identifier: values.identifier,
         isSubmitting: false,
-        rememberDevice: values.rememberDevice,
+        rememberDevice,
       };
       renderLoginPage();
       return;
@@ -313,12 +315,15 @@ export function bootstrapApplication(host: HTMLElement): void {
       errorMessage: null,
       identifier: values.identifier,
       isSubmitting: true,
-      rememberDevice: values.rememberDevice,
+      rememberDevice,
     };
     renderLoginPage();
 
     void authService
-      .login(values)
+      .login({
+        ...values,
+        rememberDevice,
+      })
       .then(() => {
         profileStore.reset();
         activeMenuView = 'home';
@@ -434,6 +439,10 @@ export function bootstrapApplication(host: HTMLElement): void {
     activeSurface = 'boot';
     router.showBoot(i18n.t('boot.statuses.validatingRememberedSession'));
     rememberDeviceSupported = await authService.supportsRememberedSessions();
+    loginState = {
+      ...loginState,
+      rememberDevice: rememberDeviceSupported && loginState.rememberDevice,
+    };
 
     try {
       const restoredSession = await authService.initialize();
@@ -580,7 +589,6 @@ export function bootstrapApplication(host: HTMLElement): void {
 
   window.addEventListener('beforeunload', () => {
     clearExitModalCloseTimer();
-    void authService.handleBeforeUnload();
     audio.dispose();
     runtime.dispose();
   });

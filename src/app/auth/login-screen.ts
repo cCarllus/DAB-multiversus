@@ -125,7 +125,7 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
   musicMuteCheckbox.checked = options.musicMuted;
   versionElement.textContent = `v${options.appVersion}`;
   identifierInput.value = options.identifier ?? '';
-  rememberCheckbox.checked = options.rememberDevice;
+  rememberCheckbox.checked = options.rememberDeviceSupported && options.rememberDevice;
   rememberCheckbox.disabled = !options.rememberDeviceSupported || options.isSubmitting;
   identifierInput.disabled = options.isSubmitting;
   passwordInput.disabled = options.isSubmitting;
@@ -185,7 +185,7 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
     void options.onSubmit({
       identifier: identifierInput.value.trim(),
       password: passwordInput.value,
-      rememberDevice: rememberCheckbox.checked,
+      rememberDevice: options.rememberDeviceSupported && rememberCheckbox.checked,
     });
   });
 
@@ -200,7 +200,7 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
 
     identifierInput.value = 'teste@dab.local';
     passwordInput.value = 'SenhaForte123!';
-    rememberCheckbox.checked = true;
+    rememberCheckbox.checked = options.rememberDeviceSupported;
     void options.onDevShortcutSubmit();
   });
 

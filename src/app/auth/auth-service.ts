@@ -224,22 +224,6 @@ export class AuthService {
     this.currentSession = null;
   }
 
-  handleBeforeUnload(): void {
-    if (!this.currentSession || this.currentSession.rememberDevice) {
-      return;
-    }
-
-    this.apiClient.logoutKeepAlive(
-      {
-        refreshToken: this.currentSession.refreshToken,
-      },
-      this.currentSession.accessToken ?? undefined,
-    );
-
-    this.sessionStore.clearRuntimeSession();
-    this.currentSession = null;
-  }
-
   syncCurrentUser(user: AuthUser): void {
     if (!this.currentSession) {
       return;
