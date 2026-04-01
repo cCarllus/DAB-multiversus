@@ -3,6 +3,7 @@ import { AuthService, resolveAuthErrorMessage } from '@app/auth/auth-service';
 import { type LoginFormValues } from '@app/auth/auth-types';
 import { createApplicationShell } from '@app/layout/createApplicationShell';
 import { createAppRouter } from '@app/navigation/app-router';
+import { ProfileStore } from '@app/screens/profile/profile-store';
 import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
 import {
   createI18n,
@@ -12,11 +13,6 @@ import {
 import type { DesktopBridge } from '@shared/types/desktop';
 
 const EXIT_MODAL_TRANSITION_MS = 180;
-const DEV_TEST_LOGIN: LoginFormValues = {
-  identifier: 'teste@dab.local',
-  password: 'SenhaForte123!',
-  rememberDevice: true,
-};
 
 type AppSurface = 'boot' | 'game' | 'loading' | 'login' | 'menu';
 
@@ -47,6 +43,7 @@ function createDesktopBridgeFallback(): DesktopBridge {
     },
     environment: import.meta.env.DEV ? 'development' : 'production',
     isPackaged: false,
+    osVersion: 'web',
     platform: 'browser',
     versions: {
       chrome: 'web',
@@ -75,6 +72,11 @@ export function bootstrapApplication(host: HTMLElement): void {
   const audio = new AppAudioManager();
   const runtime = new BabylonRuntime(shell.canvas);
   const authService = new AuthService(desktop, __APP_VERSION__);
+  const profileStore = new ProfileStore({
+    appVersion: __APP_VERSION__,
+    authService,
+    desktop,
+  });
   const enableDevLoginShortcut =
     desktop.environment === 'development' ||
     window.location.hostname === 'localhost' ||
@@ -148,6 +150,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         rememberDevice: session.rememberDevice,
         sessionExpiresAt: session.sessionExpiresAt,
       },
+      profileStore,
       user: session.user,
       view: activeMenuView,
     });
@@ -285,9 +288,9 @@ export function bootstrapApplication(host: HTMLElement): void {
       locale: i18n.getLocale(),
       isSubmitting: loginState.isSubmitting,
       onLocaleChange: handleLocaleChange,
+      onDevShortcutSubmit: handleDevShortcutSubmit,
       rememberDevice: loginState.rememberDevice,
       rememberDeviceSupported,
-      onDevShortcutSubmit: () => handleLoginSubmit(DEV_TEST_LOGIN),
       onSubmit: handleLoginSubmit,
     });
   };
@@ -316,6 +319,34 @@ export function bootstrapApplication(host: HTMLElement): void {
     void authService
       .login(values)
       .then(() => {
+        profileStore.reset();
+        activeMenuView = 'home';
+        audio.playTransitionCue('screen-shift');
+        void transitionToMenu(getLoadingSequence('loginToMenu'));
+      })
+      .catch((error: unknown) => {
+        loginState = {
+          ...loginState,
+          errorMessage: resolveAuthErrorMessage(error, i18n),
+          isSubmitting: false,
+        };
+        renderLoginPage();
+      });
+  };
+
+  const handleDevShortcutSubmit = (): void => {
+    loginState = {
+      errorMessage: null,
+      identifier: 'teste@dab.local',
+      isSubmitting: true,
+      rememberDevice: rememberDeviceSupported,
+    };
+    renderLoginPage();
+
+    void authService
+      .loginWithDevAccount()
+      .then(() => {
+        profileStore.reset();
         activeMenuView = 'home';
         audio.playTransitionCue('screen-shift');
         void transitionToMenu(getLoadingSequence('loginToMenu'));
@@ -348,6 +379,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     void authService
       .logout()
       .then(() => {
+        profileStore.reset();
         activeMenuView = 'home';
         exitModalState = {
           errorMessage: null,
@@ -406,6 +438,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       const restoredSession = await authService.initialize();
 
       if (restoredSession?.user) {
+        profileStore.reset();
         exitModalState = {
           errorMessage: null,
           isLoggingOut: false,

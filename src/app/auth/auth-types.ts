@@ -1,7 +1,8 @@
 export interface AuthUser {
-  id: string;
   email: string;
-  username: string | null;
+  name: string;
+  nickname: string;
+  profileImageUrl: string | null;
   createdAt: string;
 }
 
@@ -35,12 +36,18 @@ export interface LoginFormValues {
   rememberDevice: boolean;
 }
 
-export type AuthErrorCode =
+type KnownAuthErrorCode =
   | 'ACCESS_TOKEN_EXPIRED'
+  | 'AVATAR_REQUIRED'
+  | 'AVATAR_TOO_LARGE'
   | 'BACKEND_UNAVAILABLE'
   | 'DATABASE_UNAVAILABLE'
+  | 'EMAIL_ALREADY_IN_USE'
+  | 'INVALID_AVATAR_TYPE'
   | 'INVALID_CREDENTIALS'
+  | 'INVALID_NAME'
   | 'LOGOUT_TARGET_REQUIRED'
+  | 'NICKNAME_ALREADY_IN_USE'
   | 'REFRESH_TOKEN_INVALID'
   | 'REMEMBER_DEVICE_UNAVAILABLE'
   | 'REQUEST_INVALID'
@@ -48,8 +55,9 @@ export type AuthErrorCode =
   | 'SESSION_PERSISTENCE_FAILED'
   | 'SESSION_REVOKED'
   | 'UNAUTHENTICATED'
-  | 'UNAUTHORIZED'
-  | string;
+  | 'UNAUTHORIZED';
+
+export type AuthErrorCode = KnownAuthErrorCode | (string & {});
 
 export class AuthFlowError extends Error {
   constructor(
@@ -64,5 +72,5 @@ export class AuthFlowError extends Error {
 
 export function resolveAuthDisplayName(user: AuthUser): string {
   const fallbackName = user.email.split('@')[0] ?? user.email;
-  return user.username ?? fallbackName;
+  return user.name || user.nickname || fallbackName;
 }

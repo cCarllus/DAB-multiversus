@@ -8,6 +8,10 @@ import { createAuthRouter } from './modules/auth/auth.routes';
 import { AuthService } from './modules/auth/auth.service';
 import { PasswordService } from './modules/auth/password.service';
 import { TokenService } from './modules/auth/token.service';
+import { createProfileController } from './modules/profile/profile.controller';
+import { ProfileRepository } from './modules/profile/profile.repository';
+import { createProfileRouter } from './modules/profile/profile.routes';
+import { ProfileService } from './modules/profile/profile.service';
 import { UsersRepository } from './modules/users/users.repository';
 import { UsersService } from './modules/users/users.service';
 
@@ -17,15 +21,20 @@ async function main(): Promise<void> {
   const usersRepository = new UsersRepository();
   const usersService = new UsersService(usersRepository);
   const authRepository = new AuthRepository();
+  const profileRepository = new ProfileRepository();
+  const profileService = new ProfileService(profileRepository, usersService);
   const passwordService = new PasswordService();
   const tokenService = new TokenService();
+  await profileService.ensureStorage();
   const authService = new AuthService({
     authRepository,
     passwordService,
+    profileService,
     tokenService,
     usersService,
   });
   const authController = createAuthController(authService);
+  const profileController = createProfileController(profileService);
   const authMiddleware = createAuthMiddleware(authRepository, tokenService);
   const optionalAuthMiddleware = createOptionalAuthMiddleware(authRepository, tokenService);
   const app = createApp({
@@ -34,18 +43,28 @@ async function main(): Promise<void> {
       authMiddleware,
       optionalAuthMiddleware,
     }),
+    profileRouter: createProfileRouter({
+      authMiddleware,
+      profileController,
+    }),
   });
 
   const server = app.listen(env.PORT, () => {
     console.log(`Dead As Battle auth server listening on port ${env.PORT}.`);
   });
 
-  const shutdown = async (signal: string): Promise<void> => {
+  const shutdown = (signal: string): void => {
     console.log(`${signal} received, shutting down auth server.`);
 
-    server.close(async () => {
-      await closeDatabase();
-      process.exit(0);
+    server.close(() => {
+      void closeDatabase()
+        .then(() => {
+          process.exit(0);
+        })
+        .catch((error: unknown) => {
+          console.error('Failed to close the database pool cleanly.', error);
+          process.exit(1);
+        });
     });
 
     setTimeout(() => {
@@ -54,11 +73,11 @@ async function main(): Promise<void> {
   };
 
   process.on('SIGINT', () => {
-    void shutdown('SIGINT');
+    shutdown('SIGINT');
   });
 
   process.on('SIGTERM', () => {
-    void shutdown('SIGTERM');
+    shutdown('SIGTERM');
   });
 }
 

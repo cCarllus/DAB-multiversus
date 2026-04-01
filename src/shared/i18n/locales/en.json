@@ -10,10 +10,10 @@
   },
   "auth": {
     "validation": {
-      "missingCredentials": "Enter your email or username and password to continue."
+      "missingCredentials": "Enter your email or nickname and password to continue."
     },
     "errors": {
-      "invalidCredentials": "Email, username, or password is incorrect.",
+      "invalidCredentials": "Email, nickname, or password is incorrect.",
       "backendUnavailable": "The launcher could not reach the authentication service.",
       "sessionExpired": "Your session expired. Sign in again.",
       "rememberDeviceUnavailable": "Electron secure storage is unavailable on this device.",
@@ -55,10 +55,10 @@
     "intro": {
       "eyebrow": "Initial Sign-In",
       "title": "Sign in",
-      "summary": "Use your email or username to enter the launcher and reach the authenticated home screen."
+      "summary": "Use your email or nickname to enter the launcher and reach the authenticated home screen."
     },
     "form": {
-      "identifierLabel": "Email or username",
+      "identifierLabel": "Email or nickname",
       "identifierPlaceholder": "you@email.com",
       "passwordLabel": "Password",
       "passwordPlaceholder": "Enter your password",
@@ -242,88 +242,102 @@
       "livePopularMatch": "Live Popular Match"
     },
     "profile": {
-      "heroAriaLabel": "Profile hero",
-      "overviewAriaLabel": "Profile overview",
-      "eyebrow": "Access Dossier",
-      "taglineClaimed": "Custom identity linked to the launcher.",
-      "taglineFallback": "Authenticated operator using an email-derived alias.",
-      "summary": "Identity, registry and secure-session telemetry stay visible here while your account remains linked to the proving grounds.",
+      "heroAriaLabel": "Player identity header",
+      "overviewAriaLabel": "Player profile overview",
+      "eyebrow": "Player Identity",
+      "summary": "Your account identity for the launcher. Only player-facing information stays here: name, nickname, avatar, language and trusted-device status.",
       "primaryAction": "Enter Arena",
-      "profileIdLabel": "Shard ID",
-      "overviewTitle": "Profile Overview",
-      "overviewSummary": "Live identity signals and session state derived directly from the authenticated account.",
-      "tagLabels": {
-        "email": "Login",
+      "hero": {
         "memberSince": "Member since",
-        "access": "Access"
+        "userId": "ID USER",
+        "launcherStatus": "Launcher status",
+        "language": "Language",
+        "trustedDevice": "Trusted device",
+        "nicknameLocked": "Nickname is permanent once your account is created."
       },
-      "statsEyebrow": "Registry Metrics",
-      "statsTitle": "Identity Metrics",
-      "markersEyebrow": "Secure Flags",
-      "markersTitle": "Access Markers",
-      "dossierEyebrow": "Account Readout",
-      "dossierTitle": "Account Dossier",
-      "stats": {
-        "tenureMonths": {
-          "eyebrow": "Tenure",
-          "label": "Months Active",
-          "badge": "Months"
-        },
-        "accountAgeDays": {
-          "eyebrow": "Record",
-          "label": "Days on Record"
-        },
-        "sessionHours": {
-          "eyebrow": "Session",
-          "label": "Hours Until Expiry"
-        }
-      },
-      "accessModes": {
-        "remembered": "Remembered device",
+      "status": {
+        "launcherReady": "Ready in the launcher",
+        "trustedDeviceSaved": "Trusted on this device",
         "sessionOnly": "Session only"
       },
-      "markerValues": {
-        "live": "LIVE",
-        "sessionOnly": "TEMP",
-        "set": "SET",
-        "auto": "AUTO",
-        "pt": "PT",
-        "en": "EN"
-      },
-      "markers": {
-        "authenticated": {
-          "title": "Authenticated session",
-          "meta": "Access token and refresh token are active."
+      "overviewEyebrow": "Profile Overview",
+      "overviewTitle": "Your launcher identity",
+      "overviewSummary": "A clean profile surface for the player. Rank, collection and match history can plug into this layout later without exposing session internals.",
+      "overviewCards": {
+        "launcherStatus": {
+          "label": "Launcher access",
+          "meta": "Current access state for this launcher session."
         },
-        "device": {
-          "title": "Trusted device",
-          "metaRemembered": "Persistent secure storage is enabled.",
-          "metaSession": "The session is cleared when the launcher closes."
+        "trustedDevice": {
+          "label": "Trusted device",
+          "meta": "Friendly device-saving status for the launcher."
         },
-        "username": {
-          "title": "Username state",
-          "metaClaimed": "A custom handle is bound to the account.",
-          "metaFallback": "Display falls back to the email alias."
+        "currentDevice": {
+          "label": "Current device",
+          "meta": "The device currently linked to this session."
         },
-        "locale": {
-          "title": "Client locale",
-          "meta": "Language currently active in the launcher interface."
+        "language": {
+          "label": "Current language",
+          "meta": "Language active across the launcher interface."
         }
       },
-      "dossier": {
-        "username": "Username",
-        "email": "Login email",
-        "accountId": "Account ID",
-        "createdAt": "Created at",
-        "sessionExpires": "Session expires",
-        "accessExpires": "Access token",
-        "usernameMetaClaimed": "Custom identity slot assigned.",
-        "usernameMetaFallback": "Using the email-derived fallback.",
-        "emailMeta": "Primary credential used for launcher sign-in.",
-        "accountIdMeta": "Full registry id: {{id}}",
-        "createdAtMeta": "The account record opened on this date.",
-        "sessionExpiresMeta": "Saved-device reach depends on the current access mode.",
-        "accessExpiresMeta": "Short-lived access window refreshed inside the app."
+      "future": {
+        "eyebrow": "Future Ready",
+        "summary": "This profile area is prepared for rank, owned champions, progression, match history and linked-device management."
+      },
+      "accountEyebrow": "Account Details",
+      "accountTitle": "Account details",
+      "accountFields": {
+        "displayName": "Display name",
+        "userId": "ID USER",
+        "memberSince": "Member since",
+        "language": "Language"
+      },
+      "devicesEyebrow": "Device Status",
+      "devicesTitle": "Device and access",
+      "devicesSummary": "Friendly launcher access details only. Raw device identifiers, tokens and session internals stay hidden.",
+      "deviceCards": {
+        "trustedDevice": {
+          "label": "Trusted device",
+          "meta": "Saved-device status for this launcher."
+        },
+        "currentDevice": {
+          "label": "Current device"
+        },
+        "lastActive": {
+          "label": "Last active"
+        }
+      },
+      "deviceList": {
+        "current": "Current device",
+        "lastSeen": "Seen {{date}}",
+        "noVersion": "Launcher version unavailable",
+        "appVersion": "Launcher v{{version}}"
+      },
+      "avatar": {
+        "changePhoto": "Change photo",
+        "previewEyebrow": "Avatar Preview",
+        "previewTitle": "Confirm your new photo",
+        "previewSummary": "Check how your avatar looks in the profile frame before saving it.",
+        "confirm": "Update photo",
+        "cancel": "Cancel",
+        "uploading": "Uploading..."
+      },
+      "nameEditor": {
+        "label": "Display Name",
+        "edit": "Edit name",
+        "hint": "This is the name shown in the launcher. You can update it whenever you want.",
+        "inputLabel": "Display name",
+        "save": "Save name",
+        "saving": "Saving...",
+        "cancel": "Cancel"
+      },
+      "feedback": {
+        "nameUpdated": "Display name updated.",
+        "photoUpdated": "Profile photo updated.",
+        "invalidName": "Enter a valid display name with at least 2 characters.",
+        "invalidAvatarType": "Choose a PNG, JPG or WEBP image.",
+        "avatarTooLarge": "Profile photo must be 5 MB or smaller."
       },
       "fallbackUsername": "Not set",
       "fallbackValue": "Unavailable"

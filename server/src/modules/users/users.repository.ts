@@ -1,13 +1,15 @@
 import { randomUUID } from 'node:crypto';
 
 import { dbPool, type DatabaseClient } from '../../db/postgres';
-import type { CreateUserInput, UserRecord } from './users.types';
+import type { CreateUserInput, UpdateUserProfileInput, UserRecord } from './users.types';
 
 interface UserRow {
   id: string;
   email: string;
-  username: string | null;
+  name: string;
+  nickname: string;
   password_hash: string;
+  profile_image_url: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -16,8 +18,10 @@ function mapUserRow(row: UserRow): UserRecord {
   return {
     id: row.id,
     email: row.email,
-    username: row.username,
+    name: row.name,
+    nickname: row.nickname,
     passwordHash: row.password_hash,
+    profileImageUrl: row.profile_image_url,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -29,7 +33,7 @@ export class UsersRepository {
   async findById(userId: string, client?: DatabaseClient): Promise<UserRecord | null> {
     const executor = client ?? this.database;
     const result = await executor.query<UserRow>(
-      `SELECT id, email, username, password_hash, created_at, updated_at
+      `SELECT id, email, name, nickname, password_hash, profile_image_url, created_at, updated_at
        FROM users
        WHERE id = $1
        LIMIT 1`,
@@ -42,7 +46,7 @@ export class UsersRepository {
   async findByEmail(email: string, client?: DatabaseClient): Promise<UserRecord | null> {
     const executor = client ?? this.database;
     const result = await executor.query<UserRow>(
-      `SELECT id, email, username, password_hash, created_at, updated_at
+      `SELECT id, email, name, nickname, password_hash, profile_image_url, created_at, updated_at
        FROM users
        WHERE email = $1
        LIMIT 1`,
@@ -52,14 +56,14 @@ export class UsersRepository {
     return result.rows[0] ? mapUserRow(result.rows[0]) : null;
   }
 
-  async findByUsername(username: string, client?: DatabaseClient): Promise<UserRecord | null> {
+  async findByNickname(nickname: string, client?: DatabaseClient): Promise<UserRecord | null> {
     const executor = client ?? this.database;
     const result = await executor.query<UserRow>(
-      `SELECT id, email, username, password_hash, created_at, updated_at
+      `SELECT id, email, name, nickname, password_hash, profile_image_url, created_at, updated_at
        FROM users
-       WHERE username = $1
+       WHERE nickname = $1
        LIMIT 1`,
-      [username],
+      [nickname],
     );
 
     return result.rows[0] ? mapUserRow(result.rows[0]) : null;
@@ -68,9 +72,9 @@ export class UsersRepository {
   async findByIdentifier(identifier: string, client?: DatabaseClient): Promise<UserRecord | null> {
     const executor = client ?? this.database;
     const result = await executor.query<UserRow>(
-      `SELECT id, email, username, password_hash, created_at, updated_at
+      `SELECT id, email, name, nickname, password_hash, profile_image_url, created_at, updated_at
        FROM users
-       WHERE email = $1 OR username = $1
+       WHERE email = $1 OR nickname = $1
        LIMIT 1`,
       [identifier],
     );
@@ -81,10 +85,17 @@ export class UsersRepository {
   async create(input: CreateUserInput, client?: DatabaseClient): Promise<UserRecord> {
     const executor = client ?? this.database;
     const result = await executor.query<UserRow>(
-      `INSERT INTO users (id, email, username, password_hash, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, NOW(), NOW())
-       RETURNING id, email, username, password_hash, created_at, updated_at`,
-      [randomUUID(), input.email, input.username, input.passwordHash],
+      `INSERT INTO users (id, email, name, nickname, password_hash, profile_image_url, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+       RETURNING id, email, name, nickname, password_hash, profile_image_url, created_at, updated_at`,
+      [
+        randomUUID(),
+        input.email,
+        input.name,
+        input.nickname,
+        input.passwordHash,
+        input.profileImageUrl ?? null,
+      ],
     );
 
     const createdUser = result.rows[0];
@@ -94,5 +105,31 @@ export class UsersRepository {
     }
 
     return mapUserRow(createdUser);
+  }
+
+  async updateProfile(
+    userId: string,
+    input: UpdateUserProfileInput,
+    client?: DatabaseClient,
+  ): Promise<UserRecord> {
+    const executor = client ?? this.database;
+    const result = await executor.query<UserRow>(
+      `UPDATE users
+       SET
+         name = COALESCE($2, name),
+         profile_image_url = COALESCE($3, profile_image_url),
+         updated_at = NOW()
+       WHERE id = $1
+       RETURNING id, email, name, nickname, password_hash, profile_image_url, created_at, updated_at`,
+      [userId, input.name ?? null, input.profileImageUrl ?? null],
+    );
+
+    const updatedUser = result.rows[0];
+
+    if (!updatedUser) {
+      throw new Error('Profile update did not return a database row.');
+    }
+
+    return mapUserRow(updatedUser);
   }
 }

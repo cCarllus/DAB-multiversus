@@ -1,12 +1,14 @@
 import { env } from '../../config/env';
 import { withTransaction } from '../../db/postgres';
 import { AppError } from '../../shared/errors/AppError';
+import { ProfileService } from '../profile/profile.service';
 import { UsersService } from '../users/users.service';
 import type { UserRecord } from '../users/users.types';
 import { AuthRepository } from './auth.repository';
 import type {
   AuthResponse,
   AuthSessionRecord,
+  DeviceMetadataInput,
   LoginInput,
   LogoutInput,
   RefreshInput,
@@ -18,18 +20,17 @@ import { TokenService } from './token.service';
 interface AuthServiceDependencies {
   authRepository: AuthRepository;
   passwordService: PasswordService;
+  profileService: ProfileService;
   tokenService: TokenService;
   usersService: UsersService;
 }
 
-interface SessionMetadata {
+interface SessionMetadata extends DeviceMetadataInput {
   rememberDevice: boolean;
-  deviceName?: string;
-  appAgent?: string;
 }
 
 function invalidCredentialsError(): AppError {
-  return new AppError(401, 'INVALID_CREDENTIALS', 'Email, username, or password is incorrect.');
+  return new AppError(401, 'INVALID_CREDENTIALS', 'Email, nickname, or password is incorrect.');
 }
 
 export class AuthService {
@@ -39,7 +40,8 @@ export class AuthService {
     const passwordHash = await this.dependencies.passwordService.hashPassword(input.password);
     const user = await this.dependencies.usersService.createUser({
       email: input.email,
-      username: input.username,
+      name: input.name,
+      nickname: input.nickname,
       passwordHash,
     });
 
@@ -65,9 +67,13 @@ export class AuthService {
     }
 
     return this.issueSession(user, {
-      rememberDevice: input.rememberDevice,
-      deviceName: input.deviceName,
       appAgent: input.appAgent,
+      appVersion: input.appVersion,
+      deviceId: input.deviceId,
+      deviceName: input.deviceName,
+      osName: input.osName,
+      osVersion: input.osVersion,
+      rememberDevice: input.rememberDevice,
     });
   }
 
@@ -97,6 +103,16 @@ export class AuthService {
           refreshTokenHash: nextRefreshTokenHash,
           deviceName: input.deviceName ?? session.deviceName ?? undefined,
           appAgent: input.appAgent ?? session.appAgent ?? undefined,
+        },
+        client,
+      );
+      await this.dependencies.profileService.recordDeviceAccess(
+        user.id,
+        {
+          appVersion: input.appVersion,
+          deviceId: input.deviceId,
+          osName: input.osName,
+          osVersion: input.osVersion,
         },
         client,
       );
@@ -155,17 +171,33 @@ export class AuthService {
   }
 
   private async issueSession(user: UserRecord, metadata: SessionMetadata): Promise<AuthResponse> {
-    const refreshToken = this.dependencies.tokenService.generateRefreshToken();
-    const session = await this.dependencies.authRepository.createSession({
-      userId: user.id,
-      refreshTokenHash: this.dependencies.tokenService.hashRefreshToken(refreshToken),
-      expiresAt: this.resolveSessionExpiry(metadata.rememberDevice),
-      rememberDevice: metadata.rememberDevice,
-      deviceName: metadata.deviceName ?? null,
-      appAgent: metadata.appAgent ?? null,
-    });
+    return withTransaction(async (client) => {
+      const refreshToken = this.dependencies.tokenService.generateRefreshToken();
+      const session = await this.dependencies.authRepository.createSession(
+        {
+          userId: user.id,
+          refreshTokenHash: this.dependencies.tokenService.hashRefreshToken(refreshToken),
+          expiresAt: this.resolveSessionExpiry(metadata.rememberDevice),
+          rememberDevice: metadata.rememberDevice,
+          deviceName: metadata.deviceName ?? null,
+          appAgent: metadata.appAgent ?? null,
+        },
+        client,
+      );
 
-    return this.buildAuthResponse(user, session, refreshToken);
+      await this.dependencies.profileService.recordDeviceAccess(
+        user.id,
+        {
+          appVersion: metadata.appVersion,
+          deviceId: metadata.deviceId,
+          osName: metadata.osName,
+          osVersion: metadata.osVersion,
+        },
+        client,
+      );
+
+      return this.buildAuthResponse(user, session, refreshToken);
+    });
   }
 
   private buildAuthResponse(
@@ -177,7 +209,7 @@ export class AuthService {
       userId: user.id,
       sessionId: session.id,
       email: user.email,
-      username: user.username,
+      nickname: user.nickname,
     });
 
     return {

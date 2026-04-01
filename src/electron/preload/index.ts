@@ -1,3 +1,4 @@
+import * as os from 'node:os';
 import { contextBridge, ipcRenderer } from 'electron';
 
 import type {
@@ -36,6 +37,7 @@ const desktopBridge: DesktopBridge = {
   },
   environment: process.env.VITE_DEV_SERVER_URL ? 'development' : 'production',
   isPackaged: !process.env.VITE_DEV_SERVER_URL,
+  osVersion: os.release(),
   platform: process.platform,
   versions: {
     chrome: process.versions.chrome,

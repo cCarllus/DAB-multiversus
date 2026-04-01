@@ -6,7 +6,8 @@ import {
 } from '@app/auth/auth-types';
 import { createMenuShell } from '@app/menu/createMenuShell';
 import { createHomePage } from '@app/pages/home/createHomePage';
-import { createProfilePage } from '@app/pages/profile/createProfilePage';
+import { createProfileScreen } from '@app/screens/profile/profile-screen';
+import type { ProfileStore } from '@app/screens/profile/profile-store';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
 
@@ -18,6 +19,7 @@ interface HomeScreenOptions {
     isLoggingOut: boolean;
     status: 'open' | 'closing';
   };
+  profileStore: ProfileStore;
   view: 'home' | 'profile';
   session: AuthSessionSnapshot;
   user: AuthUser;
@@ -26,10 +28,10 @@ interface HomeScreenOptions {
 export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
   const content =
     options.view === 'profile'
-      ? createProfilePage({
+      ? createProfileScreen({
           i18n: options.i18n,
+          profileStore: options.profileStore,
           session: options.session,
-          user: options.user,
         })
       : createHomePage({
           i18n: options.i18n,

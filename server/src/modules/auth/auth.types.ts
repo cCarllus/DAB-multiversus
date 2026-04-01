@@ -19,7 +19,7 @@ export interface AccessTokenPayload {
   sub: string;
   sid: string;
   email: string;
-  username: string | null;
+  nickname: string;
   type: 'access';
 }
 
@@ -35,21 +35,39 @@ export interface AuthResponse {
 export interface RegisterInput {
   email: string;
   password: string;
-  username?: string;
+  name?: string;
+  nickname: string;
+}
+
+export interface DeviceMetadataInput {
+  appAgent?: string;
+  appVersion?: string;
+  deviceId: string;
+  deviceName?: string;
+  osName: string;
+  osVersion?: string;
 }
 
 export interface LoginInput {
+  appAgent?: string;
+  appVersion?: string;
+  deviceId: string;
+  deviceName?: string;
   identifier: string;
+  osName: string;
+  osVersion?: string;
   password: string;
   rememberDevice: boolean;
-  deviceName?: string;
-  appAgent?: string;
 }
 
 export interface RefreshInput {
-  refreshToken: string;
-  deviceName?: string;
   appAgent?: string;
+  appVersion?: string;
+  deviceId: string;
+  deviceName?: string;
+  osName: string;
+  osVersion?: string;
+  refreshToken: string;
 }
 
 export interface LogoutInput {
@@ -60,28 +78,33 @@ export interface LogoutInput {
 
 export const registerRequestSchema = z.object({
   email: z.string().trim().email().max(320),
-  password: z.string().min(8).max(128),
-  username: z
+  name: z.string().trim().min(2).max(40).optional(),
+  nickname: z
     .string()
     .trim()
     .min(3)
-    .max(32)
-    .regex(/^[a-zA-Z0-9_.-]+$/)
-    .optional(),
+    .max(24)
+    .regex(/^[a-zA-Z0-9_.-]+$/),
+  password: z.string().min(8).max(128),
 });
 
-export const loginRequestSchema = z.object({
+const deviceMetadataSchema = z.object({
+  appAgent: z.string().trim().min(2).max(255).optional(),
+  appVersion: z.string().trim().min(1).max(64).optional(),
+  deviceId: z.string().trim().min(8).max(128),
+  deviceName: z.string().trim().min(2).max(120).optional(),
+  osName: z.string().trim().min(2).max(60),
+  osVersion: z.string().trim().min(1).max(120).optional(),
+});
+
+export const loginRequestSchema = deviceMetadataSchema.extend({
   identifier: z.string().trim().min(3).max(320),
   password: z.string().min(8).max(128),
   rememberDevice: z.boolean().default(false),
-  deviceName: z.string().trim().min(2).max(120).optional(),
-  appAgent: z.string().trim().min(2).max(255).optional(),
 });
 
-export const refreshRequestSchema = z.object({
+export const refreshRequestSchema = deviceMetadataSchema.extend({
   refreshToken: z.string().trim().min(32).max(512),
-  deviceName: z.string().trim().min(2).max(120).optional(),
-  appAgent: z.string().trim().min(2).max(255).optional(),
 });
 
 export const logoutRequestSchema = z.object({

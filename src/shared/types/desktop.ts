@@ -27,6 +27,7 @@ export interface DesktopBridge {
   authStorage?: DesktopAuthStorage;
   environment: 'development' | 'production';
   isPackaged: boolean;
+  osVersion: string;
   platform: string;
   versions: {
     chrome: string;

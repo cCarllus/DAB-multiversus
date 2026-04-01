@@ -55,7 +55,7 @@ async function attachAuthenticationContext(
     userId: payload.sub,
     sessionId: payload.sid,
     email: payload.email,
-    username: payload.username,
+    nickname: payload.nickname,
   };
 }
 

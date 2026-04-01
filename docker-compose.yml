@@ -20,7 +20,7 @@ services:
     build:
       context: ./server
     working_dir: /app
-    command: npm run dev
+    command: sh -c "npm install --no-audit --no-fund && npm run dev"
     restart: unless-stopped
     depends_on:
       postgres:

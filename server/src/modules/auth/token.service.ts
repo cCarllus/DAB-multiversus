@@ -13,7 +13,7 @@ interface AccessTokenInput {
   userId: string;
   sessionId: string;
   email: string;
-  username: string | null;
+  nickname: string;
 }
 
 export class TokenService {
@@ -26,7 +26,7 @@ export class TokenService {
         sub: input.userId,
         sid: input.sessionId,
         email: input.email,
-        username: input.username,
+        nickname: input.nickname,
         type: 'access',
       },
       env.ACCESS_TOKEN_SECRET,
@@ -53,12 +53,18 @@ export class TokenService {
       }) as jwt.JwtPayload & {
         sid?: string;
         email?: string;
-        username?: string | null;
+        nickname?: string;
         type?: string;
         sub?: string;
       };
 
-      if (payload.type !== 'access' || !payload.sub || !payload.sid || !payload.email) {
+      if (
+        payload.type !== 'access' ||
+        !payload.sub ||
+        !payload.sid ||
+        !payload.email ||
+        !payload.nickname
+      ) {
         throw new AppError(401, 'UNAUTHORIZED', 'Access token is invalid.');
       }
 
@@ -66,7 +72,7 @@ export class TokenService {
         sub: payload.sub,
         sid: payload.sid,
         email: payload.email,
-        username: payload.username ?? null,
+        nickname: payload.nickname,
         type: 'access',
       };
     } catch (error) {

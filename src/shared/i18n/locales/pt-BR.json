@@ -10,10 +10,10 @@
   },
   "auth": {
     "validation": {
-      "missingCredentials": "Informe seu e-mail ou nome de usuário e sua senha para continuar."
+      "missingCredentials": "Informe seu e-mail ou nickname e sua senha para continuar."
     },
     "errors": {
-      "invalidCredentials": "E-mail, nome de usuário ou senha incorretos.",
+      "invalidCredentials": "E-mail, nickname ou senha incorretos.",
       "backendUnavailable": "O launcher não conseguiu alcançar o serviço de autenticação.",
       "sessionExpired": "Sua sessão expirou. Faça login novamente.",
       "rememberDeviceUnavailable": "O armazenamento seguro do Electron não está disponível neste dispositivo.",
@@ -55,10 +55,10 @@
     "intro": {
       "eyebrow": "Primeiro Login",
       "title": "Iniciar sessão",
-      "summary": "Use seu e-mail ou nome de usuário para entrar no launcher e chegar à tela inicial autenticada."
+      "summary": "Use seu e-mail ou nickname para entrar no launcher e chegar à tela inicial autenticada."
     },
     "form": {
-      "identifierLabel": "E-mail ou nome de usuário",
+      "identifierLabel": "E-mail ou nickname",
       "identifierPlaceholder": "seu@email.com",
       "passwordLabel": "Senha",
       "passwordPlaceholder": "Digite sua senha",
@@ -242,88 +242,102 @@
       "livePopularMatch": "Partida popular ao vivo"
     },
     "profile": {
-      "heroAriaLabel": "Destaque do perfil",
-      "overviewAriaLabel": "Visão geral do perfil",
-      "eyebrow": "Dossiê de Acesso",
-      "taglineClaimed": "Identidade personalizada vinculada ao launcher.",
-      "taglineFallback": "Operador autenticado com alias derivado do e-mail.",
-      "summary": "Identidade, registro e telemetria da sessão segura ficam visíveis aqui enquanto sua conta estiver ligada aos campos de prova.",
+      "heroAriaLabel": "Cabeçalho de identidade do jogador",
+      "overviewAriaLabel": "Visão geral do perfil do jogador",
+      "eyebrow": "Identidade do Jogador",
+      "summary": "Sua identidade de conta dentro do launcher. Só ficam aqui informações feitas para o jogador: nome, nickname, avatar, idioma e status do dispositivo confiável.",
       "primaryAction": "Entrar na Arena",
-      "profileIdLabel": "ID Fragmento",
-      "overviewTitle": "Visão Geral do Perfil",
-      "overviewSummary": "Sinais vivos de identidade e estado da sessão derivados diretamente da conta autenticada.",
-      "tagLabels": {
-        "email": "Login",
+      "hero": {
         "memberSince": "Membro desde",
-        "access": "Acesso"
+        "userId": "ID USER",
+        "launcherStatus": "Status do launcher",
+        "language": "Idioma",
+        "trustedDevice": "Dispositivo confiável",
+        "nicknameLocked": "O nickname é permanente depois que a conta é criada."
       },
-      "statsEyebrow": "Métricas de Registro",
-      "statsTitle": "Métricas de Identidade",
-      "markersEyebrow": "Selos Seguros",
-      "markersTitle": "Marcadores de Acesso",
-      "dossierEyebrow": "Leitura da Conta",
-      "dossierTitle": "Dossiê da Conta",
-      "stats": {
-        "tenureMonths": {
-          "eyebrow": "Permanência",
-          "label": "Meses Ativos",
-          "badge": "Meses"
-        },
-        "accountAgeDays": {
-          "eyebrow": "Registro",
-          "label": "Dias no Histórico"
-        },
-        "sessionHours": {
-          "eyebrow": "Sessão",
-          "label": "Horas Até Expirar"
-        }
-      },
-      "accessModes": {
-        "remembered": "Dispositivo salvo",
+      "status": {
+        "launcherReady": "Pronto no launcher",
+        "trustedDeviceSaved": "Confiável neste dispositivo",
         "sessionOnly": "Somente sessão"
       },
-      "markerValues": {
-        "live": "LIVE",
-        "sessionOnly": "TEMP",
-        "set": "SET",
-        "auto": "AUTO",
-        "pt": "PT",
-        "en": "EN"
-      },
-      "markers": {
-        "authenticated": {
-          "title": "Sessão autenticada",
-          "meta": "Access token e refresh token estão ativos."
+      "overviewEyebrow": "Visão Geral",
+      "overviewTitle": "Sua identidade no launcher",
+      "overviewSummary": "Uma superfície limpa de perfil para o jogador. Ranking, coleção e histórico de partidas podem crescer aqui depois sem expor detalhes de sessão.",
+      "overviewCards": {
+        "launcherStatus": {
+          "label": "Acesso ao launcher",
+          "meta": "Estado atual de acesso para esta sessão do launcher."
         },
-        "device": {
-          "title": "Dispositivo confiável",
-          "metaRemembered": "O armazenamento seguro persistente está habilitado.",
-          "metaSession": "A sessão é encerrada quando o launcher fecha."
+        "trustedDevice": {
+          "label": "Dispositivo confiável",
+          "meta": "Status amigável de salvamento do dispositivo."
         },
-        "username": {
-          "title": "Estado do username",
-          "metaClaimed": "O identificador customizado está vinculado à conta.",
-          "metaFallback": "A exibição usa o alias derivado do e-mail."
+        "currentDevice": {
+          "label": "Dispositivo atual",
+          "meta": "Dispositivo atualmente vinculado a esta sessão."
         },
-        "locale": {
-          "title": "Idioma do cliente",
-          "meta": "Idioma ativo agora na interface do launcher."
+        "language": {
+          "label": "Idioma atual",
+          "meta": "Idioma ativo agora em toda a interface."
         }
       },
-      "dossier": {
-        "username": "Username",
-        "email": "E-mail de login",
-        "accountId": "ID da conta",
-        "createdAt": "Criado em",
-        "sessionExpires": "Sessão expira",
-        "accessExpires": "Token de acesso",
-        "usernameMetaClaimed": "Slot de identidade customizada atribuído.",
-        "usernameMetaFallback": "Usando o fallback derivado do e-mail.",
-        "emailMeta": "Credencial principal para entrar no launcher.",
-        "accountIdMeta": "ID completo de registro: {{id}}",
-        "createdAtMeta": "O registro da conta foi aberto nesta data.",
-        "sessionExpiresMeta": "A janela salva depende do modo de acesso atual.",
-        "accessExpiresMeta": "Janela curta de acesso renovada dentro do app."
+      "future": {
+        "eyebrow": "Pronto para o futuro",
+        "summary": "Esta área de perfil já está preparada para ranking, campeões possuídos, progressão, histórico de partidas e gestão de dispositivos vinculados."
+      },
+      "accountEyebrow": "Detalhes da Conta",
+      "accountTitle": "Detalhes da conta",
+      "accountFields": {
+        "displayName": "Nome de exibição",
+        "userId": "ID USER",
+        "memberSince": "Membro desde",
+        "language": "Idioma"
+      },
+      "devicesEyebrow": "Status de Dispositivo",
+      "devicesTitle": "Dispositivo e acesso",
+      "devicesSummary": "Só detalhes amigáveis de acesso do launcher. Identificadores brutos, tokens e dados internos de sessão continuam ocultos.",
+      "deviceCards": {
+        "trustedDevice": {
+          "label": "Dispositivo confiável",
+          "meta": "Status do dispositivo salvo neste launcher."
+        },
+        "currentDevice": {
+          "label": "Dispositivo atual"
+        },
+        "lastActive": {
+          "label": "Última atividade"
+        }
+      },
+      "deviceList": {
+        "current": "Dispositivo atual",
+        "lastSeen": "Visto em {{date}}",
+        "noVersion": "Versão do launcher indisponível",
+        "appVersion": "Launcher v{{version}}"
+      },
+      "avatar": {
+        "changePhoto": "Trocar foto",
+        "previewEyebrow": "Prévia do Avatar",
+        "previewTitle": "Confirmar nova foto",
+        "previewSummary": "Veja como o avatar fica no molde final antes de salvar no seu perfil.",
+        "confirm": "Atualizar foto",
+        "cancel": "Cancelar",
+        "uploading": "Enviando..."
+      },
+      "nameEditor": {
+        "label": "Nome de Exibição",
+        "edit": "Editar nome",
+        "hint": "Este é o nome mostrado no launcher. Você pode alterar quando quiser.",
+        "inputLabel": "Nome de exibição",
+        "save": "Salvar nome",
+        "saving": "Salvando...",
+        "cancel": "Cancelar"
+      },
+      "feedback": {
+        "nameUpdated": "Nome de exibição atualizado.",
+        "photoUpdated": "Foto de perfil atualizada.",
+        "invalidName": "Informe um nome de exibição válido com pelo menos 2 caracteres.",
+        "invalidAvatarType": "Escolha uma imagem PNG, JPG ou WEBP.",
+        "avatarTooLarge": "A foto de perfil deve ter no máximo 5 MB."
       },
       "fallbackUsername": "Não definido",
       "fallbackValue": "Indisponível"

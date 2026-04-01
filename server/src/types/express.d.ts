@@ -5,7 +5,7 @@ declare global {
         userId: string;
         sessionId: string;
         email: string;
-        username: string | null;
+        nickname: string;
       };
     }
   }

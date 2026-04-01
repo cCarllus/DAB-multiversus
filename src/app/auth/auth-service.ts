@@ -2,12 +2,21 @@ import type { DesktopBridge } from '@shared/types/desktop';
 import type { AppI18n } from '@shared/i18n';
 
 import { AuthApiClient } from './auth-api-client';
+import { createLauncherDeviceContext } from './device-context';
 import {
   AuthFlowError,
   type LoginFormValues,
+  type AuthUser,
   type StoredAuthSession,
 } from './auth-types';
 import { SessionStore } from './session-store';
+
+const DEV_TEST_ACCOUNT = {
+  email: 'teste@dab.local',
+  name: 'Teste',
+  nickname: 'teste',
+  password: 'SenhaForte123!',
+} as const;
 
 function isSessionInvalidatingError(error: unknown): boolean {
   return (
@@ -38,6 +47,12 @@ export function resolveAuthErrorMessage(error: unknown, i18n: AppI18n): string {
         return i18n.t('auth.errors.sessionPersistenceFailed');
       case 'REQUEST_INVALID':
         return i18n.t('auth.errors.requestInvalid');
+      case 'INVALID_NAME':
+        return i18n.t('menu.profile.feedback.invalidName');
+      case 'INVALID_AVATAR_TYPE':
+        return i18n.t('menu.profile.feedback.invalidAvatarType');
+      case 'AVATAR_TOO_LARGE':
+        return i18n.t('menu.profile.feedback.avatarTooLarge');
       default:
         return error.message;
     }
@@ -138,6 +153,43 @@ export class AuthService {
     }
   }
 
+  async loginWithDevAccount(): Promise<StoredAuthSession> {
+    const rememberDevice = await this.supportsRememberedSessions();
+    const values: LoginFormValues = {
+      identifier: DEV_TEST_ACCOUNT.email,
+      password: DEV_TEST_ACCOUNT.password,
+      rememberDevice,
+    };
+
+    try {
+      return await this.login(values);
+    } catch (error) {
+      if (!(error instanceof AuthFlowError) || error.code !== 'INVALID_CREDENTIALS') {
+        throw error;
+      }
+
+      try {
+        await this.apiClient.register({
+          email: DEV_TEST_ACCOUNT.email,
+          name: DEV_TEST_ACCOUNT.name,
+          nickname: DEV_TEST_ACCOUNT.nickname,
+          password: DEV_TEST_ACCOUNT.password,
+        });
+      } catch (registerError) {
+        if (
+          !(
+            registerError instanceof AuthFlowError &&
+            ['EMAIL_ALREADY_IN_USE', 'NICKNAME_ALREADY_IN_USE'].includes(registerError.code)
+          )
+        ) {
+          throw registerError;
+        }
+      }
+
+      return this.login(values);
+    }
+  }
+
   async ensureAccessToken(): Promise<string | null> {
     if (!this.currentSession) {
       return null;
@@ -172,7 +224,7 @@ export class AuthService {
     this.currentSession = null;
   }
 
-  async handleBeforeUnload(): Promise<void> {
+  handleBeforeUnload(): void {
     if (!this.currentSession || this.currentSession.rememberDevice) {
       return;
     }
@@ -186,6 +238,19 @@ export class AuthService {
 
     this.sessionStore.clearRuntimeSession();
     this.currentSession = null;
+  }
+
+  syncCurrentUser(user: AuthUser): void {
+    if (!this.currentSession) {
+      return;
+    }
+
+    this.currentSession = {
+      ...this.currentSession,
+      user,
+    };
+
+    this.sessionStore.updateRuntimeUser(user);
   }
 
   private async refreshCurrentSession(): Promise<StoredAuthSession> {
@@ -205,11 +270,8 @@ export class AuthService {
     return refreshedSession;
   }
 
-  private getDeviceMetadata(): { deviceName: string; appAgent: string } {
-    return {
-      deviceName: `Dead As Battle Launcher (${this.desktop.platform})`,
-      appAgent: `Dead As Battle/${this.appVersion} Electron/${this.desktop.versions.electron} ${this.desktop.platform}`,
-    };
+  private getDeviceMetadata() {
+    return createLauncherDeviceContext(this.desktop, this.appVersion);
   }
 
   private isAccessTokenExpiringSoon(expiresAt: string | null): boolean {

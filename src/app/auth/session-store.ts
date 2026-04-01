@@ -1,7 +1,12 @@
 import { STORAGE_KEYS } from '@shared/constants/storageKeys';
 import type { DesktopBridge, DesktopRememberedAuthSession } from '@shared/types/desktop';
 
-import { AuthFlowError, type AuthResponse, type StoredAuthSession } from './auth-types';
+import {
+  AuthFlowError,
+  type AuthResponse,
+  type AuthUser,
+  type StoredAuthSession,
+} from './auth-types';
 
 function isStoredAuthSession(value: unknown): value is StoredAuthSession {
   if (!value || typeof value !== 'object') {
@@ -99,6 +104,21 @@ export class SessionStore {
     };
 
     await this.desktop.authStorage.setRememberedSession(rememberedSession);
+  }
+
+  updateRuntimeUser(user: AuthUser): void {
+    const session = this.readRuntimeSession();
+
+    if (!session) {
+      return;
+    }
+
+    const nextSession: StoredAuthSession = {
+      ...session,
+      user,
+    };
+
+    window.sessionStorage.setItem(STORAGE_KEYS.authSession, JSON.stringify(nextSession));
   }
 
   clearRuntimeSession(): void {

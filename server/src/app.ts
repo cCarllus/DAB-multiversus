@@ -4,9 +4,11 @@ import express, { type Router } from 'express';
 import { env } from './config/env';
 import { AppError } from './shared/errors/AppError';
 import { errorMiddleware } from './middleware/error.middleware';
+import { PROFILE_UPLOADS_ROOT } from './modules/profile/profile.storage';
 
 interface CreateAppOptions {
   authRouter: Router;
+  profileRouter: Router;
 }
 
 function isOriginAllowed(origin: string | undefined): boolean {
@@ -35,12 +37,13 @@ export function createApp(options: CreateAppOptions) {
 
         callback(new AppError(403, 'CORS_FORBIDDEN', 'Origin is not allowed.'));
       },
-      methods: ['GET', 'POST', 'OPTIONS'],
-      allowedHeaders: ['Authorization', 'Content-Type'],
+      methods: ['GET', 'PATCH', 'POST', 'OPTIONS'],
+      allowedHeaders: ['Authorization', 'Content-Type', 'X-Launcher-Device-Id'],
     }),
   );
 
-  app.use(express.json({ limit: '1mb' }));
+  app.use(express.json({ limit: '6mb' }));
+  app.use('/uploads', express.static(PROFILE_UPLOADS_ROOT));
 
   app.get('/health', (_request, response) => {
     response.status(200).json({
@@ -49,6 +52,7 @@ export function createApp(options: CreateAppOptions) {
   });
 
   app.use('/auth', options.authRouter);
+  app.use('/profile', options.profileRouter);
 
   app.use((_request, response) => {
     response.status(404).json({

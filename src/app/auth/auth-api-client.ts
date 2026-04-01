@@ -2,7 +2,11 @@ import { AuthFlowError, type AuthResponse, type AuthUser } from './auth-types';
 
 interface DeviceMetadata {
   appAgent: string;
+  appVersion: string;
+  deviceId: string;
   deviceName: string;
+  osName: string;
+  osVersion: string;
 }
 
 interface LoginPayload extends DeviceMetadata {
@@ -28,7 +32,13 @@ interface ErrorEnvelope {
 }
 
 function getBaseUrl(): string {
-  return (import.meta.env.VITE_AUTH_API_BASE_URL ?? 'http://127.0.0.1:4000').replace(/\/+$/, '');
+  const configuredBaseUrl =
+    typeof import.meta.env.VITE_AUTH_API_BASE_URL === 'string' &&
+    import.meta.env.VITE_AUTH_API_BASE_URL
+      ? import.meta.env.VITE_AUTH_API_BASE_URL
+      : 'http://127.0.0.1:4000';
+
+  return configuredBaseUrl.replace(/\/+$/, '');
 }
 
 function isJsonResponse(response: Response): boolean {
@@ -40,8 +50,9 @@ export class AuthApiClient {
 
   async register(payload: {
     email: string;
+    name?: string;
+    nickname: string;
     password: string;
-    username?: string;
   }): Promise<{ user: AuthUser }> {
     return this.request<{ user: AuthUser }>('/auth/register', {
       body: JSON.stringify(payload),

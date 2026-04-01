@@ -8,6 +8,7 @@ import {
 import { createBootScreen } from '@app/screens/boot/boot-screen';
 import { createGameScreen } from '@app/screens/game/game-screen';
 import { createHomeScreen } from '@app/screens/home/home-screen';
+import type { ProfileStore } from '@app/screens/profile/profile-store';
 import {
   createLoadingScreen,
   type LoadingScreenHandle,
@@ -28,6 +29,7 @@ interface HomeRouteOptions {
     isLoggingOut: boolean;
     status: 'open' | 'closing';
   };
+  profileStore: ProfileStore;
   session: AuthSessionSnapshot;
   user: AuthUser;
   view: 'home' | 'profile';
@@ -85,6 +87,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
           musicMuted: homeOptions.musicMuted,
           exitModal: homeOptions.exitModal,
           session: homeOptions.session,
+          profileStore: homeOptions.profileStore,
           user: homeOptions.user,
           view: homeOptions.view,
         }),
