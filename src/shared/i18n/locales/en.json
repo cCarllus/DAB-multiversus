@@ -241,6 +241,93 @@
       "proCircuit": "PRO CIRCUIT",
       "livePopularMatch": "Live Popular Match"
     },
+    "profile": {
+      "heroAriaLabel": "Profile hero",
+      "overviewAriaLabel": "Profile overview",
+      "eyebrow": "Access Dossier",
+      "taglineClaimed": "Custom identity linked to the launcher.",
+      "taglineFallback": "Authenticated operator using an email-derived alias.",
+      "summary": "Identity, registry and secure-session telemetry stay visible here while your account remains linked to the proving grounds.",
+      "primaryAction": "Enter Arena",
+      "profileIdLabel": "Shard ID",
+      "overviewTitle": "Profile Overview",
+      "overviewSummary": "Live identity signals and session state derived directly from the authenticated account.",
+      "tagLabels": {
+        "email": "Login",
+        "memberSince": "Member since",
+        "access": "Access"
+      },
+      "statsEyebrow": "Registry Metrics",
+      "statsTitle": "Identity Metrics",
+      "markersEyebrow": "Secure Flags",
+      "markersTitle": "Access Markers",
+      "dossierEyebrow": "Account Readout",
+      "dossierTitle": "Account Dossier",
+      "stats": {
+        "tenureMonths": {
+          "eyebrow": "Tenure",
+          "label": "Months Active",
+          "badge": "Months"
+        },
+        "accountAgeDays": {
+          "eyebrow": "Record",
+          "label": "Days on Record"
+        },
+        "sessionHours": {
+          "eyebrow": "Session",
+          "label": "Hours Until Expiry"
+        }
+      },
+      "accessModes": {
+        "remembered": "Remembered device",
+        "sessionOnly": "Session only"
+      },
+      "markerValues": {
+        "live": "LIVE",
+        "sessionOnly": "TEMP",
+        "set": "SET",
+        "auto": "AUTO",
+        "pt": "PT",
+        "en": "EN"
+      },
+      "markers": {
+        "authenticated": {
+          "title": "Authenticated session",
+          "meta": "Access token and refresh token are active."
+        },
+        "device": {
+          "title": "Trusted device",
+          "metaRemembered": "Persistent secure storage is enabled.",
+          "metaSession": "The session is cleared when the launcher closes."
+        },
+        "username": {
+          "title": "Username state",
+          "metaClaimed": "A custom handle is bound to the account.",
+          "metaFallback": "Display falls back to the email alias."
+        },
+        "locale": {
+          "title": "Client locale",
+          "meta": "Language currently active in the launcher interface."
+        }
+      },
+      "dossier": {
+        "username": "Username",
+        "email": "Login email",
+        "accountId": "Account ID",
+        "createdAt": "Created at",
+        "sessionExpires": "Session expires",
+        "accessExpires": "Access token",
+        "usernameMetaClaimed": "Custom identity slot assigned.",
+        "usernameMetaFallback": "Using the email-derived fallback.",
+        "emailMeta": "Primary credential used for launcher sign-in.",
+        "accountIdMeta": "Full registry id: {{id}}",
+        "createdAtMeta": "The account record opened on this date.",
+        "sessionExpiresMeta": "Saved-device reach depends on the current access mode.",
+        "accessExpiresMeta": "Short-lived access window refreshed inside the app."
+      },
+      "fallbackUsername": "Not set",
+      "fallbackValue": "Unavailable"
+    },
     "footer": {
       "musicEnable": "Enable launcher music",
       "musicMute": "Mute launcher music",

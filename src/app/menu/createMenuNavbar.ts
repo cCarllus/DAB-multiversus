@@ -4,6 +4,7 @@ import type { AppI18n } from '@shared/i18n';
 import menuNavbarTemplate from './menu-navbar.html?raw';
 
 interface CreateMenuNavbarOptions {
+  activeView: 'home' | 'profile';
   brandImage: string;
   i18n: AppI18n;
 }
@@ -21,6 +22,9 @@ export function createMenuNavbar(options: CreateMenuNavbarOptions): HTMLElement 
     NOTIFICATIONS_ARIA_LABEL: messages.menu.topbar.notificationsAriaLabel,
     PLAY_ARIA_LABEL: messages.menu.topbar.playAriaLabel,
     PRIMARY_NAVIGATION_ARIA_LABEL: messages.menu.topbar.primaryNavigationAriaLabel,
+    PROFILE_BUTTON_STATE_CLASS:
+      options.activeView === 'profile' ? 'is-active' : '',
+    PROFILE_BUTTON_PRESSED: options.activeView === 'profile' ? 'true' : 'false',
     PROFILE_ARIA_LABEL: messages.menu.topbar.profileAriaLabel,
     SETTINGS_ARIA_LABEL: messages.menu.topbar.settingsAriaLabel,
     TAB_CODEX_LABEL: messages.menu.topbar.tabs.codex,

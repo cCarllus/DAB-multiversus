@@ -13,7 +13,7 @@ import {
   type LoadingScreenHandle,
   type LoadingScreenOptions,
 } from '@app/screens/loading/loading-screen';
-import type { AuthUser } from '@app/auth/auth-types';
+import type { AuthSessionSnapshot, AuthUser } from '@app/auth/auth-types';
 
 interface CreateAppRouterOptions {
   appVersion: string;
@@ -28,7 +28,9 @@ interface HomeRouteOptions {
     isLoggingOut: boolean;
     status: 'open' | 'closing';
   };
+  session: AuthSessionSnapshot;
   user: AuthUser;
+  view: 'home' | 'profile';
 }
 
 interface GameRouteOptions {
@@ -82,7 +84,9 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
           i18n: options.i18n,
           musicMuted: homeOptions.musicMuted,
           exitModal: homeOptions.exitModal,
+          session: homeOptions.session,
           user: homeOptions.user,
+          view: homeOptions.view,
         }),
       );
     },

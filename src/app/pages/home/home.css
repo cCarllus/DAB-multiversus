@@ -43,6 +43,11 @@
   isolation: isolate;
 }
 
+.home-screen--profile {
+  background:
+    linear-gradient(180deg, var(--launcher-color-ink-980) 0%, #02070d 100%);
+}
+
 .home-screen__symbols {
   position: absolute;
   width: 0;
@@ -68,6 +73,38 @@
   opacity: 0.84;
   transform-origin: center;
   animation: home-float 8s ease-in-out infinite;
+}
+
+.home-screen--profile .home-screen__background {
+  background:
+    linear-gradient(180deg, rgba(1, 10, 19, 0.98) 0%, rgba(2, 7, 13, 1) 100%);
+}
+
+.home-screen--profile .home-screen__background-image,
+.home-screen--profile .home-screen__background-energy,
+.home-screen--profile .home-screen__background-sparks,
+.home-screen--profile .home-screen__background-noise {
+  display: none;
+}
+
+.home-screen--profile .home-screen__background-layer--top {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent 18%);
+}
+
+.home-screen--profile .home-screen__background-layer--side {
+  background: linear-gradient(
+    to right,
+    rgba(1, 10, 19, 0.94),
+    rgba(1, 10, 19, 0.82) 18%,
+    rgba(1, 10, 19, 0.82) 82%,
+    rgba(1, 10, 19, 0.94)
+  );
+}
+
+.home-screen--profile .home-screen__background-layer--vignette {
+  background:
+    radial-gradient(circle at top, rgba(47, 127, 168, 0.06), transparent 28%),
+    radial-gradient(circle at bottom, rgba(var(--launcher-color-gold-rgb), 0.05), transparent 36%);
 }
 
 .home-screen__background-layer,
@@ -237,9 +274,11 @@
   position: relative;
   z-index: 2;
   display: flex;
+  flex: 0 0 56px;
   align-items: center;
   justify-content: space-between;
   height: 56px;
+  min-height: 56px;
   background:
     repeating-linear-gradient(-45deg,
       rgba(255, 255, 255, 0.01),
@@ -581,6 +620,14 @@
 
 .home-topbar__mini-block--mail {
   padding: 0 18px 0 20px;
+}
+
+.home-topbar__mini-block.is-active {
+  color: var(--home-text-main);
+  background: linear-gradient(180deg, rgba(30, 41, 51, 0.94), rgba(12, 18, 24, 0.96));
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--launcher-color-gold-rgb), 0.16),
+    inset 0 0 18px rgba(47, 127, 168, 0.08);
 }
 
 .home-topbar__mini-block--notifications {
@@ -1477,6 +1524,7 @@
   position: relative;
   z-index: 2;
   display: flex;
+  flex: none;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;

@@ -241,6 +241,93 @@
       "proCircuit": "CIRCUITO PRO",
       "livePopularMatch": "Partida popular ao vivo"
     },
+    "profile": {
+      "heroAriaLabel": "Destaque do perfil",
+      "overviewAriaLabel": "Visão geral do perfil",
+      "eyebrow": "Dossiê de Acesso",
+      "taglineClaimed": "Identidade personalizada vinculada ao launcher.",
+      "taglineFallback": "Operador autenticado com alias derivado do e-mail.",
+      "summary": "Identidade, registro e telemetria da sessão segura ficam visíveis aqui enquanto sua conta estiver ligada aos campos de prova.",
+      "primaryAction": "Entrar na Arena",
+      "profileIdLabel": "ID Fragmento",
+      "overviewTitle": "Visão Geral do Perfil",
+      "overviewSummary": "Sinais vivos de identidade e estado da sessão derivados diretamente da conta autenticada.",
+      "tagLabels": {
+        "email": "Login",
+        "memberSince": "Membro desde",
+        "access": "Acesso"
+      },
+      "statsEyebrow": "Métricas de Registro",
+      "statsTitle": "Métricas de Identidade",
+      "markersEyebrow": "Selos Seguros",
+      "markersTitle": "Marcadores de Acesso",
+      "dossierEyebrow": "Leitura da Conta",
+      "dossierTitle": "Dossiê da Conta",
+      "stats": {
+        "tenureMonths": {
+          "eyebrow": "Permanência",
+          "label": "Meses Ativos",
+          "badge": "Meses"
+        },
+        "accountAgeDays": {
+          "eyebrow": "Registro",
+          "label": "Dias no Histórico"
+        },
+        "sessionHours": {
+          "eyebrow": "Sessão",
+          "label": "Horas Até Expirar"
+        }
+      },
+      "accessModes": {
+        "remembered": "Dispositivo salvo",
+        "sessionOnly": "Somente sessão"
+      },
+      "markerValues": {
+        "live": "LIVE",
+        "sessionOnly": "TEMP",
+        "set": "SET",
+        "auto": "AUTO",
+        "pt": "PT",
+        "en": "EN"
+      },
+      "markers": {
+        "authenticated": {
+          "title": "Sessão autenticada",
+          "meta": "Access token e refresh token estão ativos."
+        },
+        "device": {
+          "title": "Dispositivo confiável",
+          "metaRemembered": "O armazenamento seguro persistente está habilitado.",
+          "metaSession": "A sessão é encerrada quando o launcher fecha."
+        },
+        "username": {
+          "title": "Estado do username",
+          "metaClaimed": "O identificador customizado está vinculado à conta.",
+          "metaFallback": "A exibição usa o alias derivado do e-mail."
+        },
+        "locale": {
+          "title": "Idioma do cliente",
+          "meta": "Idioma ativo agora na interface do launcher."
+        }
+      },
+      "dossier": {
+        "username": "Username",
+        "email": "E-mail de login",
+        "accountId": "ID da conta",
+        "createdAt": "Criado em",
+        "sessionExpires": "Sessão expira",
+        "accessExpires": "Token de acesso",
+        "usernameMetaClaimed": "Slot de identidade customizada atribuído.",
+        "usernameMetaFallback": "Usando o fallback derivado do e-mail.",
+        "emailMeta": "Credencial principal para entrar no launcher.",
+        "accountIdMeta": "ID completo de registro: {{id}}",
+        "createdAtMeta": "O registro da conta foi aberto nesta data.",
+        "sessionExpiresMeta": "A janela salva depende do modo de acesso atual.",
+        "accessExpiresMeta": "Janela curta de acesso renovada dentro do app."
+      },
+      "fallbackUsername": "Não definido",
+      "fallbackValue": "Indisponível"
+    },
     "footer": {
       "musicEnable": "Ativar a música do launcher",
       "musicMute": "Mutar a música do launcher",

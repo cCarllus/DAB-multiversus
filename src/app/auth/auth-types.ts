@@ -23,6 +23,12 @@ export interface StoredAuthSession {
   rememberDevice: boolean;
 }
 
+export interface AuthSessionSnapshot {
+  accessTokenExpiresAt: string | null;
+  rememberDevice: boolean;
+  sessionExpiresAt: string;
+}
+
 export interface LoginFormValues {
   identifier: string;
   password: string;

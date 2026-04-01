@@ -82,6 +82,7 @@ export function bootstrapApplication(host: HTMLElement): void {
 
   let rememberDeviceSupported = false;
   let activeSurface: AppSurface = 'boot';
+  let activeMenuView: 'home' | 'profile' = 'home';
   let loginState = {
     errorMessage: null as string | null,
     identifier: '',
@@ -142,7 +143,13 @@ export function bootstrapApplication(host: HTMLElement): void {
               isLoggingOut: exitModalState.isLoggingOut,
               status: exitModalState.status,
             },
+      session: {
+        accessTokenExpiresAt: session.accessTokenExpiresAt,
+        rememberDevice: session.rememberDevice,
+        sessionExpiresAt: session.sessionExpiresAt,
+      },
       user: session.user,
+      view: activeMenuView,
     });
   };
 
@@ -309,6 +316,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     void authService
       .login(values)
       .then(() => {
+        activeMenuView = 'home';
         audio.playTransitionCue('screen-shift');
         void transitionToMenu(getLoadingSequence('loginToMenu'));
       })
@@ -340,6 +348,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     void authService
       .logout()
       .then(() => {
+        activeMenuView = 'home';
         exitModalState = {
           errorMessage: null,
           isLoggingOut: false,
@@ -442,6 +451,26 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     if (action === 'toggle-sound-mute') {
       audio.toggleSoundMute();
+      return;
+    }
+
+    if (action === 'show-menu-home') {
+      if (activeSurface !== 'menu') {
+        return;
+      }
+
+      activeMenuView = 'home';
+      renderMenuPage();
+      return;
+    }
+
+    if (action === 'show-profile-page') {
+      if (activeSurface !== 'menu') {
+        return;
+      }
+
+      activeMenuView = 'profile';
+      renderMenuPage();
       return;
     }
 

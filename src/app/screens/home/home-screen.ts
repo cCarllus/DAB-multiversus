@@ -1,7 +1,12 @@
 import { createExitModal } from '@app/ui/createExitModal';
-import { resolveAuthDisplayName, type AuthUser } from '@app/auth/auth-types';
+import {
+  resolveAuthDisplayName,
+  type AuthSessionSnapshot,
+  type AuthUser,
+} from '@app/auth/auth-types';
 import { createMenuShell } from '@app/menu/createMenuShell';
 import { createHomePage } from '@app/pages/home/createHomePage';
+import { createProfilePage } from '@app/pages/profile/createProfilePage';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
 
@@ -13,16 +18,28 @@ interface HomeScreenOptions {
     isLoggingOut: boolean;
     status: 'open' | 'closing';
   };
+  view: 'home' | 'profile';
+  session: AuthSessionSnapshot;
   user: AuthUser;
 }
 
 export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
+  const content =
+    options.view === 'profile'
+      ? createProfilePage({
+          i18n: options.i18n,
+          session: options.session,
+          user: options.user,
+        })
+      : createHomePage({
+          i18n: options.i18n,
+          user: options.user,
+        });
+
   const rootElement = createMenuShell({
+    activeView: options.view,
     brandImage: titleGameNameImage,
-    content: createHomePage({
-      i18n: options.i18n,
-      user: options.user,
-    }),
+    content,
     i18n: options.i18n,
     musicMuted: options.musicMuted,
   });
