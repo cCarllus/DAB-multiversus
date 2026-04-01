@@ -7,11 +7,9 @@ import {
 import { createBootScreen } from '@app/screens/boot/boot-screen';
 import { createHomeScreen } from '@app/screens/home/home-screen';
 import type { AuthUser } from '@app/auth/auth-types';
-import type { DesktopBridge } from '@shared/types/desktop';
 
 interface CreateAppRouterOptions {
   appVersion: string;
-  desktop: DesktopBridge;
   shell: ApplicationShell;
 }
 
@@ -49,9 +47,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
     showHome(homeOptions) {
       options.shell.setPage(
         createHomeScreen({
-          appVersion: options.appVersion,
           musicMuted: homeOptions.musicMuted,
-          desktop: options.desktop,
           exitModal: homeOptions.exitModal,
           user: homeOptions.user,
         }),

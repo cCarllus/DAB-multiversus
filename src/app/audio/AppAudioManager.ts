@@ -299,7 +299,7 @@ export class AppAudioManager {
     const target = event.target as HTMLElement | null;
     const interactive = target?.closest<HTMLElement>(INTERACTIVE_SELECTOR);
 
-    if (!interactive || this.isDisabled(interactive)) {
+    if (!interactive || this.isDisabled(interactive) || this.isUiCueSuppressed(interactive)) {
       return;
     }
 
@@ -329,7 +329,12 @@ export class AppAudioManager {
     const target = event.target as HTMLElement | null;
     const interactive = target?.closest<HTMLElement>(INTERACTIVE_SELECTOR);
 
-    if (!interactive || this.isDisabled(interactive) || interactive === this.hoverTarget) {
+    if (
+      !interactive ||
+      this.isDisabled(interactive) ||
+      this.isUiCueSuppressed(interactive) ||
+      interactive === this.hoverTarget
+    ) {
       return;
     }
 
@@ -368,6 +373,10 @@ export class AppAudioManager {
 
   private isDisabled(element: HTMLElement): boolean {
     return element instanceof HTMLButtonElement ? element.disabled : false;
+  }
+
+  private isUiCueSuppressed(element: HTMLElement): boolean {
+    return element.dataset.uiSilent === 'true' || element.closest('[data-ui-silent="true"]') !== null;
   }
 
   private persistMutePreference(channel: AudioChannel): void {

@@ -42,7 +42,6 @@ export function bootstrapApplication(host: HTMLElement): void {
   const shell = createApplicationShell(host);
   const router = createAppRouter({
     appVersion: __APP_VERSION__,
-    desktop,
     shell,
   });
   const audio = new AppAudioManager();
