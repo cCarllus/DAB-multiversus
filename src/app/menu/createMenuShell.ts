@@ -2,6 +2,7 @@ import { createElementFromTemplate } from '@app/utils/html';
 
 import { createMenuFooterBar } from './createMenuFooterBar';
 import { createMenuNavbar } from './createMenuNavbar';
+import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.png';
 
 import menuShellTemplate from './menu-shell.html?raw';
 import '@app/pages/home/home.css';
@@ -13,7 +14,9 @@ interface CreateMenuShellOptions {
 }
 
 export function createMenuShell(options: CreateMenuShellOptions): HTMLElement {
-  const rootElement = createElementFromTemplate(menuShellTemplate);
+  const rootElement = createElementFromTemplate(menuShellTemplate, {
+    MENU_BACKGROUND_IMAGE: menuBackgroundImage,
+  });
   const frame = rootElement.querySelector<HTMLElement>('[data-menu-frame]');
 
   if (!frame) {
