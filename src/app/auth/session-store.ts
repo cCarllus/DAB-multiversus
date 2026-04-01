@@ -23,6 +23,21 @@ function isStoredAuthSession(value: unknown): value is StoredAuthSession {
   );
 }
 
+function isRememberedAuthSession(value: unknown): value is DesktopRememberedAuthSession {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return (
+    typeof candidate.refreshToken === 'string' &&
+    typeof candidate.sessionExpiresAt === 'string' &&
+    typeof candidate.savedAt === 'string' &&
+    typeof candidate.rememberDevice === 'boolean'
+  );
+}
+
 export class SessionStore {
   private persistentSessionSupport: boolean | null = null;
 
@@ -33,8 +48,9 @@ export class SessionStore {
       return this.persistentSessionSupport;
     }
 
-    const isAvailable =
+    const electronStorageAvailable =
       (await this.desktop.authStorage?.isPersistentStorageAvailable?.()) ?? false;
+    const isAvailable = electronStorageAvailable || this.supportsLocalPersistentStorage();
 
     this.persistentSessionSupport = isAvailable;
     return isAvailable;
@@ -52,7 +68,7 @@ export class SessionStore {
       return runtimeSession;
     }
 
-    const rememberedSession = await this.desktop.authStorage?.getRememberedSession();
+    const rememberedSession = await this.readRememberedSession();
 
     if (!rememberedSession) {
       return null;
@@ -69,7 +85,7 @@ export class SessionStore {
       accessTokenExpiresAt: null,
       refreshToken: rememberedSession.refreshToken,
       sessionExpiresAt: rememberedSession.sessionExpiresAt,
-      rememberDevice: true,
+      rememberDevice: rememberedSession.rememberDevice,
     };
   }
 
@@ -85,25 +101,21 @@ export class SessionStore {
 
     window.sessionStorage.setItem(STORAGE_KEYS.authSession, JSON.stringify(storedSession));
 
-    if (!session.rememberDevice) {
-      await this.clearRememberedSession();
-      return;
-    }
-
-    if (!(await this.supportsRememberedSessions()) || !this.desktop.authStorage) {
+    if (!(await this.supportsRememberedSessions())) {
       throw new AuthFlowError(
         'REMEMBER_DEVICE_UNAVAILABLE',
-        'Secure remembered sessions are unavailable on this system.',
+        'Persistent launcher sessions are unavailable on this system.',
       );
     }
 
     const rememberedSession: DesktopRememberedAuthSession = {
       refreshToken: session.refreshToken,
+      rememberDevice: session.rememberDevice,
       sessionExpiresAt: session.sessionExpiresAt,
       savedAt: new Date().toISOString(),
     };
 
-    await this.desktop.authStorage.setRememberedSession(rememberedSession);
+    await this.writeRememberedSession(rememberedSession);
   }
 
   updateRuntimeUser(user: AuthUser): void {
@@ -153,6 +165,84 @@ export class SessionStore {
   }
 
   private async clearRememberedSession(): Promise<void> {
-    await this.desktop.authStorage?.clearRememberedSession?.();
+    await Promise.allSettled([
+      this.desktop.authStorage?.clearRememberedSession?.(),
+      Promise.resolve(this.clearLocalRememberedSession()),
+    ]);
+  }
+
+  private async readRememberedSession(): Promise<DesktopRememberedAuthSession | null> {
+    const desktopRememberedSession =
+      (await this.desktop.authStorage?.getRememberedSession?.()) ?? null;
+
+    if (desktopRememberedSession) {
+      this.clearLocalRememberedSession();
+      return desktopRememberedSession;
+    }
+
+    return this.readLocalRememberedSession();
+  }
+
+  private async writeRememberedSession(
+    session: DesktopRememberedAuthSession,
+  ): Promise<void> {
+    if (this.desktop.authStorage && (await this.desktop.authStorage.isPersistentStorageAvailable())) {
+      await this.desktop.authStorage.setRememberedSession(session);
+      this.clearLocalRememberedSession();
+      return;
+    }
+
+    if (!this.supportsLocalPersistentStorage()) {
+      throw new AuthFlowError(
+        'REMEMBER_DEVICE_UNAVAILABLE',
+        'Persistent launcher sessions are unavailable on this system.',
+      );
+    }
+
+    window.localStorage.setItem(
+      STORAGE_KEYS.rememberedAuthSession,
+      JSON.stringify(session),
+    );
+  }
+
+  private readLocalRememberedSession(): DesktopRememberedAuthSession | null {
+    try {
+      const rawValue = window.localStorage.getItem(STORAGE_KEYS.rememberedAuthSession);
+
+      if (!rawValue) {
+        return null;
+      }
+
+      const parsedValue = JSON.parse(rawValue) as unknown;
+
+      if (!isRememberedAuthSession(parsedValue)) {
+        this.clearLocalRememberedSession();
+        return null;
+      }
+
+      return parsedValue;
+    } catch {
+      this.clearLocalRememberedSession();
+      return null;
+    }
+  }
+
+  private clearLocalRememberedSession(): void {
+    try {
+      window.localStorage.removeItem(STORAGE_KEYS.rememberedAuthSession);
+    } catch {
+      // Ignore storage unavailability during cleanup.
+    }
+  }
+
+  private supportsLocalPersistentStorage(): boolean {
+    try {
+      const probeKey = `${STORAGE_KEYS.rememberedAuthSession}.probe`;
+      window.localStorage.setItem(probeKey, '1');
+      window.localStorage.removeItem(probeKey);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

@@ -4,6 +4,7 @@ export interface DesktopWindowState {
 
 export interface DesktopRememberedAuthSession {
   refreshToken: string;
+  rememberDevice: boolean;
   sessionExpiresAt: string;
   savedAt: string;
 }

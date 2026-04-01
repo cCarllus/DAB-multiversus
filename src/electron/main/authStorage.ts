@@ -26,12 +26,10 @@ function getDevAuthStorageFilePath(): string {
 }
 
 function supportsDevFallbackStorage(): boolean {
-  return !app.isPackaged;
+  return Boolean(process.env.VITE_DEV_SERVER_URL) || !app.isPackaged;
 }
 
-function validateRememberedSession(
-  value: unknown,
-): asserts value is DesktopRememberedAuthSession {
+function parseRememberedSession(value: unknown): DesktopRememberedAuthSession {
   if (!value || typeof value !== 'object') {
     throw new Error('Remembered auth session is malformed.');
   }
@@ -45,6 +43,14 @@ function validateRememberedSession(
   ) {
     throw new Error('Remembered auth session payload is invalid.');
   }
+
+  return {
+    refreshToken: candidate.refreshToken,
+    rememberDevice:
+      typeof candidate.rememberDevice === 'boolean' ? candidate.rememberDevice : true,
+    savedAt: candidate.savedAt,
+    sessionExpiresAt: candidate.sessionExpiresAt,
+  };
 }
 
 async function readRememberedSession(): Promise<DesktopRememberedAuthSession | null> {
@@ -56,19 +62,13 @@ async function readRememberedSession(): Promise<DesktopRememberedAuthSession | n
 
       const rawPayload = await fs.readFile(getDevAuthStorageFilePath(), 'utf8');
       const parsedPayload = JSON.parse(rawPayload) as unknown;
-
-      validateRememberedSession(parsedPayload);
-
-      return parsedPayload;
+      return parseRememberedSession(parsedPayload);
     }
 
     const encryptedPayload = await fs.readFile(getAuthStorageFilePath());
     const decryptedPayload = safeStorage.decryptString(encryptedPayload);
     const parsedPayload = JSON.parse(decryptedPayload) as unknown;
-
-    validateRememberedSession(parsedPayload);
-
-    return parsedPayload;
+    return parseRememberedSession(parsedPayload);
   } catch (error) {
     const candidate = error as NodeJS.ErrnoException | undefined;
 
@@ -132,8 +132,7 @@ export function registerAuthStorageHandlers(): void {
   });
 
   ipcMain.handle(AUTH_STORAGE_CHANNELS.set, async (_event, payload: unknown) => {
-    validateRememberedSession(payload);
-    await writeRememberedSession(payload);
+    await writeRememberedSession(parseRememberedSession(payload));
   });
 
   ipcMain.handle(AUTH_STORAGE_CHANNELS.clear, async () => {
