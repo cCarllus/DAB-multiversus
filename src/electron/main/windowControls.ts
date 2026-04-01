@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron';
+import { app, BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron';
 
 import type { DesktopWindowState } from '@shared/types/desktop';
 
@@ -61,7 +61,11 @@ export function registerWindowControlHandlers(): void {
   });
 
   ipcMain.handle(DESKTOP_WINDOW_CHANNELS.close, (event) => {
-    resolveWindow(event).close();
+    const browserWindow = resolveWindow(event);
+
+    browserWindow.removeAllListeners('close');
+    browserWindow.destroy();
+    app.exit(0);
   });
 
   ipcMain.handle(DESKTOP_WINDOW_CHANNELS.getState, (event) => {

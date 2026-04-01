@@ -51,7 +51,10 @@ function createDesktopBridgeFallback(): DesktopBridge {
       node: 'web',
     },
     windowControls: {
-      close: () => Promise.resolve(),
+      close: () => {
+        globalThis.window?.close();
+        return Promise.resolve();
+      },
       getState: () => Promise.resolve({ isMaximized: false }),
       minimize: () => Promise.resolve(),
       onStateChange: () => () => undefined,
@@ -110,6 +113,21 @@ export function bootstrapApplication(host: HTMLElement): void {
     new Promise((resolve) => {
       window.setTimeout(resolve, ms);
     });
+
+  const requestLauncherClose = (): void => {
+    const closeWindow = (): void => {
+      globalThis.window?.close();
+    };
+
+    if (!desktop.windowControls?.close) {
+      closeWindow();
+      return;
+    }
+
+    void desktop.windowControls.close().catch(() => {
+      closeWindow();
+    });
+  };
 
   const getLoadingSequence = (sequenceKey: LoadingSequenceKey): LoadingSequence => {
     const sequence = i18n.getMessages().loading.sequences[sequenceKey];
@@ -551,7 +569,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         return;
       }
 
-      void desktop.windowControls?.close();
+      requestLauncherClose();
       return;
     }
 
@@ -566,7 +584,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     }
 
     if (action === 'launcher-force-close') {
-      void desktop.windowControls?.close();
+      requestLauncherClose();
       return;
     }
 
