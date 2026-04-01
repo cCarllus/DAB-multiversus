@@ -207,19 +207,23 @@
 }
 
 .profile-name-editor__row {
-  display: flex;
-  align-items: flex-end;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 12px;
 }
 
 .profile-name-editor__value {
   margin: 0;
+  min-width: 0;
+  max-width: 100%;
   color: var(--launcher-color-parchment);
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 4vw, 3.9rem);
   line-height: 0.95;
   letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .profile-name-editor__edit,
@@ -572,6 +576,11 @@
   }
 
   .profile-hero__copy {
+    justify-items: center;
+  }
+
+  .profile-name-editor__row {
+    grid-template-columns: 1fr;
     justify-items: center;
   }
 
