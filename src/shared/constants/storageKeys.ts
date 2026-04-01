@@ -5,4 +5,5 @@ export const STORAGE_KEYS = {
   soundMuted: 'dab-multiversus.audio.sound-muted',
   soundVolume: 'dab-multiversus.audio.sound-volume',
   authSession: 'dab-multiversus.auth.session',
+  locale: 'dab-multiversus.locale',
 } as const;

@@ -1,0 +1,282 @@
+{
+  "common": {
+    "appName": "Dead As Battle",
+    "brandAlt": "Dead As Battle"
+  },
+  "fatal": {
+    "eyebrow": "BOOT FAILURE",
+    "title": "Dead As Battle could not initialize.",
+    "description": "Open the developer console for the crash details and review the bootstrap pipeline."
+  },
+  "auth": {
+    "validation": {
+      "missingCredentials": "Enter your email or username and password to continue."
+    },
+    "errors": {
+      "invalidCredentials": "Email, username, or password is incorrect.",
+      "backendUnavailable": "The launcher could not reach the authentication service.",
+      "sessionExpired": "Your session expired. Sign in again.",
+      "rememberDeviceUnavailable": "Electron secure storage is unavailable on this device.",
+      "sessionPersistenceFailed": "The session was created, but the launcher could not secure it locally.",
+      "requestInvalid": "Review the submitted data and try again.",
+      "default": "Authentication could not be completed right now."
+    }
+  },
+  "boot": {
+    "screenAriaLabel": "Authentication boot check",
+    "eyebrow": "Session Bootstrap",
+    "statuses": {
+      "validatingRememberedSession": "Validating remembered session signature..."
+    }
+  },
+  "login": {
+    "screenAriaLabel": "Dead As Battle login",
+    "heroAriaLabel": "Launcher introduction",
+    "rulesAriaLabel": "Authentication highlights",
+    "formAriaLabel": "Authentication form",
+    "windowControls": {
+      "minimizeAriaLabel": "Minimize launcher",
+      "closeAriaLabel": "Close launcher"
+    },
+    "hero": {
+      "eyebrow": "Dead As Battle",
+      "title": "The proving grounds open only to authenticated challengers.",
+      "summary": "Enter the launcher through the first real secure access flow. Trusted devices stay linked for 30 days. Shared machines fall back to session-only access automatically.",
+      "rules": {
+        "rememberedDeviceLabel": "Remembered device",
+        "rememberedDeviceValue": "30-day refresh session",
+        "uncheckedDeviceLabel": "Unchecked device",
+        "uncheckedDeviceValue": "Session cleared when the launcher closes",
+        "authChannelLabel": "Auth channel",
+        "authChannelValue": "HTTP API + PostgreSQL session store"
+      }
+    },
+    "musicToggleLabel": "Mute login music",
+    "intro": {
+      "eyebrow": "Initial Sign-In",
+      "title": "Sign in",
+      "summary": "Use your email or username to enter the launcher and reach the authenticated home screen."
+    },
+    "form": {
+      "identifierLabel": "Email or username",
+      "identifierPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberDevice": "Remember this device for 30 days",
+      "rememberHintSupported": "The refresh token is stored in Electron secure storage and reused for up to 30 days.",
+      "rememberHintUnsupported": "Persistent secure storage is only available inside the Electron launcher.",
+      "submit": "Sign in",
+      "submitting": "Connecting...",
+      "devShortcut": "Sign in with test account"
+    },
+    "locale": {
+      "label": "Region/Language",
+      "selectorAriaLabel": "Select launcher language",
+      "menuAriaLabel": "Language options",
+      "options": {
+        "pt-BR": {
+          "label": "Brazil (Portuguese)",
+          "description": "Load the launcher and game in Brazilian Portuguese."
+        },
+        "en": {
+          "label": "United States (English)",
+          "description": "Load the launcher and game in English."
+        }
+      }
+    },
+    "footer": {
+      "createAccountSoon": "Create account soon",
+      "passwordRecoverySoon": "Password recovery soon"
+    }
+  },
+  "loading": {
+    "screenAriaLabel": "Loading screen",
+    "defaultTitle": "Loading",
+    "sequences": {
+      "loginToMenu": {
+        "eyebrow": "Secure Session Link",
+        "title": "Loading launcher",
+        "steps": [
+          {
+            "detail": "JWT access link accepted",
+            "holdMs": 220,
+            "progress": 0.18,
+            "status": "Linking the authenticated session"
+          },
+          {
+            "detail": "Launcher shell and navigation",
+            "holdMs": 260,
+            "progress": 0.42,
+            "status": "Building the main interface"
+          },
+          {
+            "detail": "Background scene and profile modules",
+            "holdMs": 320,
+            "progress": 0.74,
+            "status": "Loading the initial menu assets"
+          },
+          {
+            "detail": "The proving grounds are ready",
+            "holdMs": 200,
+            "progress": 1,
+            "status": "Access cleared for the menu"
+          }
+        ]
+      },
+      "resumeToMenu": {
+        "eyebrow": "Remembered Device",
+        "title": "Restoring launcher",
+        "steps": [
+          {
+            "detail": "Refresh token rotated successfully",
+            "holdMs": 180,
+            "progress": 0.28,
+            "status": "Revalidating the saved session"
+          },
+          {
+            "detail": "Rehydrating launcher state",
+            "holdMs": 220,
+            "progress": 0.66,
+            "status": "Rebuilding the menu modules"
+          },
+          {
+            "detail": "Returning to the proving grounds",
+            "holdMs": 170,
+            "progress": 1,
+            "status": "Authenticated access restored"
+          }
+        ]
+      },
+      "menuToGame": {
+        "eyebrow": "Arena Deployment",
+        "title": "Loading battle",
+        "steps": [
+          {
+            "detail": "Champion slot and arena sigils",
+            "holdMs": 240,
+            "progress": 0.18,
+            "status": "Locking the match configuration"
+          },
+          {
+            "detail": "Combat shell and match bridge",
+            "holdMs": 280,
+            "progress": 0.44,
+            "status": "Synchronizing the game handoff"
+          },
+          {
+            "detail": "Streaming battle-side assets",
+            "holdMs": 320,
+            "progress": 0.78,
+            "status": "Loading the initial arena assets"
+          },
+          {
+            "detail": "Arena ready for deployment",
+            "holdMs": 220,
+            "progress": 1,
+            "status": "The arena is ready"
+          }
+        ]
+      },
+      "gameToMenu": {
+        "eyebrow": "Launcher Recall",
+        "title": "Returning to menu",
+        "steps": [
+          {
+            "detail": "Detaching battle shell",
+            "holdMs": 180,
+            "progress": 0.32,
+            "status": "Finishing the game transition"
+          },
+          {
+            "detail": "Rehydrating launcher chrome",
+            "holdMs": 220,
+            "progress": 0.72,
+            "status": "Restoring the main menu"
+          },
+          {
+            "detail": "Menu ready",
+            "holdMs": 180,
+            "progress": 1,
+            "status": "Menu ready again"
+          }
+        ]
+      }
+    }
+  },
+  "menu": {
+    "shellAriaLabel": "Game home screen",
+    "topbar": {
+      "primaryNavigationAriaLabel": "Primary navigation",
+      "settingsAriaLabel": "Settings",
+      "navigationAriaLabel": "Navigation",
+      "playAriaLabel": "Dead As Battle",
+      "tabs": {
+        "heroes": "Heroes",
+        "store": "Store",
+        "watch": "Watch",
+        "codex": "Codex",
+        "vault": "Vault"
+      },
+      "currencyAriaLabel": "Shards",
+      "currencyLabel": "Shards",
+      "profileAriaLabel": "Profile",
+      "notificationsAriaLabel": "Notifications",
+      "minimizeAriaLabel": "Minimize launcher",
+      "closeAriaLabel": "Close launcher"
+    },
+    "home": {
+      "seasonObjective": "Season Objective",
+      "seasonObjectiveProgressLabel": "3 WINS / WEEK",
+      "friendsTitle": "Friends",
+      "addFriendAriaLabel": "Add friend",
+      "friendsFilter": "In Game (4)",
+      "friendStatuses": {
+        "playingRanked": "Playing Ranked Match",
+        "mainMenu": "Main Menu",
+        "offline": "Offline"
+      },
+      "featuredFighter": "Featured Fighter",
+      "featuredLoadoutAriaLabel": "Featured loadout",
+      "matchDetails": "Match Details",
+      "proCircuit": "PRO CIRCUIT",
+      "livePopularMatch": "Live Popular Match"
+    },
+    "footer": {
+      "musicEnable": "Enable launcher music",
+      "musicMute": "Mute launcher music",
+      "partyPrefix": "(Party):",
+      "chatPlaceholder": "Enter message or '/' for commands.",
+      "play": "Play"
+    },
+    "exitModal": {
+      "ariaLabel": "Exit launcher options",
+      "dismissAriaLabel": "Cancel and go back",
+      "eyebrow": "Exit Options",
+      "title": "End session or close the launcher",
+      "body": "{{userLabel}} is still authenticated. Choose whether to log out and return to the login screen, or close the launcher now.",
+      "loggingOut": "Signing out...",
+      "logout": "Logout",
+      "closeLauncher": "Close launcher"
+    }
+  },
+  "game": {
+    "screenAriaLabel": "Game handoff screen",
+    "eyebrow": "Game Runtime Handoff",
+    "title": "Arena connection established",
+    "summary": "The launcher flow now reaches the game entry point. This screen holds the transition while the real match runtime is wired in during the next phase.",
+    "labels": {
+      "authenticatedAs": "Authenticated as",
+      "account": "Account",
+      "client": "Client"
+    },
+    "returnToMenu": "Return to menu"
+  },
+  "product": {
+    "title": "Dead As Battle",
+    "homeHeadline": "The veil between worlds grows thin. Choose your champion.",
+    "homeSummary": "Legends from shattered dimensions converge in an arena of ancient power. Forge alliances, master forbidden arts, and claim dominion across the Multiverse.",
+    "heroName": "Vaelkhor the Undying",
+    "heroTitle": "Lord of the Ashen Throne",
+    "seasonName": "Season of the Shattered Crown"
+  }
+}

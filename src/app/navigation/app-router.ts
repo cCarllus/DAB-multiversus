@@ -1,4 +1,5 @@
 import type { ApplicationShell } from '@app/layout/createApplicationShell';
+import type { AppI18n } from '@shared/i18n';
 
 import {
   createLoginScreen,
@@ -16,6 +17,7 @@ import type { AuthUser } from '@app/auth/auth-types';
 
 interface CreateAppRouterOptions {
   appVersion: string;
+  i18n: AppI18n;
   shell: ApplicationShell;
 }
 
@@ -37,9 +39,9 @@ export interface AppRouter {
   showBoot: (status: string) => void;
   showGame: (options: GameRouteOptions) => void;
   showHome: (options: HomeRouteOptions) => void;
-  showLogin: (options: LoginScreenOptions) => void;
+  showLogin: (options: Omit<LoginScreenOptions, 'i18n'>) => void;
   showLoading: (
-    options: Omit<LoadingScreenOptions, 'appVersion'>,
+    options: Omit<LoadingScreenOptions, 'appVersion' | 'i18n'>,
   ) => LoadingScreenHandle;
 }
 
@@ -49,19 +51,26 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
       options.shell.setPage(
         createBootScreen({
           appVersion: options.appVersion,
+          i18n: options.i18n,
           status,
         }),
       );
     },
 
     showLogin(loginScreenOptions) {
-      options.shell.setPage(createLoginScreen(loginScreenOptions));
+      options.shell.setPage(
+        createLoginScreen({
+          ...loginScreenOptions,
+          i18n: options.i18n,
+        }),
+      );
     },
 
     showLoading(loadingScreenOptions) {
       const loadingScreen = createLoadingScreen({
         ...loadingScreenOptions,
         appVersion: options.appVersion,
+        i18n: options.i18n,
       });
       options.shell.setPage(loadingScreen.element);
       return loadingScreen;
@@ -70,6 +79,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
     showHome(homeOptions) {
       options.shell.setPage(
         createHomeScreen({
+          i18n: options.i18n,
           musicMuted: homeOptions.musicMuted,
           exitModal: homeOptions.exitModal,
           user: homeOptions.user,
@@ -81,6 +91,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
       options.shell.setPage(
         createGameScreen({
           appVersion: options.appVersion,
+          i18n: options.i18n,
           user: gameOptions.user,
         }),
       );

@@ -1,0 +1,282 @@
+{
+  "common": {
+    "appName": "Dead As Battle",
+    "brandAlt": "Dead As Battle"
+  },
+  "fatal": {
+    "eyebrow": "FALHA NO BOOT",
+    "title": "Dead As Battle não pôde ser iniciado.",
+    "description": "Abra o console de desenvolvedor para ver os detalhes do erro e revise o pipeline de bootstrap."
+  },
+  "auth": {
+    "validation": {
+      "missingCredentials": "Informe seu e-mail ou nome de usuário e sua senha para continuar."
+    },
+    "errors": {
+      "invalidCredentials": "E-mail, nome de usuário ou senha incorretos.",
+      "backendUnavailable": "O launcher não conseguiu alcançar o serviço de autenticação.",
+      "sessionExpired": "Sua sessão expirou. Faça login novamente.",
+      "rememberDeviceUnavailable": "O armazenamento seguro do Electron não está disponível neste dispositivo.",
+      "sessionPersistenceFailed": "A sessão foi criada, mas o launcher não conseguiu protegê-la localmente.",
+      "requestInvalid": "Revise os dados informados e tente novamente.",
+      "default": "Não foi possível concluir a autenticação agora."
+    }
+  },
+  "boot": {
+    "screenAriaLabel": "Verificação inicial de autenticação",
+    "eyebrow": "Bootstrap de Sessão",
+    "statuses": {
+      "validatingRememberedSession": "Validando a assinatura da sessão salva..."
+    }
+  },
+  "login": {
+    "screenAriaLabel": "Login do Dead As Battle",
+    "heroAriaLabel": "Introdução do launcher",
+    "rulesAriaLabel": "Destaques da autenticação",
+    "formAriaLabel": "Formulário de autenticação",
+    "windowControls": {
+      "minimizeAriaLabel": "Minimizar launcher",
+      "closeAriaLabel": "Fechar launcher"
+    },
+    "hero": {
+      "eyebrow": "Dead As Battle",
+      "title": "Os campos de prova só se abrem para desafiantes autenticados.",
+      "summary": "Entre no launcher pelo primeiro fluxo real de acesso seguro. Dispositivos confiáveis permanecem vinculados por 30 dias. Máquinas compartilhadas voltam automaticamente para acesso apenas por sessão.",
+      "rules": {
+        "rememberedDeviceLabel": "Dispositivo salvo",
+        "rememberedDeviceValue": "Sessão de refresh por 30 dias",
+        "uncheckedDeviceLabel": "Dispositivo não marcado",
+        "uncheckedDeviceValue": "A sessão é encerrada quando o launcher fecha",
+        "authChannelLabel": "Canal de autenticação",
+        "authChannelValue": "API HTTP + armazenamento de sessão em PostgreSQL"
+      }
+    },
+    "musicToggleLabel": "Desativar a música de login",
+    "intro": {
+      "eyebrow": "Primeiro Login",
+      "title": "Iniciar sessão",
+      "summary": "Use seu e-mail ou nome de usuário para entrar no launcher e chegar à tela inicial autenticada."
+    },
+    "form": {
+      "identifierLabel": "E-mail ou nome de usuário",
+      "identifierPlaceholder": "seu@email.com",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "Digite sua senha",
+      "rememberDevice": "Lembrar este dispositivo por 30 dias",
+      "rememberHintSupported": "O refresh token é salvo com o armazenamento seguro do Electron e reaproveitado por até 30 dias.",
+      "rememberHintUnsupported": "O armazenamento seguro persistente só fica disponível dentro do launcher Electron.",
+      "submit": "Iniciar sessão",
+      "submitting": "Conectando...",
+      "devShortcut": "Entrar com conta de teste"
+    },
+    "locale": {
+      "label": "Região/Idioma",
+      "selectorAriaLabel": "Selecionar idioma do launcher",
+      "menuAriaLabel": "Opções de idioma",
+      "options": {
+        "pt-BR": {
+          "label": "Brasil (Português)",
+          "description": "Carrega o launcher e o jogo em português do Brasil."
+        },
+        "en": {
+          "label": "Estados Unidos (English)",
+          "description": "Carrega o launcher e o jogo em inglês."
+        }
+      }
+    },
+    "footer": {
+      "createAccountSoon": "Criar conta em breve",
+      "passwordRecoverySoon": "Recuperação de senha em breve"
+    }
+  },
+  "loading": {
+    "screenAriaLabel": "Tela de carregamento",
+    "defaultTitle": "Carregando",
+    "sequences": {
+      "loginToMenu": {
+        "eyebrow": "Vínculo de Sessão Segura",
+        "title": "Carregando launcher",
+        "steps": [
+          {
+            "detail": "Vínculo de acesso JWT aceito",
+            "holdMs": 220,
+            "progress": 0.18,
+            "status": "Vinculando a sessão autenticada"
+          },
+          {
+            "detail": "Shell do launcher e navegação",
+            "holdMs": 260,
+            "progress": 0.42,
+            "status": "Montando a interface principal"
+          },
+          {
+            "detail": "Cena de fundo e módulos de perfil",
+            "holdMs": 320,
+            "progress": 0.74,
+            "status": "Carregando os assets iniciais do menu"
+          },
+          {
+            "detail": "Os campos de prova estão prontos",
+            "holdMs": 200,
+            "progress": 1,
+            "status": "Entrada liberada para o menu"
+          }
+        ]
+      },
+      "resumeToMenu": {
+        "eyebrow": "Dispositivo Salvo",
+        "title": "Restaurando launcher",
+        "steps": [
+          {
+            "detail": "Refresh token rotacionado com sucesso",
+            "holdMs": 180,
+            "progress": 0.28,
+            "status": "Revalidando a sessão salva"
+          },
+          {
+            "detail": "Reidratando o estado do launcher",
+            "holdMs": 220,
+            "progress": 0.66,
+            "status": "Reconstruindo os módulos do menu"
+          },
+          {
+            "detail": "Retornando aos campos de prova",
+            "holdMs": 170,
+            "progress": 1,
+            "status": "Entrada autenticada restaurada"
+          }
+        ]
+      },
+      "menuToGame": {
+        "eyebrow": "Deslocamento para a Arena",
+        "title": "Carregando batalha",
+        "steps": [
+          {
+            "detail": "Slot do campeão e selos da arena",
+            "holdMs": 240,
+            "progress": 0.18,
+            "status": "Travando a configuração da partida"
+          },
+          {
+            "detail": "Shell de combate e ponte da partida",
+            "holdMs": 280,
+            "progress": 0.44,
+            "status": "Sincronizando a transição para o jogo"
+          },
+          {
+            "detail": "Transmitindo assets da batalha",
+            "holdMs": 320,
+            "progress": 0.78,
+            "status": "Carregando os assets iniciais da arena"
+          },
+          {
+            "detail": "Arena pronta para o deslocamento",
+            "holdMs": 220,
+            "progress": 1,
+            "status": "A arena está pronta"
+          }
+        ]
+      },
+      "gameToMenu": {
+        "eyebrow": "Retorno ao Launcher",
+        "title": "Voltando ao menu",
+        "steps": [
+          {
+            "detail": "Desacoplando o shell da batalha",
+            "holdMs": 180,
+            "progress": 0.32,
+            "status": "Encerrando a transição do jogo"
+          },
+          {
+            "detail": "Reidratando o chrome do launcher",
+            "holdMs": 220,
+            "progress": 0.72,
+            "status": "Restaurando o menu principal"
+          },
+          {
+            "detail": "Menu pronto",
+            "holdMs": 180,
+            "progress": 1,
+            "status": "Menu preparado novamente"
+          }
+        ]
+      }
+    }
+  },
+  "menu": {
+    "shellAriaLabel": "Tela inicial do jogo",
+    "topbar": {
+      "primaryNavigationAriaLabel": "Navegação principal",
+      "settingsAriaLabel": "Configurações",
+      "navigationAriaLabel": "Navegação",
+      "playAriaLabel": "Dead As Battle",
+      "tabs": {
+        "heroes": "Heróis",
+        "store": "Loja",
+        "watch": "Assistir",
+        "codex": "Codex",
+        "vault": "Cofre"
+      },
+      "currencyAriaLabel": "Fragmentos",
+      "currencyLabel": "Fragmentos",
+      "profileAriaLabel": "Perfil",
+      "notificationsAriaLabel": "Notificações",
+      "minimizeAriaLabel": "Minimizar launcher",
+      "closeAriaLabel": "Fechar launcher"
+    },
+    "home": {
+      "seasonObjective": "Objetivo da temporada",
+      "seasonObjectiveProgressLabel": "3 VITÓRIAS / SEMANA",
+      "friendsTitle": "Amigos",
+      "addFriendAriaLabel": "Adicionar amigo",
+      "friendsFilter": "Em partida (4)",
+      "friendStatuses": {
+        "playingRanked": "Jogando partida ranqueada",
+        "mainMenu": "Menu principal",
+        "offline": "Offline"
+      },
+      "featuredFighter": "Lutador em destaque",
+      "featuredLoadoutAriaLabel": "Conjunto em destaque",
+      "matchDetails": "Detalhes da partida",
+      "proCircuit": "CIRCUITO PRO",
+      "livePopularMatch": "Partida popular ao vivo"
+    },
+    "footer": {
+      "musicEnable": "Ativar a música do launcher",
+      "musicMute": "Mutar a música do launcher",
+      "partyPrefix": "(Grupo):",
+      "chatPlaceholder": "Digite uma mensagem ou '/' para comandos.",
+      "play": "Jogar"
+    },
+    "exitModal": {
+      "ariaLabel": "Opções para sair do launcher",
+      "dismissAriaLabel": "Cancelar e voltar",
+      "eyebrow": "Opções de saída",
+      "title": "Encerrar sessão ou fechar o launcher",
+      "body": "{{userLabel}} ainda está autenticado. Escolha entre fazer logout e voltar para a tela de login, ou fechar o launcher agora.",
+      "loggingOut": "Saindo...",
+      "logout": "Logout",
+      "closeLauncher": "Fechar launcher"
+    }
+  },
+  "game": {
+    "screenAriaLabel": "Tela de transição para o jogo",
+    "eyebrow": "Transição para o Runtime do Jogo",
+    "title": "Conexão com a arena estabelecida",
+    "summary": "O fluxo do launcher agora chega até a entrada do jogo. Esta tela segura a transição enquanto o runtime real da partida será conectado na próxima fase.",
+    "labels": {
+      "authenticatedAs": "Autenticado como",
+      "account": "Conta",
+      "client": "Cliente"
+    },
+    "returnToMenu": "Voltar ao menu"
+  },
+  "product": {
+    "title": "Dead As Battle",
+    "homeHeadline": "O véu entre mundos está se rompendo. Escolha seu campeão.",
+    "homeSummary": "Lendas de dimensões partidas convergem em uma arena de poder ancestral. Forje alianças, domine artes proibidas e reivindique domínio por todo o Multiverso.",
+    "heroName": "Vaelkhor, o Imortal",
+    "heroTitle": "Senhor do Trono Cinzento",
+    "seasonName": "Temporada da Coroa Estilhaçada"
+  }
+}

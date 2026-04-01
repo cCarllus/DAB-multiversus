@@ -4,6 +4,11 @@ import { type LoginFormValues } from '@app/auth/auth-types';
 import { createApplicationShell } from '@app/layout/createApplicationShell';
 import { createAppRouter } from '@app/navigation/app-router';
 import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
+import {
+  createI18n,
+  type AppLocale,
+  type TranslationMessages,
+} from '@shared/i18n';
 import type { DesktopBridge } from '@shared/types/desktop';
 
 const EXIT_MODAL_TRANSITION_MS = 180;
@@ -27,118 +32,7 @@ interface LoadingSequence {
   steps: LoadingStep[];
   title: string;
 }
-
-const LOGIN_TO_MENU_SEQUENCE: LoadingSequence = {
-  eyebrow: 'Secure Session Link',
-  title: 'Loading launcher',
-  steps: [
-    {
-      detail: 'JWT access link accepted',
-      holdMs: 220,
-      progress: 0.18,
-      status: 'Vinculando a sessão autenticada',
-    },
-    {
-      detail: 'Launcher shell and navigation',
-      holdMs: 260,
-      progress: 0.42,
-      status: 'Montando a interface principal',
-    },
-    {
-      detail: 'Background scene and profile modules',
-      holdMs: 320,
-      progress: 0.74,
-      status: 'Carregando assets iniciais do menu',
-    },
-    {
-      detail: 'The proving grounds are ready',
-      holdMs: 200,
-      progress: 1,
-      status: 'Entrada liberada para o menu',
-    },
-  ],
-};
-
-const RESUME_TO_MENU_SEQUENCE: LoadingSequence = {
-  eyebrow: 'Remembered Device',
-  title: 'Restoring launcher',
-  steps: [
-    {
-      detail: 'Refresh token rotated successfully',
-      holdMs: 180,
-      progress: 0.28,
-      status: 'Revalidando a sessão salva',
-    },
-    {
-      detail: 'Rehydrating launcher state',
-      holdMs: 220,
-      progress: 0.66,
-      status: 'Reconstruindo os módulos do menu',
-    },
-    {
-      detail: 'Returning to the proving grounds',
-      holdMs: 170,
-      progress: 1,
-      status: 'Entrada autenticada restaurada',
-    },
-  ],
-};
-
-const MENU_TO_GAME_SEQUENCE: LoadingSequence = {
-  eyebrow: 'Arena Deployment',
-  title: 'Loading battle',
-  steps: [
-    {
-      detail: 'Champion slot and arena sigils',
-      holdMs: 240,
-      progress: 0.18,
-      status: 'Travando a configuração da partida',
-    },
-    {
-      detail: 'Combat shell and match bridge',
-      holdMs: 280,
-      progress: 0.44,
-      status: 'Sincronizando o handoff do jogo',
-    },
-    {
-      detail: 'Streaming battle-side assets',
-      holdMs: 320,
-      progress: 0.78,
-      status: 'Carregando os assets iniciais da arena',
-    },
-    {
-      detail: 'Arena ready for deployment',
-      holdMs: 220,
-      progress: 1,
-      status: 'A arena está pronta',
-    },
-  ],
-};
-
-const GAME_TO_MENU_SEQUENCE: LoadingSequence = {
-  eyebrow: 'Launcher Recall',
-  title: 'Returning to menu',
-  steps: [
-    {
-      detail: 'Detaching battle shell',
-      holdMs: 180,
-      progress: 0.32,
-      status: 'Encerrando a transição do jogo',
-    },
-    {
-      detail: 'Rehydrating launcher chrome',
-      holdMs: 220,
-      progress: 0.72,
-      status: 'Restaurando o menu principal',
-    },
-    {
-      detail: 'Menu ready',
-      holdMs: 180,
-      progress: 1,
-      status: 'Menu preparado novamente',
-    },
-  ],
-};
+type LoadingSequenceKey = keyof TranslationMessages['loading']['sequences'];
 
 function createDesktopBridgeFallback(): DesktopBridge {
   return {
@@ -171,9 +65,11 @@ function createDesktopBridgeFallback(): DesktopBridge {
 
 export function bootstrapApplication(host: HTMLElement): void {
   const desktop = window.desktop ?? createDesktopBridgeFallback();
+  const i18n = createI18n();
   const shell = createApplicationShell(host);
   const router = createAppRouter({
     appVersion: __APP_VERSION__,
+    i18n,
     shell,
   });
   const audio = new AppAudioManager();
@@ -211,6 +107,21 @@ export function bootstrapApplication(host: HTMLElement): void {
     new Promise((resolve) => {
       window.setTimeout(resolve, ms);
     });
+
+  const getLoadingSequence = (sequenceKey: LoadingSequenceKey): LoadingSequence => {
+    const sequence = i18n.getMessages().loading.sequences[sequenceKey];
+
+    return {
+      eyebrow: sequence.eyebrow,
+      steps: sequence.steps.map((step) => ({
+        detail: step.detail,
+        holdMs: step.holdMs,
+        progress: step.progress,
+        status: step.status,
+      })),
+      title: sequence.title,
+    };
+  };
 
   const renderMenuPage = (): void => {
     const session = authService.getCurrentSession();
@@ -256,7 +167,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       detail: firstStep?.detail,
       eyebrow: sequence.eyebrow,
       progress: 0,
-      status: firstStep?.status ?? 'Loading',
+      status: firstStep?.status ?? i18n.getMessages().loading.defaultTitle,
       title: sequence.title,
     });
 
@@ -280,7 +191,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   };
 
   const transitionToMenu = async (
-    sequence: LoadingSequence = LOGIN_TO_MENU_SEQUENCE,
+    sequence: LoadingSequence = getLoadingSequence('loginToMenu'),
   ): Promise<void> => {
     const completed = await runLoadingSequence(sequence);
 
@@ -292,7 +203,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   };
 
   const transitionToGame = async (): Promise<void> => {
-    const completed = await runLoadingSequence(MENU_TO_GAME_SEQUENCE);
+    const completed = await runLoadingSequence(getLoadingSequence('menuToGame'));
 
     if (!completed) {
       return;
@@ -320,17 +231,53 @@ export function bootstrapApplication(host: HTMLElement): void {
     renderMenuPage();
   };
 
+  const handleLocaleChange = (locale: AppLocale): void => {
+    if (locale === i18n.getLocale()) {
+      return;
+    }
+
+    i18n.setLocale(locale);
+    loginState = {
+      ...loginState,
+      errorMessage: null,
+    };
+    exitModalState = {
+      ...exitModalState,
+      errorMessage: null,
+    };
+
+    if (activeSurface === 'login') {
+      renderLoginPage();
+      return;
+    }
+
+    if (activeSurface === 'menu') {
+      renderMenuPage();
+      return;
+    }
+
+    if (activeSurface === 'game') {
+      renderGamePage();
+      return;
+    }
+
+    if (activeSurface === 'boot') {
+      router.showBoot(i18n.t('boot.statuses.validatingRememberedSession'));
+    }
+  };
+
   const renderLoginPage = (): void => {
     cancelLoadingSequence();
     activeSurface = 'login';
     router.showLogin({
       appVersion: __APP_VERSION__,
-      devShortcutLabel: 'Entrar com usuario de teste',
       enableDevShortcut: enableDevLoginShortcut,
       musicMuted: audio.isMusicMuted(),
       errorMessage: loginState.errorMessage,
       identifier: loginState.identifier,
+      locale: i18n.getLocale(),
       isSubmitting: loginState.isSubmitting,
+      onLocaleChange: handleLocaleChange,
       rememberDevice: loginState.rememberDevice,
       rememberDeviceSupported,
       onDevShortcutSubmit: () => handleLoginSubmit(DEV_TEST_LOGIN),
@@ -342,7 +289,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     if (!values.identifier || !values.password) {
       loginState = {
         ...loginState,
-        errorMessage: 'Informe seu email/nome de usuário e senha para continuar.',
+        errorMessage: i18n.t('auth.validation.missingCredentials'),
         identifier: values.identifier,
         isSubmitting: false,
         rememberDevice: values.rememberDevice,
@@ -363,12 +310,12 @@ export function bootstrapApplication(host: HTMLElement): void {
       .login(values)
       .then(() => {
         audio.playTransitionCue('screen-shift');
-        void transitionToMenu(LOGIN_TO_MENU_SEQUENCE);
+        void transitionToMenu(getLoadingSequence('loginToMenu'));
       })
       .catch((error: unknown) => {
         loginState = {
           ...loginState,
-          errorMessage: resolveAuthErrorMessage(error),
+          errorMessage: resolveAuthErrorMessage(error, i18n),
           isSubmitting: false,
         };
         renderLoginPage();
@@ -408,7 +355,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       })
       .catch((error: unknown) => {
         exitModalState = {
-          errorMessage: resolveAuthErrorMessage(error),
+          errorMessage: resolveAuthErrorMessage(error, i18n),
           isLoggingOut: false,
           status: 'open',
         };
@@ -443,7 +390,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   void (async () => {
     cancelLoadingSequence();
     activeSurface = 'boot';
-    router.showBoot('Validating remembered session signature...');
+    router.showBoot(i18n.t('boot.statuses.validatingRememberedSession'));
     rememberDeviceSupported = await authService.supportsRememberedSessions();
 
     try {
@@ -456,7 +403,7 @@ export function bootstrapApplication(host: HTMLElement): void {
           status: 'closed',
         };
         audio.playTransitionCue('screen-shift');
-        await transitionToMenu(RESUME_TO_MENU_SEQUENCE);
+        await transitionToMenu(getLoadingSequence('resumeToMenu'));
       } else {
         loginState = {
           ...loginState,
@@ -468,7 +415,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     } catch (error) {
       loginState = {
         ...loginState,
-        errorMessage: resolveAuthErrorMessage(error),
+        errorMessage: resolveAuthErrorMessage(error, i18n),
         isSubmitting: false,
       };
       renderLoginPage();
@@ -543,7 +490,7 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     if (action === 'game-return-menu') {
       audio.playTransitionCue('screen-shift');
-      void transitionToMenu(GAME_TO_MENU_SEQUENCE);
+      void transitionToMenu(getLoadingSequence('gameToMenu'));
     }
   });
 

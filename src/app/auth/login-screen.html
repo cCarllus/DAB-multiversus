@@ -1,4 +1,4 @@
-<section class="login-screen" aria-label="Dead As Battle login">
+<section class="login-screen" aria-label="__LOGIN_SCREEN_ARIA_LABEL__">
   <div class="login-screen__backdrop" aria-hidden="true">
     <video class="login-screen__background-video" data-login-background-video autoplay loop muted playsinline preload="auto"></video>
     <div class="login-screen__backdrop-overlay"></div>
@@ -6,27 +6,25 @@
   </div>
 
   <div class="login-screen__layout">
-    <section class="login-hero" aria-label="Launcher introduction">
+    <section class="login-hero" aria-label="__LOGIN_HERO_ARIA_LABEL__">
       <div class="login-hero__copy">
-        <p class="login-hero__eyebrow">Dead As Battle</p>
-        <h1 class="login-hero__title">The proving grounds open only to authenticated challengers.</h1>
-        <p class="login-hero__summary">
-          Enter the launcher through the first real secure access flow. Trusted devices stay linked for 30 days. Shared machines fall back to session-only access automatically.
-        </p>
+        <p class="login-hero__eyebrow">__LOGIN_HERO_EYEBROW__</p>
+        <h1 class="login-hero__title">__LOGIN_HERO_TITLE__</h1>
+        <p class="login-hero__summary">__LOGIN_HERO_SUMMARY__</p>
       </div>
 
-      <div class="login-hero__rules" aria-label="Authentication highlights">
+      <div class="login-hero__rules" aria-label="__LOGIN_RULES_ARIA_LABEL__">
         <div class="login-hero__rule">
-          <span class="login-hero__rule-label">Remembered device</span>
-          <strong class="login-hero__rule-value">30-day refresh session</strong>
+          <span class="login-hero__rule-label">__LOGIN_RULE_REMEMBERED_DEVICE_LABEL__</span>
+          <strong class="login-hero__rule-value">__LOGIN_RULE_REMEMBERED_DEVICE_VALUE__</strong>
         </div>
         <div class="login-hero__rule">
-          <span class="login-hero__rule-label">Unchecked device</span>
-          <strong class="login-hero__rule-value">Session cleared when the launcher closes</strong>
+          <span class="login-hero__rule-label">__LOGIN_RULE_UNCHECKED_DEVICE_LABEL__</span>
+          <strong class="login-hero__rule-value">__LOGIN_RULE_UNCHECKED_DEVICE_VALUE__</strong>
         </div>
         <div class="login-hero__rule">
-          <span class="login-hero__rule-label">Auth channel</span>
-          <strong class="login-hero__rule-value">HTTP API + PostgreSQL session store</strong>
+          <span class="login-hero__rule-label">__LOGIN_RULE_AUTH_CHANNEL_LABEL__</span>
+          <strong class="login-hero__rule-value">__LOGIN_RULE_AUTH_CHANNEL_VALUE__</strong>
         </div>
       </div>
 
@@ -39,17 +37,17 @@
             name="musicMuted"
           />
           <span class="login-hero__toggle-box" aria-hidden="true"></span>
-          <span class="login-hero__toggle-label">Desativar a música de login</span>
+          <span class="login-hero__toggle-label">__LOGIN_MUSIC_TOGGLE_LABEL__</span>
         </label>
       </div>
     </section>
 
-    <aside class="login-panel" aria-label="Authentication form">
+    <aside class="login-panel" aria-label="__LOGIN_FORM_ARIA_LABEL__">
       <div class="login-panel__window-controls">
-        <button type="button" class="login-panel__window-button" data-action="window-minimize" aria-label="Minimize launcher">
+        <button type="button" class="login-panel__window-button" data-action="window-minimize" aria-label="__LOGIN_MINIMIZE_ARIA_LABEL__">
           &minus;
         </button>
-        <button type="button" class="login-panel__window-button login-panel__window-button--danger" data-action="window-close" aria-label="Close launcher">
+        <button type="button" class="login-panel__window-button login-panel__window-button--danger" data-action="window-close" aria-label="__LOGIN_CLOSE_ARIA_LABEL__">
           &times;
         </button>
       </div>
@@ -57,21 +55,18 @@
       <div class="login-panel__body">
         <div class="login-panel__brand">
           <div class="login-panel__brand-copy">
-            <img class="login-panel__brand-title-image" data-login-brand-image alt="Dead As Battle" />
+            <img class="login-panel__brand-title-image" data-login-brand-image alt="__LOGIN_BRAND_ALT__" />
           </div>
         </div>
 
         <div class="login-panel__intro">
-          <p class="login-panel__eyebrow">Initial Sign-In</p>
-          <h2 class="login-panel__title">Iniciar sessão</h2>
-          <p class="login-panel__summary">
-            Use seu e-mail ou nome de usuário para entrar no launcher e chegar à tela inicial autenticada.
-          </p>
+          <h2 class="login-panel__title">__LOGIN_INTRO_TITLE__</h2>
+          <p class="login-panel__summary">__LOGIN_INTRO_SUMMARY__</p>
         </div>
 
         <form class="login-form" data-login-form novalidate>
           <label class="login-form__field">
-            <span class="login-form__label">Email ou nome de usuário</span>
+            <span class="login-form__label">__LOGIN_IDENTIFIER_LABEL__</span>
             <input
               class="login-form__input"
               data-login-identifier
@@ -80,12 +75,12 @@
               autocomplete="username"
               spellcheck="false"
               maxlength="320"
-              placeholder="seu@email.com"
+              placeholder="__LOGIN_IDENTIFIER_PLACEHOLDER__"
             />
           </label>
 
           <label class="login-form__field">
-            <span class="login-form__label">Senha</span>
+            <span class="login-form__label">__LOGIN_PASSWORD_LABEL__</span>
             <input
               class="login-form__input"
               data-login-password
@@ -93,14 +88,14 @@
               name="password"
               autocomplete="current-password"
               maxlength="128"
-              placeholder="Digite sua senha"
+              placeholder="__LOGIN_PASSWORD_PLACEHOLDER__"
             />
           </label>
 
           <label class="login-form__remember">
             <input class="login-form__checkbox" data-login-remember type="checkbox" name="rememberDevice" />
             <span class="login-form__checkbox-ui" aria-hidden="true"></span>
-            <span class="login-form__remember-copy">Remember this device for 30 days</span>
+            <span class="login-form__remember-copy">__LOGIN_REMEMBER_DEVICE_LABEL__</span>
           </label>
 
           <p class="login-form__hint" data-login-remember-hint></p>
@@ -108,7 +103,7 @@
 
           <button class="login-form__submit" data-login-submit data-ui-cue="confirm" type="submit">
             <span class="login-form__submit-glow" aria-hidden="true"></span>
-            <span class="login-form__submit-label">Iniciar sessão</span>
+            <span class="login-form__submit-label">__LOGIN_SUBMIT_LABEL__</span>
           </button>
 
           <button
@@ -118,17 +113,38 @@
             type="button"
             hidden
           >
-            <span class="login-form__dev-shortcut-label" data-login-dev-shortcut-label>Entrar com conta de teste</span>
+            <span class="login-form__dev-shortcut-label" data-login-dev-shortcut-label>__LOGIN_DEV_SHORTCUT_LABEL__</span>
           </button>
         </form>
+
+        <details class="login-locale" data-login-locale-details>
+          <summary class="login-locale__summary" aria-label="__LOGIN_LOCALE_SELECTOR_ARIA_LABEL__">
+            <span class="login-locale__legend">__LOGIN_LOCALE_LABEL__</span>
+            <span class="login-locale__trigger">
+              <span class="login-locale__value" data-login-locale-selected>__LOGIN_LOCALE_SELECTED_LABEL__</span>
+              <span class="login-locale__chevron" aria-hidden="true"></span>
+            </span>
+          </summary>
+
+          <div class="login-locale__menu" role="listbox" aria-label="__LOGIN_LOCALE_MENU_ARIA_LABEL__">
+            <button class="login-locale__option" data-login-locale-option="pt-BR" type="button" role="option">
+              <span class="login-locale__option-label">__LOGIN_LOCALE_PT_BR_LABEL__</span>
+              <span class="login-locale__option-description">__LOGIN_LOCALE_PT_BR_DESCRIPTION__</span>
+            </button>
+            <button class="login-locale__option" data-login-locale-option="en" type="button" role="option">
+              <span class="login-locale__option-label">__LOGIN_LOCALE_EN_LABEL__</span>
+              <span class="login-locale__option-description">__LOGIN_LOCALE_EN_DESCRIPTION__</span>
+            </button>
+          </div>
+        </details>
       </div>
 
       <div class="login-panel__footer">
         <button type="button" class="login-panel__placeholder-button" disabled>
-          Criar conta em breve
+          __LOGIN_CREATE_ACCOUNT_SOON_LABEL__
         </button>
         <button type="button" class="login-panel__placeholder-link" disabled>
-          Recuperação de senha em breve
+          __LOGIN_PASSWORD_RECOVERY_SOON_LABEL__
         </button>
         <span class="login-panel__version" data-login-version></span>
       </div>

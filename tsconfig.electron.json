@@ -12,5 +12,11 @@
     "sourceMap": true
   },
   "include": ["src/electron/**/*.ts", "src/shared/**/*.ts"],
-  "exclude": ["src/app/**/*", "src/game/**/*", "src/assets/**/*", "src/styles/**/*"]
+  "exclude": [
+    "src/app/**/*",
+    "src/game/**/*",
+    "src/assets/**/*",
+    "src/styles/**/*",
+    "src/shared/i18n/**/*"
+  ]
 }

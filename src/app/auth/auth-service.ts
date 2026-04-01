@@ -1,4 +1,5 @@
 import type { DesktopBridge } from '@shared/types/desktop';
+import type { AppI18n } from '@shared/i18n';
 
 import { AuthApiClient } from './auth-api-client';
 import {
@@ -17,26 +18,26 @@ function isSessionInvalidatingError(error: unknown): boolean {
   );
 }
 
-export function resolveAuthErrorMessage(error: unknown): string {
+export function resolveAuthErrorMessage(error: unknown, i18n: AppI18n): string {
   if (error instanceof AuthFlowError) {
     switch (error.code) {
       case 'INVALID_CREDENTIALS':
-        return 'Email, nome de usuário ou senha incorretos.';
+        return i18n.t('auth.errors.invalidCredentials');
       case 'BACKEND_UNAVAILABLE':
       case 'DATABASE_UNAVAILABLE':
-        return 'O launcher não conseguiu alcançar o serviço de autenticação.';
+        return i18n.t('auth.errors.backendUnavailable');
       case 'SESSION_EXPIRED':
       case 'SESSION_REVOKED':
       case 'REFRESH_TOKEN_INVALID':
       case 'ACCESS_TOKEN_EXPIRED':
       case 'UNAUTHORIZED':
-        return 'Sua sessão expirou. Faça login novamente.';
+        return i18n.t('auth.errors.sessionExpired');
       case 'REMEMBER_DEVICE_UNAVAILABLE':
-        return 'O armazenamento seguro do Electron não está disponível neste dispositivo.';
+        return i18n.t('auth.errors.rememberDeviceUnavailable');
       case 'SESSION_PERSISTENCE_FAILED':
-        return 'A sessão foi criada, mas o launcher não conseguiu protegê-la localmente.';
+        return i18n.t('auth.errors.sessionPersistenceFailed');
       case 'REQUEST_INVALID':
-        return 'Revise os dados informados e tente novamente.';
+        return i18n.t('auth.errors.requestInvalid');
       default:
         return error.message;
     }
@@ -46,7 +47,7 @@ export function resolveAuthErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return 'Não foi possível concluir a autenticação agora.';
+  return i18n.t('auth.errors.default');
 }
 
 export class AuthService {

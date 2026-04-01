@@ -1,5 +1,6 @@
 import { createElementFromTemplate } from '@app/utils/html';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
+import type { AppI18n } from '@shared/i18n';
 
 import './loading-screen.css';
 
@@ -7,6 +8,7 @@ export interface LoadingScreenOptions {
   appVersion: string;
   detail?: string;
   eyebrow: string;
+  i18n: AppI18n;
   progress: number;
   status: string;
   title?: string;
@@ -28,8 +30,9 @@ function clampProgress(value: number): number {
 export function createLoadingScreen(
   options: LoadingScreenOptions,
 ): LoadingScreenHandle {
+  const messages = options.i18n.getMessages();
   const rootElement = createElementFromTemplate(`
-    <section class="loading-screen" aria-label="Loading screen">
+    <section class="loading-screen" aria-label="${messages.loading.screenAriaLabel}">
       <div class="loading-screen__vignette" aria-hidden="true"></div>
       <div class="loading-screen__sunburst" aria-hidden="true"></div>
       <div class="loading-screen__horizon" aria-hidden="true"></div>
@@ -50,7 +53,7 @@ export function createLoadingScreen(
         <div class="loading-screen__energy loading-screen__energy--red" aria-hidden="true"></div>
 
         <div class="loading-screen__content">
-          <img class="loading-screen__brand" data-loading-brand alt="Dead As Battle" />
+          <img class="loading-screen__brand" data-loading-brand alt="${messages.common.brandAlt}" />
           <p class="loading-screen__eyebrow" data-loading-eyebrow></p>
           <h1 class="loading-screen__title" data-loading-title></h1>
           <p class="loading-screen__status" data-loading-status></p>
@@ -98,14 +101,14 @@ export function createLoadingScreen(
 
   let currentState: LoadingScreenOptions = {
     ...options,
-    title: options.title ?? 'Loading',
+    title: options.title ?? messages.loading.defaultTitle,
   };
 
   const applyState = (state: LoadingScreenOptions): void => {
     const progress = clampProgress(state.progress);
 
     eyebrowElement.textContent = state.eyebrow;
-    titleElement.textContent = state.title ?? 'Loading';
+    titleElement.textContent = state.title ?? messages.loading.defaultTitle;
     statusElement.textContent = state.status;
     detailElement.textContent = state.detail ?? '';
     detailElement.hidden = !state.detail;

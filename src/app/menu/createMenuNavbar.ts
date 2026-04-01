@@ -1,13 +1,34 @@
 import { createElementFromTemplate } from '@app/utils/html';
+import type { AppI18n } from '@shared/i18n';
 
 import menuNavbarTemplate from './menu-navbar.html?raw';
 
 interface CreateMenuNavbarOptions {
   brandImage: string;
+  i18n: AppI18n;
 }
 
 export function createMenuNavbar(options: CreateMenuNavbarOptions): HTMLElement {
+  const messages = options.i18n.getMessages();
+
   return createElementFromTemplate(menuNavbarTemplate, {
+    CLOSE_ARIA_LABEL: messages.menu.topbar.closeAriaLabel,
+    CURRENCY_ARIA_LABEL: messages.menu.topbar.currencyAriaLabel,
+    CURRENCY_LABEL: messages.menu.topbar.currencyLabel,
+    CURRENCY_VALUE: options.i18n.formatNumber(145800),
+    MINIMIZE_ARIA_LABEL: messages.menu.topbar.minimizeAriaLabel,
+    NAVIGATION_ARIA_LABEL: messages.menu.topbar.navigationAriaLabel,
+    NOTIFICATIONS_ARIA_LABEL: messages.menu.topbar.notificationsAriaLabel,
+    PLAY_ARIA_LABEL: messages.menu.topbar.playAriaLabel,
+    PRIMARY_NAVIGATION_ARIA_LABEL: messages.menu.topbar.primaryNavigationAriaLabel,
+    PROFILE_ARIA_LABEL: messages.menu.topbar.profileAriaLabel,
+    SETTINGS_ARIA_LABEL: messages.menu.topbar.settingsAriaLabel,
+    TAB_CODEX_LABEL: messages.menu.topbar.tabs.codex,
+    TAB_HEROES_LABEL: messages.menu.topbar.tabs.heroes,
+    TAB_STORE_LABEL: messages.menu.topbar.tabs.store,
+    TAB_VAULT_LABEL: messages.menu.topbar.tabs.vault,
+    TAB_WATCH_LABEL: messages.menu.topbar.tabs.watch,
+    TOPBAR_BRAND_ALT: messages.common.brandAlt,
     TOPBAR_BRAND_IMAGE: options.brandImage,
   });
 }
