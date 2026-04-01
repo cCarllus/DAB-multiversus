@@ -229,7 +229,7 @@ export class AppAudioManager {
 
     const backgroundMusic = new window.Audio(menuBackgroundSoundUrl);
     backgroundMusic.loop = true;
-    backgroundMusic.preload = 'auto';
+    backgroundMusic.preload = 'metadata';
     backgroundMusic.volume = this.musicVolume;
     backgroundMusic.muted = this.musicMuted;
 

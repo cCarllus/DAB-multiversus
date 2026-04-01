@@ -122,6 +122,7 @@ export function createLoginScreen(options: LoginScreenOptions): HTMLElement {
   backgroundVideo.loop = true;
   backgroundVideo.autoplay = true;
   backgroundVideo.playsInline = true;
+  backgroundVideo.preload = 'metadata';
   musicMuteCheckbox.checked = options.musicMuted;
   versionElement.textContent = `v${options.appVersion}`;
   identifierInput.value = options.identifier ?? '';

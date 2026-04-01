@@ -5,7 +5,6 @@ import { type LoginFormValues } from '@app/services/auth/auth-types';
 import { createApplicationShell } from '@app/layout/createApplicationShell';
 import { createAppRouter } from '@app/navigation/app-router';
 import { ProfileStore } from '@app/stores/profile.store';
-import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
 import {
   createI18n,
   type AppLocale,
@@ -74,7 +73,6 @@ export function bootstrapApplication(host: HTMLElement): void {
     shell,
   });
   const audio = new AppAudioManager();
-  const runtime = new BabylonRuntime(shell.canvas);
   const authService = new AuthService(desktop, __APP_VERSION__);
   const profileStore = new ProfileStore({
     appVersion: __APP_VERSION__,
@@ -104,7 +102,6 @@ export function bootstrapApplication(host: HTMLElement): void {
   let exitModalCloseTimer: number | null = null;
 
   audio.bindInteractionSurface(shell.interactiveLayer);
-  runtime.start();
 
   const cancelLoadingSequence = (): void => {
     loadingSequenceId += 1;
@@ -492,7 +489,6 @@ export function bootstrapApplication(host: HTMLElement): void {
       renderLoginPage();
     }
 
-    audio.startBackgroundMusic();
   })();
 
   shell.interactiveLayer.addEventListener('click', (event) => {
@@ -595,20 +591,8 @@ export function bootstrapApplication(host: HTMLElement): void {
     }
   });
 
-  shell.interactiveLayer.addEventListener('pointermove', (event) => {
-    const bounds = shell.interactiveLayer.getBoundingClientRect();
-    const normalizedX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
-    const normalizedY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
-    runtime.setPointerInfluence(normalizedX, normalizedY);
-  });
-
-  shell.interactiveLayer.addEventListener('pointerleave', () => {
-    runtime.setPointerInfluence(0, 0);
-  });
-
   window.addEventListener('beforeunload', () => {
     clearExitModalCloseTimer();
     audio.dispose();
-    runtime.dispose();
   });
 }
