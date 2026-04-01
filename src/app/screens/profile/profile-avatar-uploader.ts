@@ -1,12 +1,11 @@
 import { createElementFromTemplate } from '@app/utils/html';
 import type { AppI18n } from '@shared/i18n';
-
-import type { AuthUser } from '@app/auth/auth-types';
+import type { AuthUser } from '@app/services/auth/auth-types';
 
 import {
   MAX_PROFILE_AVATAR_BYTES,
   PROFILE_AVATAR_ACCEPT,
-} from './profile-types';
+} from '@app/services/profile/profile.types';
 
 interface CreateProfileAvatarUploaderOptions {
   i18n: AppI18n;

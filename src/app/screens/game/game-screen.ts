@@ -1,5 +1,8 @@
 import { createElementFromTemplate } from '@app/utils/html';
-import { resolveAuthDisplayName, type AuthUser } from '@app/auth/auth-types';
+import {
+  resolveAuthDisplayName,
+  type AuthUser,
+} from '@app/services/auth/auth-types';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.png';
 import type { AppI18n } from '@shared/i18n';

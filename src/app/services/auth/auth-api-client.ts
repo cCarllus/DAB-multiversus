@@ -1,4 +1,7 @@
-import { AuthFlowError, type AuthResponse, type AuthUser } from './auth-types';
+import { AppApiError } from '@app/services/api/api-error';
+import { resolveApiBaseUrl } from '@app/services/api/api-base-url';
+
+import type { AuthResponse, AuthUser } from './auth-types';
 
 interface DeviceMetadata {
   appAgent: string;
@@ -31,22 +34,12 @@ interface ErrorEnvelope {
   };
 }
 
-function getBaseUrl(): string {
-  const configuredBaseUrl =
-    typeof import.meta.env.VITE_AUTH_API_BASE_URL === 'string' &&
-    import.meta.env.VITE_AUTH_API_BASE_URL
-      ? import.meta.env.VITE_AUTH_API_BASE_URL
-      : 'http://127.0.0.1:4000';
-
-  return configuredBaseUrl.replace(/\/+$/, '');
-}
-
 function isJsonResponse(response: Response): boolean {
   return response.headers.get('content-type')?.includes('application/json') ?? false;
 }
 
 export class AuthApiClient {
-  constructor(private readonly baseUrl = getBaseUrl()) {}
+  constructor(private readonly baseUrl = resolveApiBaseUrl()) {}
 
   async register(payload: {
     email: string;
@@ -114,7 +107,7 @@ export class AuthApiClient {
 
       if (!response.ok) {
         const errorEnvelope = (payload ?? {}) as ErrorEnvelope;
-        throw new AuthFlowError(
+        throw new AppApiError(
           errorEnvelope.error?.code ?? 'UNKNOWN_AUTH_ERROR',
           errorEnvelope.error?.message ?? 'Authentication request failed.',
           response.status,
@@ -127,18 +120,18 @@ export class AuthApiClient {
 
       return payload as T;
     } catch (error) {
-      if (error instanceof AuthFlowError) {
+      if (error instanceof AppApiError) {
         throw error;
       }
 
       if (error instanceof TypeError) {
-        throw new AuthFlowError(
+        throw new AppApiError(
           'BACKEND_UNAVAILABLE',
           'The launcher could not reach the authentication service.',
         );
       }
 
-      throw new AuthFlowError('UNKNOWN_AUTH_ERROR', 'Authentication request failed.');
+      throw new AppApiError('UNKNOWN_AUTH_ERROR', 'Authentication request failed.');
     }
   }
 }

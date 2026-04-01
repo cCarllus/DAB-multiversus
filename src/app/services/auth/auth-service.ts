@@ -1,15 +1,14 @@
 import type { DesktopBridge } from '@shared/types/desktop';
-import type { AppI18n } from '@shared/i18n';
+import { AppApiError } from '@app/services/api/api-error';
+import { SessionStore } from '@app/stores/session.store';
 
 import { AuthApiClient } from './auth-api-client';
 import { createLauncherDeviceContext } from './device-context';
 import {
-  AuthFlowError,
   type LoginFormValues,
   type AuthUser,
   type StoredAuthSession,
 } from './auth-types';
-import { SessionStore } from './session-store';
 
 const DEV_TEST_ACCOUNT = {
   email: 'teste@dab.local',
@@ -20,49 +19,11 @@ const DEV_TEST_ACCOUNT = {
 
 function isSessionInvalidatingError(error: unknown): boolean {
   return (
-    error instanceof AuthFlowError &&
+    error instanceof AppApiError &&
     ['REFRESH_TOKEN_INVALID', 'SESSION_EXPIRED', 'SESSION_REVOKED', 'UNAUTHORIZED'].includes(
       error.code,
     )
   );
-}
-
-export function resolveAuthErrorMessage(error: unknown, i18n: AppI18n): string {
-  if (error instanceof AuthFlowError) {
-    switch (error.code) {
-      case 'INVALID_CREDENTIALS':
-        return i18n.t('auth.errors.invalidCredentials');
-      case 'BACKEND_UNAVAILABLE':
-      case 'DATABASE_UNAVAILABLE':
-        return i18n.t('auth.errors.backendUnavailable');
-      case 'SESSION_EXPIRED':
-      case 'SESSION_REVOKED':
-      case 'REFRESH_TOKEN_INVALID':
-      case 'ACCESS_TOKEN_EXPIRED':
-      case 'UNAUTHORIZED':
-        return i18n.t('auth.errors.sessionExpired');
-      case 'REMEMBER_DEVICE_UNAVAILABLE':
-        return i18n.t('auth.errors.rememberDeviceUnavailable');
-      case 'SESSION_PERSISTENCE_FAILED':
-        return i18n.t('auth.errors.sessionPersistenceFailed');
-      case 'REQUEST_INVALID':
-        return i18n.t('auth.errors.requestInvalid');
-      case 'INVALID_NAME':
-        return i18n.t('menu.profile.feedback.invalidName');
-      case 'INVALID_AVATAR_TYPE':
-        return i18n.t('menu.profile.feedback.invalidAvatarType');
-      case 'AVATAR_TOO_LARGE':
-        return i18n.t('menu.profile.feedback.avatarTooLarge');
-      default:
-        return error.message;
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return i18n.t('auth.errors.default');
 }
 
 export class AuthService {
@@ -116,7 +77,7 @@ export class AuthService {
 
   async login(values: LoginFormValues): Promise<StoredAuthSession> {
     if (values.rememberDevice && !(await this.supportsRememberedSessions())) {
-      throw new AuthFlowError(
+      throw new AppApiError(
         'REMEMBER_DEVICE_UNAVAILABLE',
         'Secure remembered sessions are unavailable on this system.',
       );
@@ -142,11 +103,11 @@ export class AuthService {
         session.accessToken,
       ).catch(() => undefined);
 
-      if (error instanceof AuthFlowError) {
+      if (error instanceof AppApiError) {
         throw error;
       }
 
-      throw new AuthFlowError(
+      throw new AppApiError(
         'SESSION_PERSISTENCE_FAILED',
         'The launcher could not secure the session locally.',
       );
@@ -164,7 +125,7 @@ export class AuthService {
     try {
       return await this.login(values);
     } catch (error) {
-      if (!(error instanceof AuthFlowError) || error.code !== 'INVALID_CREDENTIALS') {
+      if (!(error instanceof AppApiError) || error.code !== 'INVALID_CREDENTIALS') {
         throw error;
       }
 
@@ -178,7 +139,7 @@ export class AuthService {
       } catch (registerError) {
         if (
           !(
-            registerError instanceof AuthFlowError &&
+            registerError instanceof AppApiError &&
             ['EMAIL_ALREADY_IN_USE', 'NICKNAME_ALREADY_IN_USE'].includes(registerError.code)
           )
         ) {
@@ -241,7 +202,7 @@ export class AuthService {
     const refreshToken = this.currentSession?.refreshToken;
 
     if (!refreshToken) {
-      throw new AuthFlowError('UNAUTHENTICATED', 'No active session is available.');
+      throw new AppApiError('UNAUTHENTICATED', 'No active session is available.');
     }
 
     const refreshedSession = await this.apiClient.refresh({

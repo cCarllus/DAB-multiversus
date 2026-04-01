@@ -1,10 +1,13 @@
-import { AuthFlowError, type AuthUser } from '@app/auth/auth-types';
-import { createLauncherDeviceContext } from '@app/auth/device-context';
-import { type AuthService } from '@app/auth/auth-service';
+import { AppApiError } from '@app/services/api/api-error';
+import { type AuthService } from '@app/services/auth/auth-service';
+import { type AuthUser } from '@app/services/auth/auth-types';
+import { createLauncherDeviceContext } from '@app/services/auth/device-context';
+import { ProfileApiClient } from '@app/services/profile/profile-api.service';
+import type {
+  ProfileDevicesPayload,
+  ProfileSnapshot,
+} from '@app/services/profile/profile.types';
 import type { DesktopBridge } from '@shared/types/desktop';
-
-import { ProfileApiClient } from './profile-api';
-import type { ProfileDevicesPayload, ProfileSnapshot } from './profile-types';
 
 interface ProfileStoreOptions {
   apiClient?: ProfileApiClient;
@@ -112,7 +115,7 @@ export class ProfileStore {
     const accessToken = await this.options.authService.ensureAccessToken();
 
     if (!accessToken) {
-      throw new AuthFlowError('UNAUTHENTICATED', 'No active session is available.');
+      throw new AppApiError('UNAUTHENTICATED', 'No active session is available.');
     }
 
     return accessToken;

@@ -6,7 +6,6 @@ import { createMenuNavbar } from './createMenuNavbar';
 import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.png';
 
 import menuShellTemplate from './menu-shell.html?raw';
-import '@app/pages/home/home.css';
 
 interface CreateMenuShellOptions {
   activeView: 'home' | 'profile' | 'system';

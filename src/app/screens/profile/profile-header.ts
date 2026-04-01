@@ -1,7 +1,6 @@
 import { createElementFromTemplate } from '@app/utils/html';
 import type { AppI18n } from '@shared/i18n';
-
-import type { AuthUser } from '@app/auth/auth-types';
+import type { AuthUser } from '@app/services/auth/auth-types';
 
 import type { ProfileAvatarUploader } from './profile-avatar-uploader';
 import type { ProfileNameEditor } from './profile-name-editor';

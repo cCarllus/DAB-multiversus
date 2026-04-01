@@ -1,11 +1,6 @@
 import { createElementFromTemplate } from '@app/utils/html';
+import type { DeviceListItem } from '@app/services/profile/profile.types';
 import type { AppI18n } from '@shared/i18n';
-
-export interface DeviceListItem {
-  label: string;
-  meta: string;
-  state: string;
-}
 
 export interface ProfileDeviceStatusSection {
   element: HTMLElement;

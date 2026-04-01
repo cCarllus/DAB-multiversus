@@ -1,11 +1,14 @@
-import { resolveAuthErrorMessage } from '@app/auth/auth-service';
-import type { AuthSessionSnapshot } from '@app/auth/auth-types';
+import { resolveApiErrorMessage } from '@app/services/api/api-error';
+import type { AuthSessionSnapshot } from '@app/services/auth/auth-types';
+import type {
+  ProfileDevice,
+  ProfileFeedback,
+  ProfileSnapshot,
+} from '@app/services/profile/profile.types';
+import type { ProfileStore } from '@app/stores/profile.store';
 import { createElementFromTemplate } from '@app/utils/html';
 import type { AppI18n } from '@shared/i18n';
 import type { DesktopBridge } from '@shared/types/desktop';
-
-import type { ProfileStore } from '@app/screens/profile/profile-store';
-import type { ProfileDevice, ProfileFeedback, ProfileSnapshot } from '@app/screens/profile/profile-types';
 import './system-screen.css';
 
 interface SystemScreenOptions {
@@ -243,12 +246,12 @@ export function createSystemScreen(options: SystemScreenOptions): HTMLElement {
       setFeedback(null);
     })
     .catch((error) => {
-      applySnapshot(options.profileStore.getSnapshot());
-      setFeedback({
-        message: resolveAuthErrorMessage(error, options.i18n),
-        tone: 'error',
+        applySnapshot(options.profileStore.getSnapshot());
+        setFeedback({
+          message: resolveApiErrorMessage(error, options.i18n),
+          tone: 'error',
+        });
       });
-    });
 
   return rootElement;
 }

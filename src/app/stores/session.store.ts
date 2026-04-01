@@ -1,12 +1,12 @@
 import { STORAGE_KEYS } from '@shared/constants/storageKeys';
 import type { DesktopBridge, DesktopRememberedAuthSession } from '@shared/types/desktop';
+import { AppApiError } from '@app/services/api/api-error';
 
 import {
-  AuthFlowError,
   type AuthResponse,
   type AuthUser,
   type StoredAuthSession,
-} from './auth-types';
+} from '@app/services/auth/auth-types';
 
 function isStoredAuthSession(value: unknown): value is StoredAuthSession {
   if (!value || typeof value !== 'object') {
@@ -102,7 +102,7 @@ export class SessionStore {
     window.sessionStorage.setItem(STORAGE_KEYS.authSession, JSON.stringify(storedSession));
 
     if (!(await this.supportsRememberedSessions())) {
-      throw new AuthFlowError(
+      throw new AppApiError(
         'REMEMBER_DEVICE_UNAVAILABLE',
         'Persistent launcher sessions are unavailable on this system.',
       );
@@ -193,7 +193,7 @@ export class SessionStore {
     }
 
     if (!this.supportsLocalPersistentStorage()) {
-      throw new AuthFlowError(
+      throw new AppApiError(
         'REMEMBER_DEVICE_UNAVAILABLE',
         'Persistent launcher sessions are unavailable on this system.',
       );

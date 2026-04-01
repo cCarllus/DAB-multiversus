@@ -6,8 +6,8 @@ import {
   type AppI18n,
   type AppLocale,
 } from '@shared/i18n';
+import type { LoginFormValues } from '@app/services/auth/auth-types';
 
-import type { LoginFormValues } from './auth-types';
 import loginScreenTemplate from './login-screen.html?raw';
 import './login-screen.css';
 

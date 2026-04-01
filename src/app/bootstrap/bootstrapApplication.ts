@@ -1,9 +1,10 @@
 import { AppAudioManager } from '@app/audio/AppAudioManager';
-import { AuthService, resolveAuthErrorMessage } from '@app/auth/auth-service';
-import { type LoginFormValues } from '@app/auth/auth-types';
+import { resolveApiErrorMessage } from '@app/services/api/api-error';
+import { AuthService } from '@app/services/auth/auth-service';
+import { type LoginFormValues } from '@app/services/auth/auth-types';
 import { createApplicationShell } from '@app/layout/createApplicationShell';
 import { createAppRouter } from '@app/navigation/app-router';
-import { ProfileStore } from '@app/screens/profile/profile-store';
+import { ProfileStore } from '@app/stores/profile.store';
 import { BabylonRuntime } from '@game/bootstrap/BabylonRuntime';
 import {
   createI18n,
@@ -153,7 +154,7 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     cancelLoadingSequence();
     activeSurface = 'menu';
-    router.showHome({
+    router.showMenu({
       desktop,
       musicMuted: audio.isMusicMuted(),
       exitModal:
@@ -351,7 +352,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       .catch((error: unknown) => {
         loginState = {
           ...loginState,
-          errorMessage: resolveAuthErrorMessage(error, i18n),
+          errorMessage: resolveApiErrorMessage(error, i18n),
           isSubmitting: false,
         };
         renderLoginPage();
@@ -378,7 +379,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       .catch((error: unknown) => {
         loginState = {
           ...loginState,
-          errorMessage: resolveAuthErrorMessage(error, i18n),
+          errorMessage: resolveApiErrorMessage(error, i18n),
           isSubmitting: false,
         };
         renderLoginPage();
@@ -420,7 +421,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       })
       .catch((error: unknown) => {
         exitModalState = {
-          errorMessage: resolveAuthErrorMessage(error, i18n),
+          errorMessage: resolveApiErrorMessage(error, i18n),
           isLoggingOut: false,
           status: 'open',
         };
@@ -485,7 +486,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     } catch (error) {
       loginState = {
         ...loginState,
-        errorMessage: resolveAuthErrorMessage(error, i18n),
+        errorMessage: resolveApiErrorMessage(error, i18n),
         isSubmitting: false,
       };
       renderLoginPage();

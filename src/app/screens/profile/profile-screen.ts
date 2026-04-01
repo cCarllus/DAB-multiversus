@@ -1,15 +1,22 @@
-import { resolveAuthErrorMessage } from '@app/auth/auth-service';
-import type { AuthSessionSnapshot } from '@app/auth/auth-types';
+import { resolveApiErrorMessage } from '@app/services/api/api-error';
+import type { AuthSessionSnapshot } from '@app/services/auth/auth-types';
+import type {
+  DeviceListItem,
+  ProfileFeedback,
+  ProfileSnapshot,
+} from '@app/services/profile/profile.types';
 import { createElementFromTemplate } from '@app/utils/html';
 import type { AppI18n } from '@shared/i18n';
+import type { ProfileStore } from '@app/stores/profile.store';
 
 import '@app/ui/modal-chrome.css';
 
+import { createProfileAccountDetails } from './profile-account-details';
+import { createProfileAvatarUploader } from './profile-avatar-uploader';
+import { createProfileDeviceStatus } from './profile-device-status';
 import { createProfileHeader } from './profile-header';
 import { createProfileNameEditor } from './profile-name-editor';
-import { createProfileAvatarUploader } from './profile-avatar-uploader';
-import { type ProfileStore } from './profile-store';
-import type { ProfileFeedback, ProfileSnapshot } from './profile-types';
+import { createProfileOverview } from './profile-overview';
 import './profile-screen.css';
 
 interface ProfileScreenOptions {
@@ -24,6 +31,31 @@ function formatDate(value: string, locale: string): string {
     month: 'short',
     year: 'numeric',
   }).format(new Date(value));
+}
+
+function formatDateTime(value: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    month: 'short',
+  }).format(new Date(value));
+}
+
+function buildDeviceMeta(
+  appVersion: string | null,
+  lastLoginAt: string,
+  locale: string,
+  i18n: AppI18n,
+): string {
+  const messages = i18n.getMessages().menu.profile;
+  const versionLabel = appVersion
+    ? i18n.t('menu.profile.deviceList.appVersion', {
+        version: appVersion,
+      })
+    : messages.deviceList.noVersion;
+
+  return `${formatDateTime(lastLoginAt, locale)} · ${versionLabel}`;
 }
 
 export function createProfileScreen(options: ProfileScreenOptions): HTMLElement {
@@ -71,7 +103,7 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
         });
       } catch (error) {
         setFeedback({
-          message: resolveAuthErrorMessage(error, options.i18n),
+          message: resolveApiErrorMessage(error, options.i18n),
           tone: 'error',
         });
         throw error;
@@ -107,7 +139,7 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
         });
       } catch (error) {
         setFeedback({
-          message: resolveAuthErrorMessage(error, options.i18n),
+          message: resolveApiErrorMessage(error, options.i18n),
           tone: 'error',
         });
         throw error;
@@ -121,7 +153,17 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
     i18n: options.i18n,
     nameEditor,
   });
-  content.append(header.element, avatarUploader.modal);
+  const overview = createProfileOverview(options.i18n);
+  const accountDetails = createProfileAccountDetails(options.i18n);
+  const deviceStatus = createProfileDeviceStatus(options.i18n);
+
+  content.append(
+    header.element,
+    overview.element,
+    accountDetails.element,
+    deviceStatus.element,
+    avatarUploader.modal,
+  );
 
   const applySnapshot = (snapshot: ProfileSnapshot): void => {
     const locale = options.i18n.getLocale();
@@ -131,6 +173,17 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
     const trustedDeviceStatus = options.session.rememberDevice
       ? messages.status.trustedDeviceSaved
       : messages.status.sessionOnly;
+    const currentDevice = snapshot.devices.currentDevice;
+    const lastActiveDevice = snapshot.devices.lastActiveDevice;
+    const recentDevices: DeviceListItem[] = snapshot.devices.devices.slice(0, 5).map((device) => ({
+      label: device.label,
+      meta: buildDeviceMeta(device.appVersion, device.lastLoginAt, locale, options.i18n),
+      state: device.isCurrent
+        ? messages.deviceList.current
+        : options.i18n.t('menu.profile.deviceList.lastSeen', {
+            date: formatDateTime(device.lastLoginAt, locale),
+          }),
+    }));
 
     header.setState({
       accountStatus: launcherStatus,
@@ -139,6 +192,34 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
       profile: snapshot.profile,
       trustedDevice: trustedDeviceStatus,
       userId: `@${snapshot.profile.nickname}`,
+    });
+    overview.setState({
+      currentDeviceLabel: currentDevice?.label ?? messages.fallbackValue,
+      languageLabel,
+      launcherStatus,
+      trustedDeviceStatus,
+    });
+    accountDetails.setState({
+      languageLabel,
+      memberSince,
+      profile: snapshot.profile,
+    });
+    deviceStatus.setState({
+      currentDeviceMeta: currentDevice
+        ? buildDeviceMeta(currentDevice.appVersion, currentDevice.lastLoginAt, locale, options.i18n)
+        : messages.fallbackValue,
+      currentDeviceStatus: currentDevice?.label ?? messages.fallbackValue,
+      lastActiveMeta: lastActiveDevice
+        ? buildDeviceMeta(
+            lastActiveDevice.appVersion,
+            lastActiveDevice.lastLoginAt,
+            locale,
+            options.i18n,
+          )
+        : messages.fallbackValue,
+      lastActiveStatus: lastActiveDevice?.label ?? messages.fallbackValue,
+      recentDevices,
+      trustedDeviceStatus,
     });
   };
 
@@ -155,7 +236,7 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
     })
     .catch((error) => {
       setFeedback({
-        message: resolveAuthErrorMessage(error, options.i18n),
+        message: resolveApiErrorMessage(error, options.i18n),
         tone: 'error',
       });
     });

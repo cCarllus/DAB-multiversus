@@ -1,6 +1,7 @@
-import { AuthFlowError, type AuthUser } from '@app/auth/auth-types';
-
-import type { ProfileDevicesPayload } from './profile-types';
+import { AppApiError } from '@app/services/api/api-error';
+import { resolveApiBaseUrl } from '@app/services/api/api-base-url';
+import type { AuthUser } from '@app/services/auth/auth-types';
+import type { ProfileDevicesPayload } from '@app/services/profile/profile.types';
 
 interface ErrorEnvelope {
   error?: {
@@ -9,22 +10,12 @@ interface ErrorEnvelope {
   };
 }
 
-function getBaseUrl(): string {
-  const configuredBaseUrl =
-    typeof import.meta.env.VITE_AUTH_API_BASE_URL === 'string' &&
-    import.meta.env.VITE_AUTH_API_BASE_URL
-      ? import.meta.env.VITE_AUTH_API_BASE_URL
-      : 'http://127.0.0.1:4000';
-
-  return configuredBaseUrl.replace(/\/+$/, '');
-}
-
 function isJsonResponse(response: Response): boolean {
   return response.headers.get('content-type')?.includes('application/json') ?? false;
 }
 
 export class ProfileApiClient {
-  constructor(private readonly baseUrl = getBaseUrl()) {}
+  constructor(private readonly baseUrl = resolveApiBaseUrl()) {}
 
   resolveAssetUrl(assetPath: string | null): string | null {
     if (!assetPath) {
@@ -111,7 +102,7 @@ export class ProfileApiClient {
 
       if (!response.ok) {
         const errorEnvelope = (payload ?? {}) as ErrorEnvelope;
-        throw new AuthFlowError(
+        throw new AppApiError(
           errorEnvelope.error?.code ?? 'UNKNOWN_PROFILE_ERROR',
           errorEnvelope.error?.message ?? 'Profile request failed.',
           response.status,
@@ -120,18 +111,18 @@ export class ProfileApiClient {
 
       return payload as T;
     } catch (error) {
-      if (error instanceof AuthFlowError) {
+      if (error instanceof AppApiError) {
         throw error;
       }
 
       if (error instanceof TypeError) {
-        throw new AuthFlowError(
+        throw new AppApiError(
           'BACKEND_UNAVAILABLE',
           'The launcher could not reach the profile service.',
         );
       }
 
-      throw new AuthFlowError('UNKNOWN_PROFILE_ERROR', 'Profile request failed.');
+      throw new AppApiError('UNKNOWN_PROFILE_ERROR', 'Profile request failed.');
     }
   }
 }

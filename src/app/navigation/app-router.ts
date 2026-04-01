@@ -4,18 +4,18 @@ import type { AppI18n } from '@shared/i18n';
 import {
   createLoginScreen,
   type LoginScreenOptions,
-} from '@app/auth/login-screen';
+} from '@app/screens/login/login-screen';
 import { createBootScreen } from '@app/screens/boot/boot-screen';
 import { createGameScreen } from '@app/screens/game/game-screen';
-import { createHomeScreen } from '@app/screens/home/home-screen';
-import type { ProfileStore } from '@app/screens/profile/profile-store';
+import { createMenuScreen } from '@app/screens/menu/menu-screen';
+import type { ProfileStore } from '@app/stores/profile.store';
 import type { DesktopBridge } from '@shared/types/desktop';
 import {
   createLoadingScreen,
   type LoadingScreenHandle,
   type LoadingScreenOptions,
 } from '@app/screens/loading/loading-screen';
-import type { AuthSessionSnapshot, AuthUser } from '@app/auth/auth-types';
+import type { AuthSessionSnapshot, AuthUser } from '@app/services/auth/auth-types';
 
 interface CreateAppRouterOptions {
   appVersion: string;
@@ -23,7 +23,7 @@ interface CreateAppRouterOptions {
   shell: ApplicationShell;
 }
 
-interface HomeRouteOptions {
+interface MenuRouteOptions {
   desktop: DesktopBridge;
   musicMuted: boolean;
   exitModal?: {
@@ -44,7 +44,7 @@ interface GameRouteOptions {
 export interface AppRouter {
   showBoot: (status: string) => void;
   showGame: (options: GameRouteOptions) => void;
-  showHome: (options: HomeRouteOptions) => void;
+  showMenu: (options: MenuRouteOptions) => void;
   showLogin: (options: Omit<LoginScreenOptions, 'i18n'>) => void;
   showLoading: (
     options: Omit<LoadingScreenOptions, 'appVersion' | 'i18n'>,
@@ -82,17 +82,17 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
       return loadingScreen;
     },
 
-    showHome(homeOptions) {
+    showMenu(menuOptions) {
       options.shell.setPage(
-        createHomeScreen({
-          desktop: homeOptions.desktop,
+        createMenuScreen({
+          desktop: menuOptions.desktop,
           i18n: options.i18n,
-          musicMuted: homeOptions.musicMuted,
-          exitModal: homeOptions.exitModal,
-          session: homeOptions.session,
-          profileStore: homeOptions.profileStore,
-          user: homeOptions.user,
-          view: homeOptions.view,
+          musicMuted: menuOptions.musicMuted,
+          exitModal: menuOptions.exitModal,
+          session: menuOptions.session,
+          profileStore: menuOptions.profileStore,
+          user: menuOptions.user,
+          view: menuOptions.view,
         }),
       );
     },
