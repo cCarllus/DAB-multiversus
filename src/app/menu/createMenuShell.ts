@@ -9,7 +9,7 @@ import menuShellTemplate from './menu-shell.html?raw';
 import '@app/pages/home/home.css';
 
 interface CreateMenuShellOptions {
-  activeView: 'home' | 'profile';
+  activeView: 'home' | 'profile' | 'system';
   brandImage: string;
   content: HTMLElement;
   i18n: AppI18n;
@@ -21,7 +21,7 @@ export function createMenuShell(options: CreateMenuShellOptions): HTMLElement {
   const rootElement = createElementFromTemplate(menuShellTemplate, {
     HOME_SCREEN_ARIA_LABEL: messages.menu.shellAriaLabel,
     HOME_SCREEN_STATE_CLASS:
-      options.activeView === 'profile' ? 'home-screen--profile' : 'home-screen--home',
+      options.activeView === 'home' ? 'home-screen--home' : 'home-screen--profile',
     MENU_BACKGROUND_IMAGE: menuBackgroundImage,
   });
   const frame = rootElement.querySelector<HTMLElement>('[data-menu-frame]');

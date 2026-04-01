@@ -8,10 +8,13 @@ import { createMenuShell } from '@app/menu/createMenuShell';
 import { createHomePage } from '@app/pages/home/createHomePage';
 import { createProfileScreen } from '@app/screens/profile/profile-screen';
 import type { ProfileStore } from '@app/screens/profile/profile-store';
+import { createSystemScreen } from '@app/screens/system/system-screen';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
+import type { DesktopBridge } from '@shared/types/desktop';
 
 interface HomeScreenOptions {
+  desktop: DesktopBridge;
   musicMuted: boolean;
   i18n: AppI18n;
   exitModal?: {
@@ -20,7 +23,7 @@ interface HomeScreenOptions {
     status: 'open' | 'closing';
   };
   profileStore: ProfileStore;
-  view: 'home' | 'profile';
+  view: 'home' | 'profile' | 'system';
   session: AuthSessionSnapshot;
   user: AuthUser;
 }
@@ -33,6 +36,13 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
           profileStore: options.profileStore,
           session: options.session,
         })
+      : options.view === 'system'
+        ? createSystemScreen({
+            desktop: options.desktop,
+            i18n: options.i18n,
+            profileStore: options.profileStore,
+            session: options.session,
+          })
       : createHomePage({
           i18n: options.i18n,
           user: options.user,

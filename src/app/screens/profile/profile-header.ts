@@ -31,9 +31,7 @@ export function createProfileHeader(options: CreateProfileHeaderOptions): Profil
       <div class="profile-hero__avatar-slot" data-avatar-slot></div>
 
       <div class="profile-hero__copy">
-        <p class="profile-hero__eyebrow">${messages.eyebrow}</p>
         <div class="profile-hero__name-slot" data-name-slot></div>
-        <p class="profile-hero__summary">${messages.summary}</p>
 
         <div class="profile-hero__meta">
           <span class="profile-hero__meta-pill">
@@ -61,8 +59,6 @@ export function createProfileHeader(options: CreateProfileHeaderOptions): Profil
             <strong class="profile-hero__meta-value" data-trusted-device></strong>
           </span>
         </div>
-
-        <p class="profile-hero__note">${messages.hero.nicknameLocked}</p>
       </div>
     </section>
   `);

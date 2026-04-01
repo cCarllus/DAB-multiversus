@@ -215,7 +215,7 @@
         "store": "Loja",
         "watch": "Assistir",
         "codex": "Codex",
-        "vault": "Cofre"
+        "system": "System"
       },
       "currencyAriaLabel": "Fragmentos",
       "currencyLabel": "Fragmentos",
@@ -233,6 +233,10 @@
       "friendStatuses": {
         "playingRanked": "Jogando partida ranqueada",
         "mainMenu": "Menu principal",
+        "offline": "Offline"
+      },
+      "playerPresence": {
+        "online": "Online",
         "offline": "Offline"
       },
       "featuredFighter": "Lutador em destaque",
@@ -340,6 +344,51 @@
         "avatarTooLarge": "A foto de perfil deve ter no máximo 5 MB."
       },
       "fallbackUsername": "Não definido",
+      "fallbackValue": "Indisponível"
+    },
+    "system": {
+      "eyebrow": "System",
+      "title": "Launcher e dispositivo",
+      "summary": "Sistema operacional, runtime do launcher e acesso do dispositivo ficam aqui, não no perfil do jogador.",
+      "cards": {
+        "operatingSystem": {
+          "label": "Sistema operacional",
+          "meta": "Plataforma detectada neste desktop."
+        },
+        "osVersion": {
+          "label": "Versão do sistema",
+          "meta": "Versão informada pelo sistema operacional."
+        },
+        "launcherRuntime": {
+          "label": "Runtime do launcher",
+          "meta": "Versões de Electron, Chrome e Node usadas pelo launcher."
+        },
+        "trustedAccess": {
+          "label": "Acesso confiável",
+          "meta": "Modo atual de dispositivo lembrado para esta conta."
+        },
+        "currentDevice": {
+          "label": "Dispositivo atual",
+          "meta": "Registro do dispositivo vinculado a esta sessão no desktop."
+        },
+        "lastActive": {
+          "label": "Última atividade",
+          "meta": "Atividade mais recente registrada entre os seus dispositivos."
+        }
+      },
+      "list": {
+        "eyebrow": "Dispositivos recentes",
+        "summary": "Dispositivos recentes salvos para esta conta no launcher.",
+        "empty": "Nenhum dispositivo salvo ainda.",
+        "current": "Dispositivo atual",
+        "seenAt": "Visto em {{date}}",
+        "noVersion": "Versão do launcher indisponível",
+        "appVersion": "Launcher v{{version}}"
+      },
+      "states": {
+        "trusted": "Confiável neste dispositivo",
+        "sessionOnly": "Somente sessão"
+      },
       "fallbackValue": "Indisponível"
     },
     "footer": {

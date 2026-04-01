@@ -9,8 +9,29 @@ interface HomePageOptions {
   user: AuthUser;
 }
 
+function createAvatarFallbackDataUrl(user: AuthUser): string {
+  const label = resolveAuthDisplayName(user).trim();
+  const monogram = (label[0] ?? user.nickname[0] ?? user.email[0] ?? '?').toUpperCase();
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+      <defs>
+        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#213243" />
+          <stop offset="100%" stop-color="#0b1218" />
+        </linearGradient>
+      </defs>
+      <rect width="96" height="96" rx="14" fill="url(#bg)" />
+      <circle cx="48" cy="48" r="30" fill="rgba(212,175,55,0.14)" />
+      <text x="50%" y="55%" text-anchor="middle" fill="#f3ead7" font-size="40" font-family="Georgia, serif">${monogram}</text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
 export function createHomePage(options: HomePageOptions): HTMLElement {
   const messages = options.i18n.getMessages();
+  const avatarUrl = options.user.profileImageUrl || createAvatarFallbackDataUrl(options.user);
 
   return createElementFromTemplate(homeTemplate, {
     ADD_FRIEND_ARIA_LABEL: messages.menu.home.addFriendAriaLabel,
@@ -29,7 +50,9 @@ export function createHomePage(options: HomePageOptions): HTMLElement {
     LIVE_POPULAR_MATCH: messages.menu.home.livePopularMatch,
     MATCH_DETAILS_LABEL: messages.menu.home.matchDetails,
     PLAYER_ALIAS: resolveAuthDisplayName(options.user),
-    PLAYER_STATUS: options.user.email,
+    PLAYER_AVATAR_URL: avatarUrl,
+    PLAYER_STATUS: messages.menu.home.playerPresence.online,
+    PLAYER_STATUS_CLASS: 'home-profile-card__status--online',
     PRO_CIRCUIT_LABEL: messages.menu.home.proCircuit,
     SEASON_NAME: messages.product.seasonName,
     SEASON_OBJECTIVE_LABEL: messages.menu.home.seasonObjective,

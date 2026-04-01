@@ -4,7 +4,7 @@ import type { AppI18n } from '@shared/i18n';
 import menuNavbarTemplate from './menu-navbar.html?raw';
 
 interface CreateMenuNavbarOptions {
-  activeView: 'home' | 'profile';
+  activeView: 'home' | 'profile' | 'system';
   brandImage: string;
   i18n: AppI18n;
 }
@@ -30,7 +30,9 @@ export function createMenuNavbar(options: CreateMenuNavbarOptions): HTMLElement 
     TAB_CODEX_LABEL: messages.menu.topbar.tabs.codex,
     TAB_HEROES_LABEL: messages.menu.topbar.tabs.heroes,
     TAB_STORE_LABEL: messages.menu.topbar.tabs.store,
-    TAB_VAULT_LABEL: messages.menu.topbar.tabs.vault,
+    TAB_SYSTEM_LABEL: messages.menu.topbar.tabs.system,
+    SYSTEM_TAB_STATE_CLASS: options.activeView === 'system' ? 'is-active' : '',
+    SYSTEM_TAB_PRESSED: options.activeView === 'system' ? 'true' : 'false',
     TAB_WATCH_LABEL: messages.menu.topbar.tabs.watch,
     TOPBAR_BRAND_ALT: messages.common.brandAlt,
     TOPBAR_BRAND_IMAGE: options.brandImage,

@@ -84,7 +84,7 @@ export function bootstrapApplication(host: HTMLElement): void {
 
   let rememberDeviceSupported = false;
   let activeSurface: AppSurface = 'boot';
-  let activeMenuView: 'home' | 'profile' = 'home';
+  let activeMenuView: 'home' | 'profile' | 'system' = 'home';
   let loginState = {
     errorMessage: null as string | null,
     identifier: '',
@@ -136,6 +136,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     cancelLoadingSequence();
     activeSurface = 'menu';
     router.showHome({
+      desktop,
       musicMuted: audio.isMusicMuted(),
       exitModal:
         exitModalState.status === 'closed'
@@ -503,6 +504,16 @@ export function bootstrapApplication(host: HTMLElement): void {
       }
 
       activeMenuView = 'profile';
+      renderMenuPage();
+      return;
+    }
+
+    if (action === 'show-system-page') {
+      if (activeSurface !== 'menu') {
+        return;
+      }
+
+      activeMenuView = 'system';
       renderMenuPage();
       return;
     }

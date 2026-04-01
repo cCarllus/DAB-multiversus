@@ -102,9 +102,7 @@
 }
 
 .home-screen--profile .home-screen__background-layer--vignette {
-  background:
-    radial-gradient(circle at top, rgba(47, 127, 168, 0.06), transparent 28%),
-    radial-gradient(circle at bottom, rgba(var(--launcher-color-gold-rgb), 0.05), transparent 36%);
+  background: none;
 }
 
 .home-screen__background-layer,
@@ -375,6 +373,14 @@
 .home-topbar__mini-block:hover {
   color: var(--home-text-main);
   background: linear-gradient(135deg, #212a34 0%, #161d25 100%);
+}
+
+.home-topbar__tab.is-active {
+  color: var(--home-text-main);
+  background: linear-gradient(180deg, rgba(30, 41, 51, 0.94), rgba(12, 18, 24, 0.96));
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--launcher-color-gold-rgb), 0.16),
+    inset 0 0 18px rgba(47, 127, 168, 0.08);
 }
 
 .home-topbar__wedge-content,
@@ -798,17 +804,33 @@
   align-items: center;
   gap: 6px;
   margin-top: 2px;
-  color: var(--home-accent-blue-bright);
+  color: var(--home-text-muted);
   font-size: 13px;
+  font-weight: 500;
   letter-spacing: 0.04em;
 }
 
 .home-profile-card__status-dot {
   width: 6px;
   height: 6px;
-  background: var(--home-accent-blue-bright);
+  background: currentColor;
   border-radius: 999px;
-  box-shadow: 0 0 6px rgba(105, 169, 207, 0.8);
+}
+
+.home-profile-card__status--online {
+  color: rgb(var(--home-play-green-bright-rgb));
+}
+
+.home-profile-card__status--online .home-profile-card__status-dot {
+  box-shadow: 0 0 8px rgba(var(--home-play-green-rgb), 0.72);
+}
+
+.home-profile-card__status--offline {
+  color: var(--home-text-muted);
+}
+
+.home-profile-card__status--offline .home-profile-card__status-dot {
+  box-shadow: none;
 }
 
 .home-profile-card__badge {

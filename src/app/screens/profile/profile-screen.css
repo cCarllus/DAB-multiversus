@@ -16,34 +16,6 @@
   padding: 12px 0 20px;
 }
 
-.profile-screen__backdrop {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.profile-screen__halo {
-  position: absolute;
-  width: 44vw;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  filter: blur(18px);
-  opacity: 0.22;
-}
-
-.profile-screen__halo--gold {
-  top: 8%;
-  left: -8%;
-  background: radial-gradient(circle, rgba(var(--launcher-color-gold-rgb), 0.88), transparent 68%);
-}
-
-.profile-screen__halo--blue {
-  right: -6%;
-  bottom: -12%;
-  background: radial-gradient(circle, rgba(105, 169, 207, 0.72), transparent 62%);
-}
-
 .profile-screen__feedback,
 .profile-hero,
 .profile-panel {
@@ -74,7 +46,7 @@
 .profile-screen__content {
   display: grid;
   gap: 14px;
-  justify-items: center;
+  justify-items: stretch;
   min-height: 0;
   padding-bottom: 8px;
 }
@@ -82,7 +54,6 @@
 .profile-hero,
 .profile-panel {
   width: 100%;
-  overflow: hidden;
   background:
     linear-gradient(160deg, rgba(9, 20, 32, 0.92) 0%, rgba(4, 9, 14, 0.94) 58%, rgba(4, 10, 16, 0.98) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -93,11 +64,16 @@
   backdrop-filter: blur(16px);
 }
 
+.profile-panel {
+  overflow: hidden;
+}
+
 .profile-hero::before,
 .profile-panel::before {
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background:
     linear-gradient(90deg, rgba(var(--launcher-color-gold-rgb), 0.08), transparent 24%),
     radial-gradient(circle at top right, rgba(105, 169, 207, 0.14), transparent 38%);
@@ -108,7 +84,7 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: clamp(20px, 2vw, 32px);
-  max-width: 1040px;
+  overflow: visible;
   padding: clamp(22px, 2.4vw, 30px);
   border-radius: 22px;
 }
@@ -408,12 +384,6 @@
   text-transform: uppercase;
 }
 
-.profile-screen__stack {
-  display: grid;
-  gap: 14px;
-  width: min(920px, 100%);
-}
-
 .profile-panel {
   padding: 20px;
   border-radius: 20px;
@@ -608,10 +578,6 @@
   .profile-hero__meta,
   .profile-name-editor__actions {
     justify-content: center;
-  }
-
-  .profile-screen__stack {
-    width: 100%;
   }
 }
 

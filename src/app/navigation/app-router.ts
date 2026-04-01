@@ -9,6 +9,7 @@ import { createBootScreen } from '@app/screens/boot/boot-screen';
 import { createGameScreen } from '@app/screens/game/game-screen';
 import { createHomeScreen } from '@app/screens/home/home-screen';
 import type { ProfileStore } from '@app/screens/profile/profile-store';
+import type { DesktopBridge } from '@shared/types/desktop';
 import {
   createLoadingScreen,
   type LoadingScreenHandle,
@@ -23,6 +24,7 @@ interface CreateAppRouterOptions {
 }
 
 interface HomeRouteOptions {
+  desktop: DesktopBridge;
   musicMuted: boolean;
   exitModal?: {
     errorMessage?: string | null;
@@ -32,7 +34,7 @@ interface HomeRouteOptions {
   profileStore: ProfileStore;
   session: AuthSessionSnapshot;
   user: AuthUser;
-  view: 'home' | 'profile';
+  view: 'home' | 'profile' | 'system';
 }
 
 interface GameRouteOptions {
@@ -83,6 +85,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
     showHome(homeOptions) {
       options.shell.setPage(
         createHomeScreen({
+          desktop: homeOptions.desktop,
           i18n: options.i18n,
           musicMuted: homeOptions.musicMuted,
           exitModal: homeOptions.exitModal,

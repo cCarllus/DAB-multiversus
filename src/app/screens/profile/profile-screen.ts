@@ -5,16 +5,11 @@ import type { AppI18n } from '@shared/i18n';
 
 import '@app/ui/modal-chrome.css';
 
-import { createProfileAvatarUploader } from './profile-avatar-uploader';
-import {
-  createProfileDeviceStatus,
-  type DeviceListItem,
-} from './profile-device-status';
 import { createProfileHeader } from './profile-header';
 import { createProfileNameEditor } from './profile-name-editor';
-import { createProfileOverview } from './profile-overview';
+import { createProfileAvatarUploader } from './profile-avatar-uploader';
 import { type ProfileStore } from './profile-store';
-import type { ProfileDevice, ProfileFeedback, ProfileSnapshot } from './profile-types';
+import type { ProfileFeedback, ProfileSnapshot } from './profile-types';
 import './profile-screen.css';
 
 interface ProfileScreenOptions {
@@ -31,61 +26,11 @@ function formatDate(value: string, locale: string): string {
   }).format(new Date(value));
 }
 
-function formatDateTime(value: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    month: 'short',
-  }).format(new Date(value));
-}
-
-function buildDeviceMeta(
-  device: ProfileDevice | null,
-  locale: string,
-  fallback: string,
-  versionFallback: string,
-): string {
-  if (!device) {
-    return fallback;
-  }
-
-  const appVersionLabel = device.appVersion ? `v${device.appVersion}` : versionFallback;
-  return `${formatDateTime(device.lastLoginAt, locale)} · ${appVersionLabel}`;
-}
-
-function buildRecentDevices(
-  devices: ProfileDevice[],
-  i18n: AppI18n,
-): DeviceListItem[] {
-  const messages = i18n.getMessages().menu.profile;
-  const locale = i18n.getLocale();
-
-  return devices.slice(0, 3).map((device) => ({
-    label: device.label,
-    meta: device.appVersion
-      ? i18n.t('menu.profile.deviceList.appVersion', {
-          version: device.appVersion,
-        })
-      : messages.deviceList.noVersion,
-    state: device.isCurrent
-      ? messages.deviceList.current
-      : i18n.t('menu.profile.deviceList.lastSeen', {
-          date: formatDateTime(device.lastLoginAt, locale),
-        }),
-  }));
-}
-
 export function createProfileScreen(options: ProfileScreenOptions): HTMLElement {
   const messages = options.i18n.getMessages().menu.profile;
   const rootElement = createElementFromTemplate(`
     <main class="home-content home-content--profile-shell">
       <section class="profile-screen">
-        <div class="profile-screen__backdrop" aria-hidden="true">
-          <div class="profile-screen__halo profile-screen__halo--gold"></div>
-          <div class="profile-screen__halo profile-screen__halo--blue"></div>
-        </div>
-
         <div class="profile-screen__feedback" data-profile-feedback hidden></div>
         <div class="profile-screen__content" data-profile-content></div>
       </section>
@@ -176,13 +121,7 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
     i18n: options.i18n,
     nameEditor,
   });
-  const overview = createProfileOverview(options.i18n);
-  const deviceStatus = createProfileDeviceStatus(options.i18n);
-  const stack = createElementFromTemplate(`
-    <div class="profile-screen__stack" data-profile-stack></div>
-  `);
-  stack.append(overview.element, deviceStatus.element);
-  content.append(header.element, stack, avatarUploader.modal);
+  content.append(header.element, avatarUploader.modal);
 
   const applySnapshot = (snapshot: ProfileSnapshot): void => {
     const locale = options.i18n.getLocale();
@@ -192,10 +131,6 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
     const trustedDeviceStatus = options.session.rememberDevice
       ? messages.status.trustedDeviceSaved
       : messages.status.sessionOnly;
-    const currentDeviceLabel =
-      snapshot.devices.currentDevice?.label ?? messages.fallbackValue;
-    const lastActiveLabel =
-      snapshot.devices.lastActiveDevice?.label ?? messages.fallbackValue;
 
     header.setState({
       accountStatus: launcherStatus,
@@ -204,32 +139,6 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
       profile: snapshot.profile,
       trustedDevice: trustedDeviceStatus,
       userId: `@${snapshot.profile.nickname}`,
-    });
-
-    overview.setState({
-      currentDeviceLabel,
-      languageLabel,
-      launcherStatus,
-      trustedDeviceStatus,
-    });
-
-    deviceStatus.setState({
-      currentDeviceMeta: buildDeviceMeta(
-        snapshot.devices.currentDevice,
-        locale,
-        messages.fallbackValue,
-        messages.deviceList.noVersion,
-      ),
-      currentDeviceStatus: currentDeviceLabel,
-      lastActiveMeta: buildDeviceMeta(
-        snapshot.devices.lastActiveDevice,
-        locale,
-        messages.fallbackValue,
-        messages.deviceList.noVersion,
-      ),
-      lastActiveStatus: lastActiveLabel,
-      recentDevices: buildRecentDevices(snapshot.devices.devices, options.i18n),
-      trustedDeviceStatus,
     });
   };
 

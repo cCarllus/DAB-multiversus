@@ -215,7 +215,7 @@
         "store": "Store",
         "watch": "Watch",
         "codex": "Codex",
-        "vault": "Vault"
+        "system": "System"
       },
       "currencyAriaLabel": "Shards",
       "currencyLabel": "Shards",
@@ -233,6 +233,10 @@
       "friendStatuses": {
         "playingRanked": "Playing Ranked Match",
         "mainMenu": "Main Menu",
+        "offline": "Offline"
+      },
+      "playerPresence": {
+        "online": "Online",
         "offline": "Offline"
       },
       "featuredFighter": "Featured Fighter",
@@ -340,6 +344,51 @@
         "avatarTooLarge": "Profile photo must be 5 MB or smaller."
       },
       "fallbackUsername": "Not set",
+      "fallbackValue": "Unavailable"
+    },
+    "system": {
+      "eyebrow": "System",
+      "title": "Launcher and device",
+      "summary": "Operating system, launcher runtime and device access live here instead of the player profile.",
+      "cards": {
+        "operatingSystem": {
+          "label": "Operating system",
+          "meta": "Platform detected for this desktop."
+        },
+        "osVersion": {
+          "label": "OS version",
+          "meta": "Version reported by the operating system."
+        },
+        "launcherRuntime": {
+          "label": "Launcher runtime",
+          "meta": "Electron, Chrome and Node versions powering this launcher."
+        },
+        "trustedAccess": {
+          "label": "Trusted access",
+          "meta": "Current remembered-device mode for this account."
+        },
+        "currentDevice": {
+          "label": "Current device",
+          "meta": "Device record linked to this desktop session."
+        },
+        "lastActive": {
+          "label": "Last active",
+          "meta": "Most recent device activity recorded for your account."
+        }
+      },
+      "list": {
+        "eyebrow": "Recent devices",
+        "summary": "Recent launcher devices saved for this account.",
+        "empty": "No saved devices yet.",
+        "current": "Current device",
+        "seenAt": "Seen {{date}}",
+        "noVersion": "Launcher version unavailable",
+        "appVersion": "Launcher v{{version}}"
+      },
+      "states": {
+        "trusted": "Trusted on this device",
+        "sessionOnly": "Session only"
+      },
       "fallbackValue": "Unavailable"
     },
     "footer": {
