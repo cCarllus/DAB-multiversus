@@ -492,8 +492,11 @@ export function bootstrapApplication(host: HTMLElement): void {
   })();
 
   shell.interactiveLayer.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement | null;
-    const action = target?.closest<HTMLElement>('[data-action]')?.dataset.action;
+    const actionTarget =
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>('[data-action]')
+        : null;
+    const action = actionTarget?.dataset.action;
 
     if (action === 'toggle-music-mute') {
       audio.toggleMusicMute();

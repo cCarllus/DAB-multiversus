@@ -295,9 +295,18 @@ export class AppAudioManager {
     return hoverSound;
   }
 
+  private resolveInteractiveTarget(event: Event): HTMLElement | null {
+    if (!(event.target instanceof Element)) {
+      return null;
+    }
+
+    const interactive = event.target.closest(INTERACTIVE_SELECTOR);
+
+    return interactive instanceof HTMLElement ? interactive : null;
+  }
+
   private readonly handleClick = (event: Event): void => {
-    const target = event.target as HTMLElement | null;
-    const interactive = target?.closest<HTMLElement>(INTERACTIVE_SELECTOR);
+    const interactive = this.resolveInteractiveTarget(event);
 
     if (!interactive || this.isDisabled(interactive) || this.isUiCueSuppressed(interactive)) {
       return;
@@ -308,8 +317,7 @@ export class AppAudioManager {
   };
 
   private readonly handlePointerOut = (event: Event): void => {
-    const target = event.target as HTMLElement | null;
-    const interactive = target?.closest<HTMLElement>(INTERACTIVE_SELECTOR);
+    const interactive = this.resolveInteractiveTarget(event);
 
     if (!interactive || interactive !== this.hoverTarget) {
       return;
@@ -326,8 +334,7 @@ export class AppAudioManager {
   };
 
   private readonly handlePointerOver = (event: Event): void => {
-    const target = event.target as HTMLElement | null;
-    const interactive = target?.closest<HTMLElement>(INTERACTIVE_SELECTOR);
+    const interactive = this.resolveInteractiveTarget(event);
 
     if (
       !interactive ||

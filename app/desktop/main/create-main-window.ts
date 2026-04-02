@@ -36,6 +36,7 @@ export function createMainWindow(): BrowserWindow {
     hasShadow: false,
     icon: process.platform === 'darwin' ? undefined : runtimeIconPath,
     maximizable: false,
+    minimizable: true,
     fullscreenable: false,
     movable: true,
     roundedCorners: false,

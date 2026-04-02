@@ -51,12 +51,28 @@ export function registerWindowControlHandlers(): void {
   handlersRegistered = true;
 
   ipcMain.handle(DESKTOP_WINDOW_CHANNELS.minimize, (event) => {
-    resolveWindow(event).minimize();
+    const browserWindow = resolveWindow(event);
+
+    if (!browserWindow.isMinimizable() || browserWindow.isMinimized()) {
+      return;
+    }
+
+    browserWindow.minimize();
   });
 
   ipcMain.handle(DESKTOP_WINDOW_CHANNELS.toggleMaximize, (event) => {
     const browserWindow = resolveWindow(event);
-    browserWindow.setMaximizable(false);
+
+    if (!browserWindow.isMaximizable()) {
+      return getWindowState(browserWindow);
+    }
+
+    if (browserWindow.isMaximized()) {
+      browserWindow.unmaximize();
+    } else {
+      browserWindow.maximize();
+    }
+
     return getWindowState(browserWindow);
   });
 
