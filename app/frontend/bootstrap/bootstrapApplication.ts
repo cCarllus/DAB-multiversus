@@ -5,6 +5,7 @@ import { type LoginFormValues } from '@frontend/services/auth/auth-types';
 import { createApplicationShell } from '@frontend/layout/create-application-shell';
 import { createAppRouter } from '@frontend/navigation/app-router';
 import { ProfileStore } from '@frontend/stores/profile.store';
+import { SocialStore } from '@frontend/stores/social.store';
 import {
   createI18n,
   type AppLocale,
@@ -29,6 +30,7 @@ interface LoadingSequence {
   title: string;
 }
 type LoadingSequenceKey = keyof TranslationMessages['loading']['sequences'];
+type MenuView = 'home' | 'players' | 'profile' | 'system';
 
 export function createDesktopBridgeFallback(): DesktopBridge {
   return {
@@ -66,6 +68,7 @@ export function createDesktopBridgeFallback(): DesktopBridge {
 interface RerenderActiveSurfaceOptions {
   activeSurface: AppSurface;
   i18n: ReturnType<typeof createI18n>;
+  openProfileView: (nickname: string | null) => void;
   renderGamePage: () => void;
   renderLoginPage: () => void;
   renderMenuPage: () => void;
@@ -116,7 +119,12 @@ export function bootstrapApplication(host: HTMLElement): void {
 
   let rememberDeviceSupported = false;
   let activeSurface: AppSurface = 'boot';
-  let activeMenuView: 'home' | 'profile' | 'system' = 'home';
+  const socialStore = new SocialStore({
+    authService,
+  });
+
+  let activeMenuView: MenuView = 'home';
+  let activeProfileNickname: string | null = null;
   let loginState = {
     errorMessage: null as string | null,
     identifier: '',
@@ -172,6 +180,22 @@ export function bootstrapApplication(host: HTMLElement): void {
     };
   };
 
+  const resolveMenuPresenceActivity = (): string => {
+    if (activeMenuView === 'players') {
+      return i18n.t('menu.social.presence.browsingPlayers');
+    }
+
+    if (activeMenuView === 'profile') {
+      return i18n.t('menu.social.presence.reviewingProfile');
+    }
+
+    if (activeMenuView === 'system') {
+      return i18n.t('menu.social.presence.checkingSystem');
+    }
+
+    return i18n.t('menu.social.presence.inLauncherActivity');
+  };
+
   const renderMenuPage = (): void => {
     const session = authService.getCurrentSession();
 
@@ -197,10 +221,30 @@ export function bootstrapApplication(host: HTMLElement): void {
         rememberDevice: session.rememberDevice,
         sessionExpiresAt: session.sessionExpiresAt,
       },
+      onOpenProfile: (nickname) => {
+        openProfileView(nickname);
+      },
       profileStore,
+      profileTargetNickname: activeProfileNickname,
+      socialStore,
       user: session.user,
       view: activeMenuView,
     });
+
+    void socialStore.updatePresence({
+      currentActivity: resolveMenuPresenceActivity(),
+      status: 'in_launcher',
+    }).catch(() => undefined);
+  };
+
+  const openProfileView = (nickname: string | null): void => {
+    if (activeSurface !== 'menu') {
+      return;
+    }
+
+    activeProfileNickname = nickname?.trim().toLowerCase() ?? null;
+    activeMenuView = 'profile';
+    renderMenuPage();
   };
 
   const renderGamePage = (): void => {
@@ -215,6 +259,13 @@ export function bootstrapApplication(host: HTMLElement): void {
     router.showGame({
       user: session.user,
     });
+
+    void socialStore
+      .updatePresence({
+        currentActivity: i18n.t('menu.social.presence.online'),
+        status: 'online',
+      })
+      .catch(() => undefined);
   };
 
   const runLoadingSequence = async (sequence: LoadingSequence): Promise<boolean> => {
@@ -306,6 +357,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     rerenderActiveSurface({
       activeSurface,
       i18n,
+      openProfileView,
       renderGamePage,
       renderLoginPage,
       renderMenuPage,
@@ -362,7 +414,9 @@ export function bootstrapApplication(host: HTMLElement): void {
       })
       .then(() => {
         profileStore.reset();
+        socialStore.reset();
         activeMenuView = 'home';
+        activeProfileNickname = null;
         audio.playTransitionCue('screen-shift');
         void transitionToMenu(getLoadingSequence('loginToMenu'));
       })
@@ -389,7 +443,9 @@ export function bootstrapApplication(host: HTMLElement): void {
       .loginWithDevAccount()
       .then(() => {
         profileStore.reset();
+        socialStore.reset();
         activeMenuView = 'home';
+        activeProfileNickname = null;
         audio.playTransitionCue('screen-shift');
         void transitionToMenu(getLoadingSequence('loginToMenu'));
       })
@@ -418,11 +474,15 @@ export function bootstrapApplication(host: HTMLElement): void {
     };
     renderMenuPage();
 
-    void authService
-      .logout()
+    void socialStore
+      .disconnectRealtime()
+      .catch(() => undefined)
+      .then(() => authService.logout())
       .then(() => {
         profileStore.reset();
+        socialStore.reset();
         activeMenuView = 'home';
+        activeProfileNickname = null;
         exitModalState = {
           errorMessage: null,
           isLoggingOut: false,
@@ -485,6 +545,8 @@ export function bootstrapApplication(host: HTMLElement): void {
 
       if (restoredSession?.user) {
         profileStore.reset();
+        socialStore.reset();
+        activeProfileNickname = null;
         exitModalState = {
           errorMessage: null,
           isLoggingOut: false,
@@ -541,6 +603,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       }
 
       activeMenuView = 'home';
+      activeProfileNickname = null;
       renderMenuPage();
       return;
     }
@@ -551,6 +614,18 @@ export function bootstrapApplication(host: HTMLElement): void {
       }
 
       activeMenuView = 'profile';
+      activeProfileNickname = null;
+      renderMenuPage();
+      return;
+    }
+
+    if (action === 'show-players-page') {
+      if (activeSurface !== 'menu') {
+        return;
+      }
+
+      activeMenuView = 'players';
+      activeProfileNickname = null;
       renderMenuPage();
       return;
     }
@@ -561,6 +636,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       }
 
       activeMenuView = 'system';
+      activeProfileNickname = null;
       renderMenuPage();
       return;
     }
@@ -616,6 +692,7 @@ export function bootstrapApplication(host: HTMLElement): void {
 
   window.addEventListener('beforeunload', () => {
     clearExitModalCloseTimer();
+    void socialStore.disconnectRealtime().catch(() => undefined);
     audio.dispose();
   });
 }

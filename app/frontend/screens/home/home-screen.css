@@ -833,6 +833,14 @@
   box-shadow: none;
 }
 
+.home-profile-card__status--launcher {
+  color: var(--home-accent-blue-bright);
+}
+
+.home-profile-card__status--launcher .home-profile-card__status-dot {
+  box-shadow: 0 0 8px rgba(105, 169, 207, 0.44);
+}
+
 .home-profile-card__badge {
   display: grid;
   place-items: center;
@@ -958,33 +966,13 @@
   color: #fff;
 }
 
-.home-friends-card__filter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  color: var(--home-text-soft);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.02);
-  border: 0;
-  cursor: pointer;
-  transition: background 180ms ease;
-}
-
-.home-friends-card__filter:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
 .home-friends-card__list {
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
   flex-direction: column;
   gap: 4px;
-  padding: 8px;
+  padding: 10px 8px 8px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
@@ -1005,6 +993,13 @@
 
 .home-friends-card__list::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
+}
+
+.home-friends-card__empty {
+  padding: 18px 12px;
+  color: var(--home-text-soft);
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
 .home-friend {
@@ -1122,6 +1117,21 @@
   color: #6b7280;
 }
 
+.home-friend__presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.home-friend__presence::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
 .home-friend__invite {
   display: grid;
   place-items: center;
@@ -1136,30 +1146,6 @@
 
 .home-friend:hover .home-friend__invite {
   opacity: 1;
-}
-
-.home-friends-card__footer {
-  gap: 10px;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.6);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.home-friends-card__party-avatar,
-.home-friends-card__party-slot {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-}
-
-.home-friends-card__party-avatar {
-  object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.home-friends-card__party-slot {
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .home-spotlight {

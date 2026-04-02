@@ -62,6 +62,10 @@ export class UsersService {
     return this.usersRepository.findById(userId, client);
   }
 
+  async findByNickname(nickname: string, client?: DatabaseClient): Promise<UserRecord | null> {
+    return this.usersRepository.findByNickname(nickname.trim().toLowerCase(), client);
+  }
+
   async requireUserById(userId: string, client?: DatabaseClient): Promise<UserRecord> {
     const user = await this.findById(userId, client);
 

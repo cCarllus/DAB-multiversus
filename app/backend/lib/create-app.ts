@@ -8,7 +8,10 @@ import { PROFILE_UPLOADS_ROOT } from './profile-storage';
 
 interface CreateAppOptions {
   authRouter: Router;
+  friendsRouter: Router;
+  presenceRouter: Router;
   profileRouter: Router;
+  usersRouter: Router;
 }
 
 function isOriginAllowed(origin: string | undefined): boolean {
@@ -37,7 +40,7 @@ export function createApp(options: CreateAppOptions) {
 
         callback(new AppError(403, 'CORS_FORBIDDEN', 'Origin is not allowed.'));
       },
-      methods: ['GET', 'PATCH', 'POST', 'OPTIONS'],
+      methods: ['DELETE', 'GET', 'PATCH', 'POST', 'OPTIONS'],
       allowedHeaders: ['Authorization', 'Content-Type', 'X-Launcher-Device-Id'],
     }),
   );
@@ -52,6 +55,9 @@ export function createApp(options: CreateAppOptions) {
   });
 
   app.use('/auth', options.authRouter);
+  app.use('/users', options.usersRouter);
+  app.use('/friends', options.friendsRouter);
+  app.use('/presence', options.presenceRouter);
   app.use('/profile', options.profileRouter);
 
   app.use((_request, response) => {

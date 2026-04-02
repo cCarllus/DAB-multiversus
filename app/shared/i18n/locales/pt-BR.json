@@ -215,6 +215,7 @@
         "store": "Loja",
         "watch": "Assistir",
         "codex": "Codex",
+        "players": "Global",
         "system": "System"
       },
       "currencyAriaLabel": "Fragmentos",
@@ -230,6 +231,11 @@
       "friendsTitle": "Amigos",
       "addFriendAriaLabel": "Adicionar amigo",
       "friendsFilter": "Em partida (4)",
+      "friendsLoading": "Carregando seus amigos...",
+      "friendsEmpty": "Você ainda não tem amigos conectados ao launcher.",
+      "friendsUnavailable": "Os dados de amizade estão indisponíveis no momento.",
+      "friendsInLauncher": "No launcher ({{count}})",
+      "friendsOnline": "Online ({{count}})",
       "friendStatuses": {
         "playingRanked": "Jogando partida ranqueada",
         "mainMenu": "Menu principal",
@@ -244,6 +250,116 @@
       "matchDetails": "Detalhes da partida",
       "proCircuit": "CIRCUITO PRO",
       "livePopularMatch": "Partida popular ao vivo"
+    },
+    "social": {
+      "actions": {
+        "accept": "Aceitar",
+        "addFriend": "Adicionar amigo",
+        "cancel": "Cancelar",
+        "friends": "Amigos",
+        "reject": "Recusar",
+        "requestSent": "Pedido enviado",
+        "viewProfile": "Ver perfil"
+      },
+      "directory": {
+        "eyebrow": "Diretório Global",
+        "title": "Players ativos em todo o launcher",
+        "summary": "Procure por nickname, filtre por presença, abra perfis públicos e faça o launcher parecer um espaço vivo de verdade.",
+        "searchPlaceholder": "Buscar por nickname ou nome",
+        "presenceFilter": "Presença",
+        "relationshipFilter": "Relacionamento",
+        "presenceOptions": {
+          "all": "Todos os status",
+          "online": "Somente online",
+          "offline": "Somente offline"
+        },
+        "relationshipOptions": {
+          "all": "Todos os players",
+          "friends": "Somente amigos",
+          "requests": "Pedidos pendentes"
+        },
+        "columns": {
+          "player": "Player",
+          "status": "Status",
+          "level": "Level",
+          "memberSince": "Membro Desde",
+          "action": "Ação"
+        },
+        "loadMore": "Carregar mais",
+        "loading": "Atualizando a grade de players...",
+        "empty": "Nenhum player corresponde à busca atual.",
+        "count": "{{count}} players na grade"
+      },
+      "sections": {
+        "players": "Players",
+        "friends": "Amigos",
+        "pending": "Pendentes"
+      },
+      "friends": {
+        "eyebrow": "Lista de Amigos",
+        "title": "Seu esquadrão",
+        "summary": "Veja sua lista de amigos, acompanhe a presença e abra perfis públicos sem sair da base social.",
+        "count": "{{count}} amigos na lista",
+        "loading": "Atualizando amigos...",
+        "empty": "Você ainda não tem amigos. Comece explorando o diretório global."
+      },
+      "requests": {
+        "eyebrow": "Fila Social",
+        "title": "Pedidos pendentes",
+        "summary": "Gerencie pedidos recebidos e envios pendentes em uma única grade com ações rápidas.",
+        "incoming": "Recebidos",
+        "outgoing": "Enviados",
+        "count": "{{count}} pedidos pendentes",
+        "loading": "Atualizando pedidos...",
+        "empty": "Nenhum pedido pendente agora.",
+        "emptyIncoming": "Nenhum pedido recebido agora.",
+        "emptyOutgoing": "Nenhum pedido enviado agora."
+      },
+      "profile": {
+        "eyebrow": "Perfil Público",
+        "memberSince": "Membro desde",
+        "currentActivity": "Atividade atual",
+        "sectionEyebrow": "Identidade Pública Segura",
+        "sectionTitle": "Somente identidade visível do launcher",
+        "sectionSummary": "Este painel expõe apenas dados voltados ao jogador: nickname, nome de exibição, avatar, presença pública e data de entrada. Campos privados da conta e dados técnicos continuam ocultos.",
+        "loading": "Carregando perfil público...",
+        "empty": "Selecione um player para inspecionar seu perfil público.",
+        "future": {
+          "rankLabel": "Rank futuro",
+          "rankValue": "Tier competitivo depois",
+          "mainLabel": "Main futuro",
+          "mainValue": "Campeão favorito depois",
+          "trackLabel": "Trilha sazonal",
+          "trackValue": "Stats e progresso depois"
+        }
+      },
+      "hover": {
+        "memberSince": "Membro desde {{date}}"
+      },
+      "presence": {
+        "online": "Online",
+        "offline": "Offline",
+        "inLauncher": "No Launcher",
+        "browsingPlayers": "Explorando players",
+        "reviewingProfile": "Revisando perfil",
+        "checkingSystem": "Checando sistema",
+        "inLauncherActivity": "No launcher"
+      },
+      "feedback": {
+        "requestSent": "Pedido de amizade enviado.",
+        "accepted": "Pedido de amizade aceito.",
+        "rejected": "Pedido de amizade recusado.",
+        "cancelled": "Pedido enviado cancelado."
+      },
+      "errors": {
+        "alreadyFriends": "Você já é amigo deste player.",
+        "requestAlreadySent": "Já existe um pedido pendente para este player.",
+        "requestAlreadyReceived": "Este player já enviou um pedido para você. Aceite na sua fila.",
+        "selfRequest": "Você não pode enviar pedido de amizade para si mesmo.",
+        "userNotFound": "Não foi possível encontrar o perfil deste player.",
+        "requestNotFound": "Esta ação social não está mais disponível.",
+        "forbiddenAction": "Você não pode executar esta ação social."
+      }
     },
     "profile": {
       "heroAriaLabel": "Cabeçalho de identidade do jogador",

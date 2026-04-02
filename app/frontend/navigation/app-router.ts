@@ -8,6 +8,7 @@ import {
 import { createBootScreen } from '@frontend/screens/boot/boot-screen';
 import { createGameScreen } from '@frontend/screens/game/game-screen';
 import { createMenuScreen } from '@frontend/screens/menu/menu-screen';
+import type { SocialStore } from '@frontend/stores/social.store';
 import type { ProfileStore } from '@frontend/stores/profile.store';
 import type { DesktopBridge } from '@shared/contracts/desktop.contract';
 import {
@@ -31,10 +32,13 @@ interface MenuRouteOptions {
     isLoggingOut: boolean;
     status: 'open' | 'closing';
   };
+  onOpenProfile: (nickname: string) => void;
   profileStore: ProfileStore;
+  profileTargetNickname?: string | null;
+  socialStore: SocialStore;
   session: AuthSessionSnapshot;
   user: AuthUser;
-  view: 'home' | 'profile' | 'system';
+  view: 'home' | 'players' | 'profile' | 'system';
 }
 
 interface GameRouteOptions {
@@ -89,8 +93,11 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
           i18n: options.i18n,
           musicMuted: menuOptions.musicMuted,
           exitModal: menuOptions.exitModal,
+          onOpenProfile: menuOptions.onOpenProfile,
           session: menuOptions.session,
           profileStore: menuOptions.profileStore,
+          profileTargetNickname: menuOptions.profileTargetNickname,
+          socialStore: menuOptions.socialStore,
           user: menuOptions.user,
           view: menuOptions.view,
         }),

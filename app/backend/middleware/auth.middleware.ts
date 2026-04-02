@@ -1,9 +1,11 @@
-import type { Request, RequestHandler } from 'express';
+import type { Request } from 'express-serve-static-core';
+import type { RequestHandler } from 'express';
 
 import { AuthRepository } from '../repositories/auth.repository';
 import { TokenService } from '../services/token.service';
 import { AppError } from '../lib/app-error';
 import { asyncHandler } from '../lib/async-handler';
+import { SessionAuthService } from '../services/session-auth.service';
 
 function extractBearerToken(request: Request): string | null {
   const authorizationHeader = request.headers.authorization;
@@ -23,8 +25,7 @@ function extractBearerToken(request: Request): string | null {
 
 async function attachAuthenticationContext(
   request: Request,
-  authRepository: AuthRepository,
-  tokenService: TokenService,
+  sessionAuthService: SessionAuthService,
 ): Promise<void> {
   const accessToken = extractBearerToken(request);
 
@@ -32,30 +33,13 @@ async function attachAuthenticationContext(
     throw new AppError(401, 'UNAUTHORIZED', 'Authentication is required.');
   }
 
-  const payload = tokenService.verifyAccessToken(accessToken);
-  const session = await authRepository.findById(payload.sid);
+  const identity = await sessionAuthService.authenticateAccessToken(accessToken);
 
-  if (!session) {
-    throw new AppError(401, 'UNAUTHORIZED', 'Session is invalid.');
-  }
-
-  if (session.userId !== payload.sub) {
-    throw new AppError(401, 'UNAUTHORIZED', 'Access token does not match the current session.');
-  }
-
-  if (session.revokedAt) {
-    throw new AppError(401, 'SESSION_REVOKED', 'This session has been revoked.');
-  }
-
-  if (session.expiresAt.getTime() <= Date.now()) {
-    throw new AppError(401, 'SESSION_EXPIRED', 'This session has expired.');
-  }
-
-  request.auth = {
-    userId: payload.sub,
-    sessionId: payload.sid,
-    email: payload.email,
-    nickname: payload.nickname,
+  request.authContext = {
+    userId: identity.userId,
+    sessionId: identity.sessionId,
+    email: identity.email,
+    nickname: identity.nickname,
   };
 }
 
@@ -63,8 +47,10 @@ export function createAuthMiddleware(
   authRepository: AuthRepository,
   tokenService: TokenService,
 ): RequestHandler {
+  const sessionAuthService = new SessionAuthService(authRepository, tokenService);
+
   return asyncHandler(async (request, _response, next) => {
-    await attachAuthenticationContext(request, authRepository, tokenService);
+    await attachAuthenticationContext(request, sessionAuthService);
     next();
   });
 }
@@ -73,6 +59,8 @@ export function createOptionalAuthMiddleware(
   authRepository: AuthRepository,
   tokenService: TokenService,
 ): RequestHandler {
+  const sessionAuthService = new SessionAuthService(authRepository, tokenService);
+
   return asyncHandler(async (request, _response, next) => {
     const accessToken = extractBearerToken(request);
 
@@ -82,9 +70,9 @@ export function createOptionalAuthMiddleware(
     }
 
     try {
-      await attachAuthenticationContext(request, authRepository, tokenService);
+      await attachAuthenticationContext(request, sessionAuthService);
     } catch {
-      request.auth = undefined;
+      request.authContext = undefined;
     }
 
     next();

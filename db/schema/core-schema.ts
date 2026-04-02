@@ -58,6 +58,48 @@ const coreSchemaStatements = [
     CREATE INDEX IF NOT EXISTS user_devices_last_login_idx
       ON user_devices (user_id, last_login_at DESC)
   `,
+  `
+    CREATE TABLE IF NOT EXISTS friendships (
+      id UUID PRIMARY KEY,
+      requester_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      addressee_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      status TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT friendships_users_distinct CHECK (requester_user_id <> addressee_user_id),
+      CONSTRAINT friendships_status_check CHECK (status IN ('pending', 'accepted', 'rejected', 'blocked'))
+    )
+  `,
+  `
+    CREATE UNIQUE INDEX IF NOT EXISTS friendships_active_pair_unique_idx
+      ON friendships (
+        LEAST(requester_user_id, addressee_user_id),
+        GREATEST(requester_user_id, addressee_user_id)
+      )
+      WHERE status IN ('pending', 'accepted', 'blocked')
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS friendships_requester_status_idx
+      ON friendships (requester_user_id, status, created_at DESC)
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS friendships_addressee_status_idx
+      ON friendships (addressee_user_id, status, created_at DESC)
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS user_presence (
+      user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      status TEXT NOT NULL DEFAULT 'offline',
+      current_activity TEXT,
+      last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT user_presence_status_check CHECK (status IN ('online', 'offline', 'in_launcher'))
+    )
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS user_presence_status_idx
+      ON user_presence (status, updated_at DESC)
+  `,
 ] as const;
 
 export async function applyCoreSchema(client: DatabaseQueryable): Promise<void> {

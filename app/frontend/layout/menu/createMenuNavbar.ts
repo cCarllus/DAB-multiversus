@@ -4,7 +4,7 @@ import type { AppI18n } from '@shared/i18n';
 import menuNavbarTemplate from './menu-navbar.html?raw';
 
 interface CreateMenuNavbarOptions {
-  activeView: 'home' | 'profile' | 'system';
+  activeView: 'home' | 'players' | 'profile' | 'system';
   brandImage: string;
   i18n: AppI18n;
 }
@@ -21,6 +21,8 @@ export function createMenuNavbar(options: CreateMenuNavbarOptions): HTMLElement 
     NAVIGATION_ARIA_LABEL: messages.menu.topbar.navigationAriaLabel,
     NOTIFICATIONS_ARIA_LABEL: messages.menu.topbar.notificationsAriaLabel,
     PLAY_ARIA_LABEL: messages.menu.topbar.playAriaLabel,
+    PLAYERS_TAB_STATE_CLASS: options.activeView === 'players' ? 'is-active' : '',
+    PLAYERS_TAB_PRESSED: options.activeView === 'players' ? 'true' : 'false',
     PRIMARY_NAVIGATION_ARIA_LABEL: messages.menu.topbar.primaryNavigationAriaLabel,
     PROFILE_BUTTON_STATE_CLASS:
       options.activeView === 'profile' ? 'is-active' : '',
@@ -29,6 +31,7 @@ export function createMenuNavbar(options: CreateMenuNavbarOptions): HTMLElement 
     SETTINGS_ARIA_LABEL: messages.menu.topbar.settingsAriaLabel,
     TAB_CODEX_LABEL: messages.menu.topbar.tabs.codex,
     TAB_HEROES_LABEL: messages.menu.topbar.tabs.heroes,
+    TAB_PLAYERS_LABEL: messages.menu.topbar.tabs.players,
     TAB_STORE_LABEL: messages.menu.topbar.tabs.store,
     TAB_SYSTEM_LABEL: messages.menu.topbar.tabs.system,
     SYSTEM_TAB_STATE_CLASS: options.activeView === 'system' ? 'is-active' : '',

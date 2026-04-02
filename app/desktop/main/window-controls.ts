@@ -1,4 +1,9 @@
-import { app, BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  type IpcMainInvokeEvent,
+} from 'electron';
 
 import type { DesktopWindowState } from '@shared/contracts/desktop.contract';
 
@@ -10,9 +15,11 @@ const DESKTOP_WINDOW_CHANNELS = {
   toggleMaximize: 'desktop-window:toggle-maximize',
 } as const;
 
+type LauncherBrowserWindow = NonNullable<ReturnType<typeof BrowserWindow.fromWebContents>>;
+
 let handlersRegistered = false;
 
-function resolveWindow(event: IpcMainInvokeEvent): BrowserWindow {
+function resolveWindow(event: IpcMainInvokeEvent): LauncherBrowserWindow {
   const browserWindow = BrowserWindow.fromWebContents(event.sender);
 
   if (!browserWindow) {
@@ -22,13 +29,13 @@ function resolveWindow(event: IpcMainInvokeEvent): BrowserWindow {
   return browserWindow;
 }
 
-function getWindowState(browserWindow: BrowserWindow): DesktopWindowState {
+function getWindowState(browserWindow: LauncherBrowserWindow): DesktopWindowState {
   return {
     isMaximized: browserWindow.isMaximized(),
   };
 }
 
-export function bindWindowControlEvents(browserWindow: BrowserWindow): void {
+export function bindWindowControlEvents(browserWindow: LauncherBrowserWindow): void {
   const emitState = (): void => {
     browserWindow.webContents.send(
       DESKTOP_WINDOW_CHANNELS.stateChanged,

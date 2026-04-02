@@ -42,18 +42,18 @@ export function createAuthController(authService: AuthService): AuthController {
       const payload = logoutRequestSchema.parse(request.body ?? {});
       await authService.logout({
         refreshToken: payload.refreshToken,
-        sessionId: payload.sessionId ?? request.auth?.sessionId,
-        userId: request.auth?.userId,
+        sessionId: payload.sessionId ?? request.authContext?.sessionId,
+        userId: request.authContext?.userId,
       });
       response.status(204).send();
     }),
 
     me: asyncHandler(async (request, response) => {
-      if (!request.auth) {
+      if (!request.authContext) {
         throw new AppError(401, 'UNAUTHORIZED', 'Authentication is required.');
       }
 
-      const user = await authService.getCurrentUser(request.auth.userId);
+      const user = await authService.getCurrentUser(request.authContext.userId);
       response.status(200).json({ user });
     }),
   };

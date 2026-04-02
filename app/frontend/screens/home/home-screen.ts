@@ -3,6 +3,11 @@ import {
   type AuthUser,
 } from '@frontend/services/auth/auth-types';
 import { createElementFromTemplate } from '@frontend/lib/html';
+import {
+  createSocialAvatar,
+  resolveActivityLabel,
+} from '@frontend/screens/social/social-formatters';
+import type { SocialStore } from '@frontend/stores/social.store';
 import type { AppI18n } from '@shared/i18n';
 
 import homeTemplate from './home-screen.html?raw';
@@ -10,6 +15,7 @@ import './home-screen.css';
 
 interface HomeScreenOptions {
   i18n: AppI18n;
+  socialStore: SocialStore;
   user: AuthUser;
 }
 
@@ -33,20 +39,22 @@ function createAvatarFallbackDataUrl(user: AuthUser): string {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
+function createHomeEmptyState(label: string): HTMLElement {
+  return createElementFromTemplate('<div class="home-friends-card__empty">__TEXT__</div>', {
+    TEXT: label,
+  });
+}
+
 export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
   const messages = options.i18n.getMessages();
   const avatarUrl = options.user.profileImageUrl || createAvatarFallbackDataUrl(options.user);
-
-  return createElementFromTemplate(homeTemplate, {
+  const rootElement = createElementFromTemplate(homeTemplate, {
     ADD_FRIEND_ARIA_LABEL: messages.menu.home.addFriendAriaLabel,
     APP_TITLE: messages.product.title,
     FEATURED_FIGHTER_LABEL: messages.menu.home.featuredFighter,
     FEATURED_LOADOUT_ARIA_LABEL: messages.menu.home.featuredLoadoutAriaLabel,
-    FRIENDS_FILTER: messages.menu.home.friendsFilter,
     FRIENDS_TITLE: messages.menu.home.friendsTitle,
-    FRIEND_STATUS_MAIN_MENU: messages.menu.home.friendStatuses.mainMenu,
-    FRIEND_STATUS_OFFLINE: messages.menu.home.friendStatuses.offline,
-    FRIEND_STATUS_PLAYING_RANKED: messages.menu.home.friendStatuses.playingRanked,
+    HOME_FRIENDS_LOADING: messages.menu.home.friendsLoading,
     HERO_NAME: messages.product.heroName,
     HERO_TITLE: messages.product.heroTitle,
     HOME_HEADLINE: messages.product.homeHeadline,
@@ -55,11 +63,116 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
     MATCH_DETAILS_LABEL: messages.menu.home.matchDetails,
     PLAYER_ALIAS: resolveAuthDisplayName(options.user),
     PLAYER_AVATAR_URL: avatarUrl,
-    PLAYER_STATUS: messages.menu.home.playerPresence.online,
-    PLAYER_STATUS_CLASS: 'home-profile-card__status--online',
+    PLAYER_STATUS: options.i18n.t('menu.social.presence.inLauncher'),
+    PLAYER_STATUS_CLASS: 'home-profile-card__status--launcher',
     PRO_CIRCUIT_LABEL: messages.menu.home.proCircuit,
     SEASON_NAME: messages.product.seasonName,
     SEASON_OBJECTIVE_LABEL: messages.menu.home.seasonObjective,
     SEASON_OBJECTIVE_PROGRESS_LABEL: messages.menu.home.seasonObjectiveProgressLabel,
   });
+  const friendsList = rootElement.querySelector<HTMLElement>('[data-home-friends-list]');
+
+  if (!friendsList) {
+    throw new Error('Home screen social widgets could not be initialized.');
+  }
+
+  const renderHomeSocial = (): void => {
+    const snapshot = options.socialStore.getSnapshot();
+
+    if (!snapshot) {
+      friendsList.replaceChildren(createHomeEmptyState(messages.menu.home.friendsLoading));
+      return;
+    }
+    const featuredFriends = [...snapshot.friends.friends]
+      .sort((left, right) => {
+        const leftOffline = left.presence.status === 'offline' ? 1 : 0;
+        const rightOffline = right.presence.status === 'offline' ? 1 : 0;
+
+        if (leftOffline !== rightOffline) {
+          return leftOffline - rightOffline;
+        }
+
+        return left.nickname.localeCompare(right.nickname);
+      })
+      .slice(0, 6);
+
+    if (featuredFriends.length === 0) {
+      friendsList.replaceChildren(createHomeEmptyState(messages.menu.home.friendsEmpty));
+    } else {
+      friendsList.replaceChildren(
+        ...featuredFriends.map((friend) => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className =
+            friend.presence.status === 'offline'
+                ? 'home-friend home-friend--offline'
+                : friend.presence.status === 'in_launcher'
+                  ? 'home-friend home-friend--online'
+                  : 'home-friend home-friend--active';
+          item.dataset.action = 'show-players-page';
+
+          const avatarWrap = document.createElement('div');
+          avatarWrap.className = 'home-friend__avatar-wrap';
+          const avatar = document.createElement('img');
+          avatar.className = 'home-friend__avatar';
+          avatar.src = createSocialAvatar(friend);
+          avatar.alt = friend.nickname;
+          avatarWrap.append(avatar);
+
+          const copy = document.createElement('span');
+          copy.className = 'home-friend__copy';
+          const name = document.createElement('span');
+          name.className = 'home-friend__name';
+          name.textContent = friend.name || friend.nickname;
+          const statusText = document.createElement('span');
+          statusText.className = 'home-friend__status-text';
+          if (friend.presence.status === 'in_launcher') {
+            statusText.classList.add('home-friend__status-text--blue');
+          }
+          if (friend.presence.status === 'offline') {
+            statusText.classList.add('home-friend__status-text--muted');
+          }
+
+          const presence = document.createElement('span');
+          presence.className = 'home-friend__presence';
+          presence.textContent = resolveActivityLabel(friend, options.i18n);
+          statusText.append(presence);
+          copy.append(name, statusText);
+          item.append(avatarWrap, copy);
+
+          if (friend.presence.status !== 'offline') {
+            const invite = document.createElement('span');
+            invite.className = 'home-friend__invite';
+            invite.innerHTML =
+              '<svg class="home-icon home-icon--small"><use href="#icon-plus"></use></svg>';
+            item.append(invite);
+          }
+
+          return item;
+        }),
+      );
+    }
+  };
+
+  renderHomeSocial();
+
+  const unsubscribe = options.socialStore.subscribe(() => {
+    if (!rootElement.isConnected) {
+      unsubscribe();
+      return;
+    }
+
+    renderHomeSocial();
+  });
+
+  void options.socialStore
+    .load(!options.socialStore.getSnapshot())
+    .then(() => {
+      renderHomeSocial();
+    })
+    .catch(() => {
+      friendsList.replaceChildren(createHomeEmptyState(messages.menu.home.friendsUnavailable));
+    });
+
+  return rootElement;
 }

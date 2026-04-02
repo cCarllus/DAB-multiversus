@@ -43,7 +43,7 @@
           <header class="home-friends-card__header">
             <span class="home-friends-card__title">__FRIENDS_TITLE__</span>
             <div class="home-friends-card__actions">
-              <button type="button" class="home-friends-card__icon-button" aria-label="__ADD_FRIEND_ARIA_LABEL__">
+              <button type="button" class="home-friends-card__icon-button" data-action="show-players-page" aria-label="__ADD_FRIEND_ARIA_LABEL__">
                 <svg class="home-icon home-icon--small">
                   <use href="#icon-user-plus"></use>
                 </svg>
@@ -51,58 +51,9 @@
             </div>
           </header>
 
-          <button type="button" class="home-friends-card__filter">
-            <svg class="home-icon home-icon--tiny">
-              <use href="#icon-chevron-down"></use>
-            </svg>
-            <span>__FRIENDS_FILTER__</span>
-          </button>
-
-          <div class="home-friends-card__list">
-            <button type="button" class="home-friend home-friend--active">
-              <div class="home-friend__avatar-wrap">
-                <img src="https://i.pravatar.cc/150?img=12" alt="" class="home-friend__avatar" />
-                <span class="home-friend__status-badge">
-                  <svg class="home-icon home-icon--tiny">
-                    <use href="#icon-swords"></use>
-                  </svg>
-                </span>
-              </div>
-              <span class="home-friend__copy">
-                <span class="home-friend__name">Pami</span>
-                <span class="home-friend__status-text">__FRIEND_STATUS_PLAYING_RANKED__</span>
-              </span>
-            </button>
-
-            <button type="button" class="home-friend home-friend--online">
-              <img src="https://i.pravatar.cc/150?img=33" alt="" class="home-friend__avatar" />
-              <span class="home-friend__copy">
-                <span class="home-friend__name">Sanya</span>
-                <span class="home-friend__status-text home-friend__status-text--blue">__FRIEND_STATUS_MAIN_MENU__</span>
-              </span>
-              <span class="home-friend__invite">
-                <svg class="home-icon home-icon--small">
-                  <use href="#icon-plus"></use>
-                </svg>
-              </span>
-            </button>
-
-            <button type="button" class="home-friend home-friend--offline">
-              <img src="https://i.pravatar.cc/150?img=59" alt="" class="home-friend__avatar" />
-              <span class="home-friend__copy">
-                <span class="home-friend__name">Vex</span>
-                <span class="home-friend__status-text home-friend__status-text--muted">__FRIEND_STATUS_OFFLINE__</span>
-              </span>
-            </button>
+          <div class="home-friends-card__list" data-home-friends-list>
+            <div class="home-friends-card__empty">__HOME_FRIENDS_LOADING__</div>
           </div>
-
-          <footer class="home-friends-card__footer">
-            <img src="https://i.pravatar.cc/150?img=11" alt="" class="home-friends-card__party-avatar" />
-            <span class="home-friends-card__party-slot"></span>
-            <span class="home-friends-card__party-slot"></span>
-            <span class="home-friends-card__party-slot"></span>
-            <span class="home-friends-card__party-slot"></span>
-          </footer>
         </section>
       </aside>
 

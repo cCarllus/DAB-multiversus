@@ -215,6 +215,7 @@
         "store": "Store",
         "watch": "Watch",
         "codex": "Codex",
+        "players": "Global",
         "system": "System"
       },
       "currencyAriaLabel": "Shards",
@@ -230,6 +231,11 @@
       "friendsTitle": "Friends",
       "addFriendAriaLabel": "Add friend",
       "friendsFilter": "In Game (4)",
+      "friendsLoading": "Loading your friends...",
+      "friendsEmpty": "No friends connected to your launcher yet.",
+      "friendsUnavailable": "Friends data is temporarily unavailable.",
+      "friendsInLauncher": "In Launcher ({{count}})",
+      "friendsOnline": "Online ({{count}})",
       "friendStatuses": {
         "playingRanked": "Playing Ranked Match",
         "mainMenu": "Main Menu",
@@ -244,6 +250,116 @@
       "matchDetails": "Match Details",
       "proCircuit": "PRO CIRCUIT",
       "livePopularMatch": "Live Popular Match"
+    },
+    "social": {
+      "actions": {
+        "accept": "Accept",
+        "addFriend": "Add Friend",
+        "cancel": "Cancel",
+        "friends": "Friends",
+        "reject": "Reject",
+        "requestSent": "Request Sent",
+        "viewProfile": "View Profile"
+      },
+      "directory": {
+        "eyebrow": "Global Directory",
+        "title": "Players online across the launcher",
+        "summary": "Search by nickname, filter presence, inspect public profiles, and turn the launcher into a real shared space.",
+        "searchPlaceholder": "Search by nickname or display name",
+        "presenceFilter": "Presence",
+        "relationshipFilter": "Relationship",
+        "presenceOptions": {
+          "all": "All status",
+          "online": "Online only",
+          "offline": "Offline only"
+        },
+        "relationshipOptions": {
+          "all": "All players",
+          "friends": "Friends only",
+          "requests": "Pending requests"
+        },
+        "columns": {
+          "player": "Player",
+          "status": "Status",
+          "level": "Level",
+          "memberSince": "Member Since",
+          "action": "Action"
+        },
+        "loadMore": "Load More",
+        "loading": "Refreshing the player grid...",
+        "empty": "No players match the current search.",
+        "count": "{{count}} players in the grid"
+      },
+      "sections": {
+        "players": "Players",
+        "friends": "Friends",
+        "pending": "Pending"
+      },
+      "friends": {
+        "eyebrow": "Friends Roster",
+        "title": "Active squad",
+        "summary": "Review your friend list, track presence, and open public profiles without leaving the social hub.",
+        "count": "{{count}} friends in the list",
+        "loading": "Refreshing friends...",
+        "empty": "No friends yet. Start by scouting the global directory."
+      },
+      "requests": {
+        "eyebrow": "Social Queue",
+        "title": "Pending requests",
+        "summary": "Manage incoming requests and outgoing invites in one board with quick actions.",
+        "incoming": "Incoming",
+        "outgoing": "Outgoing",
+        "count": "{{count}} pending requests",
+        "loading": "Refreshing requests...",
+        "empty": "No pending requests right now.",
+        "emptyIncoming": "No incoming requests right now.",
+        "emptyOutgoing": "No outgoing requests right now."
+      },
+      "profile": {
+        "eyebrow": "Public Profile",
+        "memberSince": "Member since",
+        "currentActivity": "Current activity",
+        "sectionEyebrow": "Safe Public Identity",
+        "sectionTitle": "Visible launcher identity only",
+        "sectionSummary": "This panel exposes only player-facing data: nickname, display name, avatar, public presence, and join timing. Private account and technical fields stay hidden.",
+        "loading": "Loading public profile...",
+        "empty": "Select a player to inspect their public profile.",
+        "future": {
+          "rankLabel": "Future Rank",
+          "rankValue": "Competitive tier later",
+          "mainLabel": "Future Main",
+          "mainValue": "Favorite champion later",
+          "trackLabel": "Season Track",
+          "trackValue": "Stats and progress later"
+        }
+      },
+      "hover": {
+        "memberSince": "Member since {{date}}"
+      },
+      "presence": {
+        "online": "Online",
+        "offline": "Offline",
+        "inLauncher": "In Launcher",
+        "browsingPlayers": "Browsing players",
+        "reviewingProfile": "Reviewing profile",
+        "checkingSystem": "Checking system",
+        "inLauncherActivity": "In launcher"
+      },
+      "feedback": {
+        "requestSent": "Friend request sent.",
+        "accepted": "Friend request accepted.",
+        "rejected": "Friend request rejected.",
+        "cancelled": "Outgoing request cancelled."
+      },
+      "errors": {
+        "alreadyFriends": "You are already friends with this player.",
+        "requestAlreadySent": "A request is already pending for this player.",
+        "requestAlreadyReceived": "This player already sent you a request. Accept it from your queue.",
+        "selfRequest": "You cannot send a friend request to yourself.",
+        "userNotFound": "Player profile could not be found.",
+        "requestNotFound": "This social action is no longer available.",
+        "forbiddenAction": "You cannot perform this social action."
+      }
     },
     "profile": {
       "heroAriaLabel": "Player identity header",

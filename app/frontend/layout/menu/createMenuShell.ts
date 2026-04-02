@@ -8,7 +8,7 @@ import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-
 import menuShellTemplate from './menu-shell.html?raw';
 
 interface CreateMenuShellOptions {
-  activeView: 'home' | 'profile' | 'system';
+  activeView: 'home' | 'players' | 'profile' | 'system';
   brandImage: string;
   content: HTMLElement;
   i18n: AppI18n;
@@ -20,7 +20,11 @@ export function createMenuShell(options: CreateMenuShellOptions): HTMLElement {
   const rootElement = createElementFromTemplate(menuShellTemplate, {
     HOME_SCREEN_ARIA_LABEL: messages.menu.shellAriaLabel,
     HOME_SCREEN_STATE_CLASS:
-      options.activeView === 'home' ? 'home-screen--home' : 'home-screen--profile',
+      options.activeView === 'home'
+        ? 'home-screen--home'
+        : options.activeView === 'players'
+          ? 'home-screen--players'
+          : 'home-screen--profile',
     MENU_BACKGROUND_IMAGE: menuBackgroundImage,
   });
   const frame = rootElement.querySelector<HTMLElement>('[data-menu-frame]');

@@ -1,5 +1,5 @@
 import multer from 'multer';
-import { Router, type NextFunction, type Request, type RequestHandler, type Response } from 'express';
+import { Router, type RequestHandler } from 'express';
 
 import { AppError } from '../lib/app-error';
 import {
@@ -34,11 +34,7 @@ const avatarUpload = multer({
   },
 });
 
-function handleAvatarUpload(
-  request: Request,
-  response: Response,
-  next: NextFunction,
-): void {
+const handleAvatarUpload: RequestHandler = (request, response, next): void => {
   avatarUpload.single('avatar')(request, response, (error: unknown) => {
     if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
       next(new AppError(400, 'AVATAR_TOO_LARGE', 'Profile photo must be 5 MB or smaller.'));
@@ -47,7 +43,7 @@ function handleAvatarUpload(
 
     next(error);
   });
-}
+};
 
 export function createProfileRouter(options: CreateProfileRouterOptions): Router {
   const router = Router();

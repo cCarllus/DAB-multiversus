@@ -210,4 +210,20 @@ export class AuthRepository {
 
     return result.rows[0] ? mapAuthSessionRow(result.rows[0]) : null;
   }
+
+  async hasActiveSessionForUser(userId: string, client?: DatabaseClient): Promise<boolean> {
+    const executor = client ?? this.database;
+    const result = await executor.query<{ exists: boolean }>(
+      `SELECT EXISTS (
+         SELECT 1
+         FROM auth_sessions
+         WHERE user_id = $1
+         AND revoked_at IS NULL
+         AND expires_at > NOW()
+       ) AS exists`,
+      [userId],
+    );
+
+    return result.rows[0]?.exists ?? false;
+  }
 }

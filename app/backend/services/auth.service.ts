@@ -14,6 +14,7 @@ import type {
 } from '../types/auth.types';
 import { PasswordService } from './password.service';
 import { ProfileService } from './profile.service';
+import { SocialService } from './social.service';
 import { TokenService } from './token.service';
 import { UsersService } from './users.service';
 
@@ -21,6 +22,7 @@ interface AuthServiceDependencies {
   authRepository: AuthRepository;
   passwordService: PasswordService;
   profileService: ProfileService;
+  socialService: SocialService;
   tokenService: TokenService;
   usersService: UsersService;
 }
@@ -116,6 +118,14 @@ export class AuthService {
         },
         client,
       );
+      await this.dependencies.socialService.updatePresence(
+        user.id,
+        {
+          currentActivity: 'In launcher',
+          status: 'in_launcher',
+        },
+        client,
+      );
 
       return this.buildAuthResponse(user, rotatedSession, nextRefreshToken);
     });
@@ -123,22 +133,48 @@ export class AuthService {
 
   async logout(input: LogoutInput): Promise<void> {
     if (input.refreshToken) {
-      const session = await this.dependencies.authRepository.findByRefreshTokenHash(
-        this.dependencies.tokenService.hashRefreshToken(input.refreshToken),
-      );
+      const refreshToken = input.refreshToken;
 
-      if (!session) {
-        throw new AppError(401, 'REFRESH_TOKEN_INVALID', 'Refresh token is invalid.');
-      }
+      await withTransaction(async (client) => {
+        const session = await this.dependencies.authRepository.findByRefreshTokenHash(
+          this.dependencies.tokenService.hashRefreshToken(refreshToken),
+          client,
+          {
+            forUpdate: true,
+          },
+        );
 
-      if (input.userId && session.userId !== input.userId) {
-        throw new AppError(403, 'FORBIDDEN', 'Session does not belong to the authenticated user.');
-      }
+        if (!session) {
+          throw new AppError(401, 'REFRESH_TOKEN_INVALID', 'Refresh token is invalid.');
+        }
 
-      if (!session.revokedAt) {
-        await this.dependencies.authRepository.revokeSessionById(session.id);
-      }
+        if (input.userId && session.userId !== input.userId) {
+          throw new AppError(
+            403,
+            'FORBIDDEN',
+            'Session does not belong to the authenticated user.',
+          );
+        }
 
+        if (!session.revokedAt) {
+          await this.dependencies.authRepository.revokeSessionById(session.id, client);
+        }
+
+        const hasOtherActiveSessions = await this.dependencies.authRepository.hasActiveSessionForUser(
+          session.userId,
+          client,
+        );
+
+        if (!hasOtherActiveSessions) {
+          await this.dependencies.socialService.updatePresence(
+            session.userId,
+            {
+              status: 'offline',
+            },
+            client,
+          );
+        }
+      });
       return;
     }
 
@@ -150,19 +186,39 @@ export class AuthService {
       );
     }
 
-    const session = await this.dependencies.authRepository.findById(input.sessionId);
+    const sessionId = input.sessionId;
+    await withTransaction(async (client) => {
+      const session = await this.dependencies.authRepository.findById(sessionId, client, {
+        forUpdate: true,
+      });
 
-    if (!session) {
-      return;
-    }
+      if (!session) {
+        return;
+      }
 
-    if (session.userId !== input.userId) {
-      throw new AppError(403, 'FORBIDDEN', 'Session does not belong to the authenticated user.');
-    }
+      if (session.userId !== input.userId) {
+        throw new AppError(403, 'FORBIDDEN', 'Session does not belong to the authenticated user.');
+      }
 
-    if (!session.revokedAt) {
-      await this.dependencies.authRepository.revokeSessionById(session.id);
-    }
+      if (!session.revokedAt) {
+        await this.dependencies.authRepository.revokeSessionById(session.id, client);
+      }
+
+      const hasOtherActiveSessions = await this.dependencies.authRepository.hasActiveSessionForUser(
+        session.userId,
+        client,
+      );
+
+      if (!hasOtherActiveSessions) {
+        await this.dependencies.socialService.updatePresence(
+          session.userId,
+          {
+            status: 'offline',
+          },
+          client,
+        );
+      }
+    });
   }
 
   async getCurrentUser(userId: string): Promise<AuthResponse['user']> {
@@ -192,6 +248,14 @@ export class AuthService {
           deviceId: metadata.deviceId,
           osName: metadata.osName,
           osVersion: metadata.osVersion,
+        },
+        client,
+      );
+      await this.dependencies.socialService.updatePresence(
+        user.id,
+        {
+          currentActivity: 'In launcher',
+          status: 'in_launcher',
         },
         client,
       );

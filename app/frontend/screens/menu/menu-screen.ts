@@ -7,8 +7,10 @@ import {
 import { createMenuShell } from '@frontend/layout/menu/createMenuShell';
 import { createHomeScreen } from '@frontend/screens/home/home-screen';
 import { createProfileScreen } from '@frontend/screens/profile/profile-screen';
+import { createSocialScreen } from '@frontend/screens/social/social-screen';
 import { createSystemScreen } from '@frontend/screens/system/system-screen';
 import type { ProfileStore } from '@frontend/stores/profile.store';
+import type { SocialStore } from '@frontend/stores/social.store';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
 import type { DesktopBridge } from '@shared/contracts/desktop.contract';
@@ -22,8 +24,11 @@ interface MenuScreenOptions {
     isLoggingOut: boolean;
     status: 'open' | 'closing';
   };
+  onOpenProfile: (nickname: string) => void;
   profileStore: ProfileStore;
-  view: 'home' | 'profile' | 'system';
+  profileTargetNickname?: string | null;
+  socialStore: SocialStore;
+  view: 'home' | 'players' | 'profile' | 'system';
   session: AuthSessionSnapshot;
   user: AuthUser;
 }
@@ -34,8 +39,17 @@ export function createMenuScreen(options: MenuScreenOptions): HTMLElement {
       ? createProfileScreen({
           i18n: options.i18n,
           profileStore: options.profileStore,
+          profileTargetNickname: options.profileTargetNickname,
+          currentUser: options.user,
+          socialStore: options.socialStore,
           session: options.session,
         })
+      : options.view === 'players'
+        ? createSocialScreen({
+            i18n: options.i18n,
+            onOpenProfile: options.onOpenProfile,
+            socialStore: options.socialStore,
+          })
       : options.view === 'system'
         ? createSystemScreen({
             desktop: options.desktop,
@@ -45,6 +59,7 @@ export function createMenuScreen(options: MenuScreenOptions): HTMLElement {
           })
         : createHomeScreen({
             i18n: options.i18n,
+            socialStore: options.socialStore,
             user: options.user,
           });
 
