@@ -35,7 +35,7 @@ app/
   backend/   -> controllers, routes, services, repositories, validators
   shared/    -> shared contracts, constants, i18n, portable types
 config/      -> env, Vite, Electron build resources, ESLint
-db/          -> migrations, seeds, schema, raw queries
+db/          -> schema bootstrap, migrations, raw database assets
 storage/     -> uploads, cache, logs
 tests/       -> frontend, backend, integration
 ```
@@ -51,6 +51,5 @@ tests/       -> frontend, backend, integration
 ## Next Steps
 
 1. Replace the remaining launcher-specific placeholder data with real product services.
-2. Promote runtime schema bootstrap into explicit `db/migrations` and `db/schema` assets.
-3. Wire the `Play` flow into the Babylon runtime handoff under `app/game/`.
-4. Expand settings, social, and profile flows under `app/frontend/screens/`.
+2. Wire the `Play` flow into the Babylon runtime handoff under `app/game/`.
+3. Expand settings, social, and profile flows under `app/frontend/screens/`.
