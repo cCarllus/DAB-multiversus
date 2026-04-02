@@ -65,13 +65,18 @@ function prepareMacOsDevBundle() {
   const targetExecutableDir = path.join(targetAppBundle, 'Contents', 'MacOS');
   const originalExecutablePath = path.join(targetExecutableDir, 'Electron');
   const targetExecutablePath = path.join(targetExecutableDir, APP_BUNDLE_NAME);
-  const targetIconPath = path.join(targetAppBundle, 'Contents', 'Resources', 'dab-icon.icns');
+  const targetIconPath = path.join(
+    targetAppBundle,
+    'Contents',
+    'Resources',
+    'icon-desktop-game.icns',
+  );
   const sourceIconPath = path.join(
     process.cwd(),
     'config',
     'electron',
     'build-resources',
-    'dab-icon.icns',
+    'icon-desktop-game.icns',
   );
   const metadataPath = path.join(devRoot, 'metadata.json');
 
@@ -120,7 +125,7 @@ function prepareMacOsDevBundle() {
   plistContents = replacePlistString(plistContents, 'CFBundleName', APP_BUNDLE_NAME);
   plistContents = replacePlistString(plistContents, 'CFBundleExecutable', APP_BUNDLE_NAME);
   plistContents = replacePlistString(plistContents, 'CFBundleIdentifier', APP_ID);
-  plistContents = replacePlistString(plistContents, 'CFBundleIconFile', 'dab-icon');
+  plistContents = replacePlistString(plistContents, 'CFBundleIconFile', 'icon-desktop-game');
   fs.writeFileSync(targetInfoPlist, plistContents, 'utf8');
 
   fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
