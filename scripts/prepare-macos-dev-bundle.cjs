@@ -66,7 +66,13 @@ function prepareMacOsDevBundle() {
   const originalExecutablePath = path.join(targetExecutableDir, 'Electron');
   const targetExecutablePath = path.join(targetExecutableDir, APP_BUNDLE_NAME);
   const targetIconPath = path.join(targetAppBundle, 'Contents', 'Resources', 'dab-icon.icns');
-  const sourceIconPath = path.join(process.cwd(), 'build-resources', 'dab-icon.icns');
+  const sourceIconPath = path.join(
+    process.cwd(),
+    'config',
+    'electron',
+    'build-resources',
+    'dab-icon.icns',
+  );
   const metadataPath = path.join(devRoot, 'metadata.json');
 
   const metadata = {

@@ -1,6 +1,6 @@
 # Dead As Battle Multiversus
 
-Desktop-first foundation for a Babylon.js + Electron version of Dead As Battle. This repository starts with the product shell: home screen, navigation, audio foundation, Electron bootstrap, and a Babylon-powered atmosphere scene.
+Desktop-first foundation for a Babylon.js + Electron version of Dead As Battle. The repository is organized as one product tree, with desktop shell, launcher frontend, Babylon runtime, backend API, and shared contracts living under the same top-level application structure.
 
 ## Stack
 
@@ -10,25 +10,34 @@ Desktop-first foundation for a Babylon.js + Electron version of Dead As Battle. 
 - Electron
 - ESLint
 - Prettier
+- Express
+- PostgreSQL
+- Docker
 
 ## Scripts
 
 - `npm run dev`: start Vite, compile Electron in watch mode, and launch the desktop shell
+- `npm run dev:backend`: start the backend API with `tsx`
 - `npm run build`: build renderer and Electron bundles
+- `npm run build:backend`: compile the backend bundle
 - `npm run dist`: package the desktop app with `electron-builder`
 - `npm run lint`: run ESLint
-- `npm run typecheck`: run TypeScript checks for renderer, Electron, and config files
+- `npm run typecheck`: run TypeScript checks for frontend, game, Electron, backend, and config files
 - `npm run format`: format the repo with Prettier
 
 ## Architecture
 
 ```text
-src/
-  app/       -> product shell, screens, navigation, audio, DOM layout
-  game/      -> Babylon runtime, scene bootstrap, world, systems, camera
-  shared/    -> shared types, storage keys, product config
-  electron/  -> Electron main and preload processes
-  assets/    -> images, audio, fonts, models
+app/
+  desktop/   -> Electron main and preload processes
+  frontend/  -> launcher screens, layout, services, stores, UI assets
+  game/      -> Babylon runtime, scenes, camera, world, systems
+  backend/   -> controllers, routes, services, repositories, validators
+  shared/    -> shared contracts, constants, i18n, portable types
+config/      -> env, Vite, Electron build resources, ESLint
+db/          -> migrations, seeds, schema, raw queries
+storage/     -> uploads, cache, logs
+tests/       -> frontend, backend, integration
 ```
 
 ## Current Foundation
@@ -41,7 +50,7 @@ src/
 
 ## Next Steps
 
-1. Replace procedural audio with shipped menu assets in `src/assets/audio`.
-2. Add real models and GLB-based world assembly in `src/assets/models`.
-3. Wire the `Play` route into a dedicated gameplay handoff and scene loader.
-4. Expand settings, player profile, and hero data sources.
+1. Replace the remaining launcher-specific placeholder data with real product services.
+2. Promote runtime schema bootstrap into explicit `db/migrations` and `db/schema` assets.
+3. Wire the `Play` flow into the Babylon runtime handoff under `app/game/`.
+4. Expand settings, social, and profile flows under `app/frontend/screens/`.

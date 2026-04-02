@@ -7,16 +7,14 @@
     "types": ["node", "electron"],
     "isolatedModules": false,
     "noEmit": false,
-    "rootDir": "src",
+    "rootDir": "app",
     "outDir": "dist-electron",
     "sourceMap": true
   },
-  "include": ["src/electron/**/*.ts", "src/shared/**/*.ts"],
+  "include": ["app/desktop/**/*.ts", "app/shared/**/*.ts"],
   "exclude": [
-    "src/app/**/*",
-    "src/game/**/*",
-    "src/assets/**/*",
-    "src/styles/**/*",
-    "src/shared/i18n/**/*"
+    "app/frontend/**/*",
+    "app/game/**/*",
+    "app/shared/i18n/**/*"
   ]
 }

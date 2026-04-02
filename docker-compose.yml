@@ -16,11 +16,11 @@ services:
       timeout: 5s
       retries: 12
 
-  server:
+  backend:
     build:
-      context: ./server
+      context: .
     working_dir: /app
-    command: sh -c "npm install --no-audit --no-fund && npm run dev"
+    command: sh -c "npm install --no-audit --no-fund && npm run dev:backend"
     restart: unless-stopped
     depends_on:
       postgres:
@@ -37,7 +37,7 @@ services:
     ports:
       - '4000:4000'
     volumes:
-      - ./server:/app
+      - .:/app
       - /app/node_modules
 
 volumes:

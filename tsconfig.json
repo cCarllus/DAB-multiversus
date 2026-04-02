@@ -16,12 +16,18 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@app/*": ["src/app/*"],
-      "@game/*": ["src/game/*"],
-      "@shared/*": ["src/shared/*"],
-      "@assets/*": ["src/assets/*"]
+      "@frontend/*": ["app/frontend/*"],
+      "@game/*": ["app/game/*"],
+      "@shared/*": ["app/shared/*"],
+      "@desktop/*": ["app/desktop/*"],
+      "@assets/*": ["app/frontend/assets/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"]
+  "include": [
+    "app/frontend/**/*.ts",
+    "app/frontend/**/*.d.ts",
+    "app/game/**/*.ts",
+    "app/shared/**/*.ts",
+    "app/shared/**/*.d.ts"
+  ]
 }
