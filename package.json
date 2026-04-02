@@ -23,6 +23,12 @@
     "start:backend": "node dist-backend/app/backend/index.js",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:backend": "vitest run tests/backend",
+    "test:frontend": "vitest run tests/frontend",
+    "test:electron": "vitest run tests/electron",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json && tsc --noEmit -p tsconfig.backend.json && tsc --noEmit -p tsconfig.node.json",
     "format": "prettier --write .",
     "dist": "npm run build && electron-builder"
@@ -86,6 +92,8 @@
     "@types/multer": "^2.1.0",
     "@types/node": "^25.5.0",
     "@types/pg": "^8.15.5",
+    "@types/supertest": "^7.2.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "electron": "^41.1.0",
@@ -93,13 +101,16 @@
     "electronmon": "^2.0.4",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
+    "happy-dom": "^20.8.9",
     "prettier": "^3.8.1",
     "rimraf": "^6.1.3",
+    "supertest": "^7.2.2",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
     "vite": "^8.0.3",
+    "vitest": "^4.1.2",
     "wait-on": "^9.0.4"
   }
 }

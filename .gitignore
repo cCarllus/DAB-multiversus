@@ -3,6 +3,7 @@ dist
 dist-electron
 dist-backend
 release
+coverage/
 .electron-dev
 .DS_Store
 *.log
