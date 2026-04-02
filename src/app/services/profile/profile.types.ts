@@ -1,11 +1,5 @@
 import type { AuthUser } from '@app/services/auth/auth-types';
 
-export interface DeviceListItem {
-  label: string;
-  meta: string;
-  state: string;
-}
-
 export const MAX_PROFILE_AVATAR_BYTES = 5 * 1024 * 1024;
 export const PROFILE_AVATAR_ACCEPT = 'image/png,image/jpeg,image/jpg,image/webp';
 

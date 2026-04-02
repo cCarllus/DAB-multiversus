@@ -7,6 +7,9 @@ import {
   PROFILE_AVATAR_ACCEPT,
 } from '@app/services/profile/profile.types';
 
+import profileAvatarModalTemplate from './profile-avatar-modal.html?raw';
+import profileAvatarUploaderTemplate from './profile-avatar-uploader.html?raw';
+
 interface CreateProfileAvatarUploaderOptions {
   i18n: AppI18n;
   onConfirm: (file: File) => Promise<void> | void;
@@ -21,11 +24,7 @@ export interface ProfileAvatarUploader {
 }
 
 function getInitials(label: string): string {
-  const parts = label
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2);
+  const parts = label.trim().split(/\s+/).filter(Boolean).slice(0, 2);
 
   if (parts.length === 0) {
     return 'DA';
@@ -42,51 +41,17 @@ export function createProfileAvatarUploader(
 ): ProfileAvatarUploader {
   const messages = options.i18n.getMessages().menu.profile;
   const acceptedTypes = new Set(PROFILE_AVATAR_ACCEPT.split(','));
-  const button = createElementFromTemplate(`
-    <div class="profile-avatar">
-      <button type="button" class="profile-avatar__button" data-avatar-trigger>
-        <span class="profile-avatar__image" data-avatar-image></span>
-        <span class="profile-avatar__monogram" data-avatar-monogram></span>
-        <span class="profile-avatar__overlay">${messages.avatar.changePhoto}</span>
-      </button>
-      <input
-        accept="${PROFILE_AVATAR_ACCEPT}"
-        class="profile-avatar__input"
-        data-avatar-input
-        hidden
-        type="file"
-      />
-    </div>
-  `);
-  const modal = createElementFromTemplate(`
-    <div class="profile-avatar-modal" data-avatar-modal hidden>
-      <div class="profile-avatar-modal__backdrop" data-avatar-cancel></div>
-      <div class="profile-avatar-modal__panel" role="dialog" aria-modal="true">
-        <button type="button" class="launcher-modal-dismiss" data-avatar-cancel>
-          <span class="launcher-modal-dismiss__icon">×</span>
-        </button>
-
-        <div class="profile-avatar-modal__copy">
-          <p class="profile-avatar-modal__eyebrow">${messages.avatar.previewEyebrow}</p>
-          <h3 class="profile-avatar-modal__title">${messages.avatar.previewTitle}</h3>
-          <p class="profile-avatar-modal__summary">${messages.avatar.previewSummary}</p>
-        </div>
-
-        <div class="profile-avatar-modal__preview">
-          <span class="profile-avatar-modal__image" data-avatar-preview-image></span>
-        </div>
-
-        <div class="profile-avatar-modal__actions">
-          <button type="button" class="profile-avatar-modal__confirm" data-avatar-confirm>
-            ${messages.avatar.confirm}
-          </button>
-          <button type="button" class="profile-avatar-modal__cancel" data-avatar-cancel>
-            ${messages.avatar.cancel}
-          </button>
-        </div>
-      </div>
-    </div>
-  `);
+  const button = createElementFromTemplate(profileAvatarUploaderTemplate, {
+    PROFILE_AVATAR_ACCEPT,
+    PROFILE_AVATAR_CHANGE_PHOTO: messages.avatar.changePhoto,
+  });
+  const modal = createElementFromTemplate(profileAvatarModalTemplate, {
+    PROFILE_AVATAR_CANCEL: messages.avatar.cancel,
+    PROFILE_AVATAR_CONFIRM: messages.avatar.confirm,
+    PROFILE_AVATAR_PREVIEW_EYEBROW: messages.avatar.previewEyebrow,
+    PROFILE_AVATAR_PREVIEW_SUMMARY: messages.avatar.previewSummary,
+    PROFILE_AVATAR_PREVIEW_TITLE: messages.avatar.previewTitle,
+  });
   const image = button.querySelector<HTMLElement>('[data-avatar-image]');
   const monogram = button.querySelector<HTMLElement>('[data-avatar-monogram]');
   const fileInput = button.querySelector<HTMLInputElement>('[data-avatar-input]');
@@ -171,9 +136,11 @@ export function createProfileAvatarUploader(
       return;
     }
 
-    void Promise.resolve(options.onConfirm(previewFile)).then(() => {
-      clearPreview();
-    }).catch(() => undefined);
+    void Promise.resolve(options.onConfirm(previewFile))
+      .then(() => {
+        clearPreview();
+      })
+      .catch(() => undefined);
   });
 
   return {

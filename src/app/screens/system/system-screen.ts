@@ -9,6 +9,10 @@ import type { ProfileStore } from '@app/stores/profile.store';
 import { createElementFromTemplate } from '@app/utils/html';
 import type { AppI18n } from '@shared/i18n';
 import type { DesktopBridge } from '@shared/types/desktop';
+
+import systemDeviceListEmptyTemplate from './system-device-list-empty.html?raw';
+import systemDeviceListItemTemplate from './system-device-list-item.html?raw';
+import systemScreenTemplate from './system-screen.html?raw';
 import './system-screen.css';
 
 interface SystemScreenOptions {
@@ -46,11 +50,7 @@ function buildRuntimeLabel(desktop: DesktopBridge): string {
   return `Electron ${desktop.versions.electron} · Chrome ${desktop.versions.chrome} · Node ${desktop.versions.node}`;
 }
 
-function buildDeviceMeta(
-  device: ProfileDevice | null,
-  locale: string,
-  i18n: AppI18n,
-): string {
+function buildDeviceMeta(device: ProfileDevice | null, locale: string, i18n: AppI18n): string {
   const messages = i18n.getMessages().menu.system;
 
   if (!device) {
@@ -70,11 +70,15 @@ function renderRecentDevices(
   devices: ProfileDevice[],
   locale: string,
   i18n: AppI18n,
-): string {
+): HTMLElement[] {
   const messages = i18n.getMessages().menu.system;
 
   if (devices.length === 0) {
-    return `<li class="system-device-list__empty">${messages.list.empty}</li>`;
+    return [
+      createElementFromTemplate(systemDeviceListEmptyTemplate, {
+        SYSTEM_DEVICE_LIST_EMPTY: messages.list.empty,
+      }),
+    ];
   }
 
   return devices
@@ -91,82 +95,34 @@ function renderRecentDevices(
             date: formatDateTime(device.lastLoginAt, locale),
           });
 
-      return `
-        <li class="system-device-list__item">
-          <div class="system-device-list__copy">
-            <strong class="system-device-list__label">${device.label}</strong>
-            <span class="system-device-list__meta">${meta}</span>
-          </div>
-          <span class="system-device-list__state">${state}</span>
-        </li>
-      `;
+      return createElementFromTemplate(systemDeviceListItemTemplate, {
+        SYSTEM_DEVICE_LABEL: device.label,
+        SYSTEM_DEVICE_META: meta,
+        SYSTEM_DEVICE_STATE: state,
+      });
     })
-    .join('');
+    .filter((element): element is HTMLElement => element instanceof HTMLElement);
 }
 
 export function createSystemScreen(options: SystemScreenOptions): HTMLElement {
   const messages = options.i18n.getMessages().menu.system;
-  const rootElement = createElementFromTemplate(`
-    <main class="home-content system-content-shell">
-      <section class="system-screen">
-        <div class="system-screen__feedback" data-system-feedback hidden></div>
-
-        <section class="system-panel">
-          <div class="system-panel__head">
-            <p class="system-panel__eyebrow">${messages.eyebrow}</p>
-            <h1 class="system-panel__title">${messages.title}</h1>
-            <p class="system-panel__summary">${messages.summary}</p>
-          </div>
-
-          <div class="system-panel__grid">
-            <article class="system-card">
-              <span class="system-card__label">${messages.cards.operatingSystem.label}</span>
-              <strong class="system-card__value" data-system-platform></strong>
-              <span class="system-card__meta">${messages.cards.operatingSystem.meta}</span>
-            </article>
-
-            <article class="system-card">
-              <span class="system-card__label">${messages.cards.osVersion.label}</span>
-              <strong class="system-card__value" data-system-os-version></strong>
-              <span class="system-card__meta">${messages.cards.osVersion.meta}</span>
-            </article>
-
-            <article class="system-card">
-              <span class="system-card__label">${messages.cards.launcherRuntime.label}</span>
-              <strong class="system-card__value" data-system-runtime></strong>
-              <span class="system-card__meta">${messages.cards.launcherRuntime.meta}</span>
-            </article>
-
-            <article class="system-card">
-              <span class="system-card__label">${messages.cards.trustedAccess.label}</span>
-              <strong class="system-card__value" data-system-trusted></strong>
-              <span class="system-card__meta">${messages.cards.trustedAccess.meta}</span>
-            </article>
-
-            <article class="system-card">
-              <span class="system-card__label">${messages.cards.currentDevice.label}</span>
-              <strong class="system-card__value" data-system-current-device></strong>
-              <span class="system-card__meta" data-system-current-meta></span>
-            </article>
-
-            <article class="system-card">
-              <span class="system-card__label">${messages.cards.lastActive.label}</span>
-              <strong class="system-card__value" data-system-last-active></strong>
-              <span class="system-card__meta" data-system-last-active-meta></span>
-            </article>
-          </div>
-
-          <div class="system-panel__devices">
-            <div class="system-panel__devices-head">
-              <p class="system-panel__eyebrow">${messages.list.eyebrow}</p>
-              <p class="system-panel__devices-summary">${messages.list.summary}</p>
-            </div>
-            <ul class="system-device-list" data-system-device-list></ul>
-          </div>
-        </section>
-      </section>
-    </main>
-  `);
+  const rootElement = createElementFromTemplate(systemScreenTemplate, {
+    SYSTEM_CARD_CURRENT_DEVICE_LABEL: messages.cards.currentDevice.label,
+    SYSTEM_CARD_LAST_ACTIVE_LABEL: messages.cards.lastActive.label,
+    SYSTEM_CARD_OPERATING_SYSTEM_LABEL: messages.cards.operatingSystem.label,
+    SYSTEM_CARD_OPERATING_SYSTEM_META: messages.cards.operatingSystem.meta,
+    SYSTEM_CARD_OS_VERSION_LABEL: messages.cards.osVersion.label,
+    SYSTEM_CARD_OS_VERSION_META: messages.cards.osVersion.meta,
+    SYSTEM_CARD_RUNTIME_LABEL: messages.cards.launcherRuntime.label,
+    SYSTEM_CARD_RUNTIME_META: messages.cards.launcherRuntime.meta,
+    SYSTEM_CARD_TRUSTED_ACCESS_LABEL: messages.cards.trustedAccess.label,
+    SYSTEM_CARD_TRUSTED_ACCESS_META: messages.cards.trustedAccess.meta,
+    SYSTEM_EYEBROW: messages.eyebrow,
+    SYSTEM_LIST_EYEBROW: messages.list.eyebrow,
+    SYSTEM_LIST_SUMMARY: messages.list.summary,
+    SYSTEM_SUMMARY: messages.summary,
+    SYSTEM_TITLE: messages.title,
+  });
   const feedbackElement = rootElement.querySelector<HTMLElement>('[data-system-feedback]');
   const platformValue = rootElement.querySelector<HTMLElement>('[data-system-platform]');
   const osVersionValue = rootElement.querySelector<HTMLElement>('[data-system-os-version]');
@@ -175,7 +131,9 @@ export function createSystemScreen(options: SystemScreenOptions): HTMLElement {
   const currentDeviceValue = rootElement.querySelector<HTMLElement>('[data-system-current-device]');
   const currentMetaValue = rootElement.querySelector<HTMLElement>('[data-system-current-meta]');
   const lastActiveValue = rootElement.querySelector<HTMLElement>('[data-system-last-active]');
-  const lastActiveMetaValue = rootElement.querySelector<HTMLElement>('[data-system-last-active-meta]');
+  const lastActiveMetaValue = rootElement.querySelector<HTMLElement>(
+    '[data-system-last-active-meta]',
+  );
   const deviceList = rootElement.querySelector<HTMLElement>('[data-system-device-list]');
 
   if (
@@ -230,10 +188,8 @@ export function createSystemScreen(options: SystemScreenOptions): HTMLElement {
       locale,
       options.i18n,
     );
-    deviceList.innerHTML = renderRecentDevices(
-      snapshot?.devices.devices ?? [],
-      locale,
-      options.i18n,
+    deviceList.replaceChildren(
+      ...renderRecentDevices(snapshot?.devices.devices ?? [], locale, options.i18n),
     );
   };
 
@@ -246,12 +202,12 @@ export function createSystemScreen(options: SystemScreenOptions): HTMLElement {
       setFeedback(null);
     })
     .catch((error) => {
-        applySnapshot(options.profileStore.getSnapshot());
-        setFeedback({
-          message: resolveApiErrorMessage(error, options.i18n),
-          tone: 'error',
-        });
+      applySnapshot(options.profileStore.getSnapshot());
+      setFeedback({
+        message: resolveApiErrorMessage(error, options.i18n),
+        tone: 'error',
       });
+    });
 
   return rootElement;
 }

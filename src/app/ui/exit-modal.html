@@ -1,0 +1,42 @@
+<section
+  class="exit-modal __EXIT_MODAL_CLOSING_CLASS__"
+  aria-label="__EXIT_MODAL_ARIA_LABEL__"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="exit-modal__panel">
+    <button
+      type="button"
+      class="launcher-modal-dismiss"
+      data-action="dismiss-exit-modal"
+      aria-label="__EXIT_MODAL_DISMISS_ARIA_LABEL__"
+      __EXIT_MODAL_DISABLED_ATTR__
+    >
+      <span class="launcher-modal-dismiss__icon" aria-hidden="true">&times;</span>
+    </button>
+    <p class="exit-modal__eyebrow">__EXIT_MODAL_EYEBROW__</p>
+    <h2 class="exit-modal__title">__EXIT_MODAL_TITLE__</h2>
+    <p class="exit-modal__body" data-exit-modal-body></p>
+    <p class="exit-modal__error" data-exit-modal-error></p>
+    <div class="exit-modal__actions">
+      <button
+        type="button"
+        class="exit-modal__button exit-modal__button--logout"
+        data-action="auth-logout"
+        data-ui-cue="confirm"
+        __EXIT_MODAL_DISABLED_ATTR__
+      >
+        __EXIT_MODAL_LOGOUT_LABEL__
+      </button>
+      <button
+        type="button"
+        class="exit-modal__button exit-modal__button--close"
+        data-action="launcher-force-close"
+        data-ui-cue="confirm"
+        __EXIT_MODAL_DISABLED_ATTR__
+      >
+        __EXIT_MODAL_CLOSE_LABEL__
+      </button>
+    </div>
+  </div>
+</section>

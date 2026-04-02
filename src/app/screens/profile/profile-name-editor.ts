@@ -2,6 +2,8 @@ import { createElementFromTemplate } from '@app/utils/html';
 import type { AppI18n } from '@shared/i18n';
 import type { AuthUser } from '@app/services/auth/auth-types';
 
+import profileNameEditorTemplate from './profile-name-editor.html?raw';
+
 interface CreateProfileNameEditorOptions {
   i18n: AppI18n;
   onInvalid: (message: string) => void;
@@ -18,41 +20,14 @@ export function createProfileNameEditor(
   options: CreateProfileNameEditorOptions,
 ): ProfileNameEditor {
   const messages = options.i18n.getMessages().menu.profile;
-  const element = createElementFromTemplate(`
-    <section class="profile-name-editor">
-      <div class="profile-name-editor__view" data-name-view>
-        <span class="profile-name-editor__label">${messages.nameEditor.label}</span>
-        <div class="profile-name-editor__row">
-          <h1 class="profile-name-editor__value" data-name-value></h1>
-          <button type="button" class="profile-name-editor__edit" data-name-edit>
-            ${messages.nameEditor.edit}
-          </button>
-        </div>
-        <p class="profile-name-editor__hint">${messages.nameEditor.hint}</p>
-      </div>
-
-      <form class="profile-name-editor__form" data-name-form hidden>
-        <label class="profile-name-editor__field">
-          <span class="profile-name-editor__label">${messages.nameEditor.inputLabel}</span>
-          <input
-            class="profile-name-editor__input"
-            data-name-input
-            maxlength="40"
-            type="text"
-          />
-        </label>
-
-        <div class="profile-name-editor__actions">
-          <button type="submit" class="profile-name-editor__save" data-name-save>
-            ${messages.nameEditor.save}
-          </button>
-          <button type="button" class="profile-name-editor__cancel" data-name-cancel>
-            ${messages.nameEditor.cancel}
-          </button>
-        </div>
-      </form>
-    </section>
-  `);
+  const element = createElementFromTemplate(profileNameEditorTemplate, {
+    PROFILE_NAME_EDITOR_CANCEL: messages.nameEditor.cancel,
+    PROFILE_NAME_EDITOR_EDIT: messages.nameEditor.edit,
+    PROFILE_NAME_EDITOR_HINT: messages.nameEditor.hint,
+    PROFILE_NAME_EDITOR_INPUT_LABEL: messages.nameEditor.inputLabel,
+    PROFILE_NAME_EDITOR_LABEL: messages.nameEditor.label,
+    PROFILE_NAME_EDITOR_SAVE: messages.nameEditor.save,
+  });
   const view = element.querySelector<HTMLElement>('[data-name-view]');
   const form = element.querySelector<HTMLFormElement>('[data-name-form]');
   const value = element.querySelector<HTMLElement>('[data-name-value]');
@@ -124,9 +99,11 @@ export function createProfileNameEditor(
       return;
     }
 
-    void Promise.resolve(options.onSave(nextName)).then(() => {
-      toggleEditing(false);
-    }).catch(() => undefined);
+    void Promise.resolve(options.onSave(nextName))
+      .then(() => {
+        toggleEditing(false);
+      })
+      .catch(() => undefined);
   });
 
   return {

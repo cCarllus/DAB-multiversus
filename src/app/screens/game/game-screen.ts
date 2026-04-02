@@ -1,12 +1,10 @@
 import { createElementFromTemplate } from '@app/utils/html';
-import {
-  resolveAuthDisplayName,
-  type AuthUser,
-} from '@app/services/auth/auth-types';
+import { resolveAuthDisplayName, type AuthUser } from '@app/services/auth/auth-types';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.webp';
 import type { AppI18n } from '@shared/i18n';
 
+import gameScreenTemplate from './game-screen.html?raw';
 import './game-screen.css';
 
 interface GameScreenOptions {
@@ -17,47 +15,21 @@ interface GameScreenOptions {
 
 export function createGameScreen(options: GameScreenOptions): HTMLElement {
   const messages = options.i18n.getMessages();
-  const rootElement = createElementFromTemplate(`
-    <section class="game-screen" aria-label="${messages.game.screenAriaLabel}">
-      <div class="game-screen__backdrop" aria-hidden="true">
-        <img class="game-screen__background-image" data-game-background alt="" />
-        <div class="game-screen__background-overlay"></div>
-      </div>
-
-      <div class="game-screen__content">
-        <img class="game-screen__brand" data-game-brand alt="${messages.common.brandAlt}" />
-        <p class="game-screen__eyebrow">${messages.game.eyebrow}</p>
-        <h1 class="game-screen__title">${messages.game.title}</h1>
-        <p class="game-screen__summary">${messages.game.summary}</p>
-
-        <div class="game-screen__panel">
-          <div class="game-screen__panel-row">
-            <span class="game-screen__label">${messages.game.labels.authenticatedAs}</span>
-            <strong class="game-screen__value" data-game-user-display></strong>
-          </div>
-          <div class="game-screen__panel-row">
-            <span class="game-screen__label">${messages.game.labels.account}</span>
-            <strong class="game-screen__value" data-game-user-email></strong>
-          </div>
-          <div class="game-screen__panel-row">
-            <span class="game-screen__label">${messages.game.labels.client}</span>
-            <strong class="game-screen__value">v${options.appVersion}</strong>
-          </div>
-        </div>
-
-        <div class="game-screen__actions">
-          <button type="button" class="game-screen__button" data-action="game-return-menu">
-            ${messages.game.returnToMenu}
-          </button>
-        </div>
-      </div>
-    </section>
-  `);
+  const rootElement = createElementFromTemplate(gameScreenTemplate, {
+    GAME_ACCOUNT_LABEL: messages.game.labels.account,
+    GAME_AUTHENTICATED_AS_LABEL: messages.game.labels.authenticatedAs,
+    GAME_BRAND_ALT: messages.common.brandAlt,
+    GAME_CLIENT_LABEL: messages.game.labels.client,
+    GAME_CLIENT_VERSION: `v${options.appVersion}`,
+    GAME_EYEBROW: messages.game.eyebrow,
+    GAME_RETURN_TO_MENU: messages.game.returnToMenu,
+    GAME_SCREEN_ARIA_LABEL: messages.game.screenAriaLabel,
+    GAME_SUMMARY: messages.game.summary,
+    GAME_TITLE: messages.game.title,
+  });
 
   const brandElement = rootElement.querySelector<HTMLImageElement>('[data-game-brand]');
-  const backgroundElement = rootElement.querySelector<HTMLImageElement>(
-    '[data-game-background]',
-  );
+  const backgroundElement = rootElement.querySelector<HTMLImageElement>('[data-game-background]');
   const userDisplayElement = rootElement.querySelector<HTMLElement>('[data-game-user-display]');
   const userEmailElement = rootElement.querySelector<HTMLElement>('[data-game-user-email]');
 

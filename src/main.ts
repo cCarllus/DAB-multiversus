@@ -1,6 +1,8 @@
 import { bootstrapApplication } from '@app/bootstrap/bootstrapApplication';
+import { createElementFromTemplate } from '@app/utils/html';
 import { createI18n, getInitialLocale } from '@shared/i18n';
 
+import fatalScreenTemplate from '@app/bootstrap/fatal-screen.html?raw';
 import './styles/global.css';
 
 const appRoot = document.querySelector<HTMLElement>('#app');
@@ -16,11 +18,11 @@ try {
   const messages = i18n.getMessages();
 
   console.error('Failed to bootstrap Dead As Battle Multiversus.', error);
-  appRoot.innerHTML = `
-    <section class="fatal-screen">
-      <p class="fatal-screen__eyebrow">${messages.fatal.eyebrow}</p>
-      <h1>${messages.fatal.title}</h1>
-      <p>${messages.fatal.description}</p>
-    </section>
-  `;
+  appRoot.replaceChildren(
+    createElementFromTemplate(fatalScreenTemplate, {
+      FATAL_DESCRIPTION: messages.fatal.description,
+      FATAL_EYEBROW: messages.fatal.eyebrow,
+      FATAL_TITLE: messages.fatal.title,
+    }),
+  );
 }

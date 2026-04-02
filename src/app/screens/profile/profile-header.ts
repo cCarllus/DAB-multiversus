@@ -2,6 +2,7 @@ import { createElementFromTemplate } from '@app/utils/html';
 import type { AppI18n } from '@shared/i18n';
 import type { AuthUser } from '@app/services/auth/auth-types';
 
+import profileHeaderTemplate from './profile-header.html?raw';
 import type { ProfileAvatarUploader } from './profile-avatar-uploader';
 import type { ProfileNameEditor } from './profile-name-editor';
 
@@ -25,42 +26,14 @@ export interface ProfileHeader {
 
 export function createProfileHeader(options: CreateProfileHeaderOptions): ProfileHeader {
   const messages = options.i18n.getMessages().menu.profile;
-  const element = createElementFromTemplate(`
-    <section class="profile-hero" aria-label="${messages.heroAriaLabel}">
-      <div class="profile-hero__avatar-slot" data-avatar-slot></div>
-
-      <div class="profile-hero__copy">
-        <div class="profile-hero__name-slot" data-name-slot></div>
-
-        <div class="profile-hero__meta">
-          <span class="profile-hero__meta-pill">
-            <span class="profile-hero__meta-label">${messages.hero.memberSince}</span>
-            <strong class="profile-hero__meta-value" data-member-since></strong>
-          </span>
-
-          <span class="profile-hero__meta-pill">
-            <span class="profile-hero__meta-label">${messages.hero.userId}</span>
-            <strong class="profile-hero__meta-value" data-user-id-value></strong>
-          </span>
-
-          <span class="profile-hero__meta-pill">
-            <span class="profile-hero__meta-label">${messages.hero.launcherStatus}</span>
-            <strong class="profile-hero__meta-value" data-launcher-status></strong>
-          </span>
-
-          <span class="profile-hero__meta-pill">
-            <span class="profile-hero__meta-label">${messages.hero.language}</span>
-            <strong class="profile-hero__meta-value" data-language-value></strong>
-          </span>
-
-          <span class="profile-hero__meta-pill">
-            <span class="profile-hero__meta-label">${messages.hero.trustedDevice}</span>
-            <strong class="profile-hero__meta-value" data-trusted-device></strong>
-          </span>
-        </div>
-      </div>
-    </section>
-  `);
+  const element = createElementFromTemplate(profileHeaderTemplate, {
+    PROFILE_HERO_ARIA_LABEL: messages.heroAriaLabel,
+    PROFILE_LANGUAGE_LABEL: messages.hero.language,
+    PROFILE_LAUNCHER_STATUS_LABEL: messages.hero.launcherStatus,
+    PROFILE_MEMBER_SINCE_LABEL: messages.hero.memberSince,
+    PROFILE_TRUSTED_DEVICE_LABEL: messages.hero.trustedDevice,
+    PROFILE_USER_ID_LABEL: messages.hero.userId,
+  });
   const avatarSlot = element.querySelector<HTMLElement>('[data-avatar-slot]');
   const nameSlot = element.querySelector<HTMLElement>('[data-name-slot]');
   const memberSinceValue = element.querySelector<HTMLElement>('[data-member-since]');

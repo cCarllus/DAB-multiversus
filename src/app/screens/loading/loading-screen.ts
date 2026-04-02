@@ -2,6 +2,7 @@ import { createElementFromTemplate } from '@app/utils/html';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
 
+import loadingScreenTemplate from './loading-screen.html?raw';
 import './loading-screen.css';
 
 export interface LoadingScreenOptions {
@@ -27,49 +28,12 @@ function clampProgress(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
 
-export function createLoadingScreen(
-  options: LoadingScreenOptions,
-): LoadingScreenHandle {
+export function createLoadingScreen(options: LoadingScreenOptions): LoadingScreenHandle {
   const messages = options.i18n.getMessages();
-  const rootElement = createElementFromTemplate(`
-    <section class="loading-screen" aria-label="${messages.loading.screenAriaLabel}">
-      <div class="loading-screen__vignette" aria-hidden="true"></div>
-      <div class="loading-screen__sunburst" aria-hidden="true"></div>
-      <div class="loading-screen__horizon" aria-hidden="true"></div>
-      <span class="loading-screen__diamond loading-screen__diamond--left" aria-hidden="true"></span>
-      <span class="loading-screen__diamond loading-screen__diamond--right" aria-hidden="true"></span>
-
-      <div class="loading-screen__stage">
-        <div class="loading-screen__ring loading-screen__ring--outer" aria-hidden="true"></div>
-        <div class="loading-screen__ring loading-screen__ring--mid" aria-hidden="true"></div>
-        <div class="loading-screen__ring loading-screen__ring--inner" aria-hidden="true"></div>
-        <div class="loading-screen__ring-markers loading-screen__ring-markers--mid" aria-hidden="true">
-          <span></span><span></span><span></span><span></span>
-        </div>
-        <div class="loading-screen__ring-markers loading-screen__ring-markers--outer" aria-hidden="true">
-          <span></span><span></span><span></span><span></span>
-        </div>
-        <div class="loading-screen__energy loading-screen__energy--blue" aria-hidden="true"></div>
-        <div class="loading-screen__energy loading-screen__energy--red" aria-hidden="true"></div>
-
-        <div class="loading-screen__content">
-          <img class="loading-screen__brand" data-loading-brand alt="${messages.common.brandAlt}" />
-          <p class="loading-screen__eyebrow" data-loading-eyebrow></p>
-          <h1 class="loading-screen__title" data-loading-title></h1>
-          <p class="loading-screen__status" data-loading-status></p>
-          <div class="loading-screen__progress" aria-hidden="true">
-            <span class="loading-screen__progress-fill" data-loading-progress-fill></span>
-            <span class="loading-screen__progress-glow"></span>
-          </div>
-          <div class="loading-screen__meta">
-            <span class="loading-screen__percent" data-loading-progress-label></span>
-            <span class="loading-screen__detail" data-loading-detail></span>
-          </div>
-          <span class="loading-screen__version" data-loading-version></span>
-        </div>
-      </div>
-    </section>
-  `);
+  const rootElement = createElementFromTemplate(loadingScreenTemplate, {
+    LOADING_BRAND_ALT: messages.common.brandAlt,
+    LOADING_SCREEN_ARIA_LABEL: messages.loading.screenAriaLabel,
+  });
 
   const brandElement = rootElement.querySelector<HTMLImageElement>('[data-loading-brand]');
   const eyebrowElement = rootElement.querySelector<HTMLElement>('[data-loading-eyebrow]');
