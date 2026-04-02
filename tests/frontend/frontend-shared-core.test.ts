@@ -86,11 +86,23 @@ describe('frontend shared and core utilities', () => {
     );
     expect(i18n.formatNumber(145800)).toBe('145,800');
     expect(i18n.t('menu.exitModal.body', { userLabel: 'Player' })).toContain('Player');
+    expect(i18n.t('menu.exitModal.body')).toContain('');
     expect(i18n.t('missing.translation.key')).toBe('missing.translation.key');
 
     i18n.setLocale('pt-BR');
     expect(localStorage.getItem(STORAGE_KEYS.locale)).toBe('pt-BR');
     expect(i18n.getLocale()).toBe('pt-BR');
+
+    const ptMessages = i18n.getMessages() as Record<string, unknown>;
+    const originalTitle = ((ptMessages.menu as Record<string, unknown>).exitModal as Record<string, unknown>)
+      .title;
+    ((ptMessages.menu as Record<string, unknown>).exitModal as Record<string, unknown>).title =
+      undefined;
+    expect(i18n.t('menu.exitModal.title')).toBe(
+      (createTestI18n('en').getMessages().menu.exitModal.title),
+    );
+    ((ptMessages.menu as Record<string, unknown>).exitModal as Record<string, unknown>).title =
+      originalTitle;
   });
 
   it('swallows locale storage failures and falls back to defaults', () => {
@@ -114,12 +126,27 @@ describe('frontend shared and core utilities', () => {
     expect(getInitialLocale()).toBe('pt-BR');
     const i18n = createI18n('en');
     expect(() => i18n.setLocale('en')).not.toThrow();
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: undefined,
+    });
+    expect(getInitialLocale()).toBe('pt-BR');
+    expect(resolveAppLocale('fr-FR')).toBe('pt-BR');
+    expect(() => createI18n('en').setLocale('pt-BR')).not.toThrow();
   });
 
-  it('resolves api errors and launcher base url', () => {
+  it('resolves api errors and launcher base url', async () => {
     const i18n = createTestI18n('en');
 
     expect(resolveApiBaseUrl()).toBe('http://127.0.0.1:4000');
+    vi.stubEnv('VITE_AUTH_API_BASE_URL', 'https://api.example.com///');
+    vi.resetModules();
+    const { resolveApiBaseUrl: resolveConfiguredApiBaseUrl } = await import(
+      '../../app/frontend/services/api/api-base-url'
+    );
+    expect(resolveConfiguredApiBaseUrl()).toBe('https://api.example.com');
+    vi.unstubAllEnvs();
     expect(
       resolveApiErrorMessage(new AppApiError('INVALID_CREDENTIALS', 'invalid'), i18n),
     ).toBe(i18n.t('auth.errors.invalidCredentials'));
@@ -127,7 +154,13 @@ describe('frontend shared and core utilities', () => {
       resolveApiErrorMessage(new AppApiError('BACKEND_UNAVAILABLE', 'down'), i18n),
     ).toBe(i18n.t('auth.errors.backendUnavailable'));
     expect(
+      resolveApiErrorMessage(new AppApiError('DATABASE_UNAVAILABLE', 'db down'), i18n),
+    ).toBe(i18n.t('auth.errors.backendUnavailable'));
+    expect(
       resolveApiErrorMessage(new AppApiError('SESSION_REVOKED', 'expired'), i18n),
+    ).toBe(i18n.t('auth.errors.sessionExpired'));
+    expect(
+      resolveApiErrorMessage(new AppApiError('ACCESS_TOKEN_EXPIRED', 'expired'), i18n),
     ).toBe(i18n.t('auth.errors.sessionExpired'));
     expect(
       resolveApiErrorMessage(new AppApiError('REMEMBER_DEVICE_UNAVAILABLE', 'nope'), i18n),
@@ -239,6 +272,15 @@ describe('frontend shared and core utilities', () => {
     expect(
       createLauncherDeviceContext(
         createDesktopBridgeMock({
+          platform: 'win32',
+        }),
+        '0.1.0',
+      ).osName,
+    ).toBe('Windows');
+
+    expect(
+      createLauncherDeviceContext(
+        createDesktopBridgeMock({
           platform: 'browser',
         }),
         '0.1.0',
@@ -253,6 +295,14 @@ describe('frontend shared and core utilities', () => {
         '0.1.0',
       ).osName,
     ).toBe('plan9');
+    expect(
+      createLauncherDeviceContext(
+        createDesktopBridgeMock({
+          platform: '',
+        }),
+        '0.1.0',
+      ).osName,
+    ).toBe('Unknown OS');
 
     uuidSpy.mockRestore();
     nowSpy.mockRestore();

@@ -14,6 +14,7 @@ import { ProfileRepository } from '../../app/backend/repositories/profile.reposi
 import { UsersRepository } from '../../app/backend/repositories/users.repository';
 import { createAuthRouter } from '../../app/backend/routes/auth.routes';
 import { createProfileRouter } from '../../app/backend/routes/profile.routes';
+import { env } from '../../config/env/backend-env';
 import { createRequest, createResponse } from '../helpers/backend';
 
 async function flush(): Promise<void> {
@@ -276,6 +277,9 @@ describe('backend middleware', () => {
       },
     });
     expect(errorSpy).toHaveBeenCalled();
+
+    errorMiddleware('plain failure', {} as never, response, next);
+    expect(response.status).toHaveBeenCalledWith(500);
   });
 
   it('attaches authenticated context for valid access tokens', async () => {
@@ -505,9 +509,45 @@ describe('backend controllers, routes, and app', () => {
     });
     expect(response.status).toHaveBeenCalledWith(204);
 
-    controller.me(createRequest(), response, vi.fn());
+    controller.logout(
+      createRequest({
+        auth: {
+          userId: 'user-1',
+          sessionId: 'session-1',
+          email: 'player@example.com',
+          nickname: 'player.one',
+        },
+      }),
+      response,
+      vi.fn(),
+    );
     await flush();
-    expect(response.status.mock.calls.at(-1)?.[0]).toBe(204);
+    expect(authService.logout).toHaveBeenCalledWith({
+      refreshToken: undefined,
+      sessionId: 'session-1',
+      userId: 'user-1',
+    });
+
+    controller.me(
+      createRequest({
+        auth: {
+          userId: 'user-1',
+          sessionId: 'session-1',
+          email: 'player@example.com',
+          nickname: 'player.one',
+        },
+      }),
+      response,
+      vi.fn(),
+    );
+    await flush();
+    expect(authService.getCurrentUser).toHaveBeenCalledWith('user-1');
+    expect(response.status.mock.calls.at(-1)?.[0]).toBe(200);
+
+    const next = vi.fn();
+    controller.me(createRequest(), response, next);
+    await flush();
+    expect(next.mock.calls.at(-1)?.[0]).toMatchObject({ code: 'UNAUTHORIZED' });
   });
 
   it('handles profile controller flows and auth requirements', async () => {
@@ -590,6 +630,22 @@ describe('backend controllers, routes, and app', () => {
     await flush();
     expect(profileService.getProfileDevices).toHaveBeenCalledWith('user-1', 'device-1');
 
+    controller.devices(
+      createRequest({
+        auth: {
+          userId: 'user-1',
+          sessionId: 'session-1',
+          email: 'player@example.com',
+          nickname: 'player.one',
+        },
+        header: () => '   ',
+      }),
+      response,
+      next,
+    );
+    await flush();
+    expect(profileService.getProfileDevices).toHaveBeenCalledWith('user-1', undefined);
+
     controller.uploadAvatar(
       createRequest({
         auth: {
@@ -606,6 +662,18 @@ describe('backend controllers, routes, and app', () => {
     expect(next.mock.calls.at(-1)?.[0]).toMatchObject({ code: 'AVATAR_REQUIRED' });
 
     controller.me(createRequest(), response, next);
+    await flush();
+    expect(next.mock.calls.at(-1)?.[0]).toMatchObject({ code: 'UNAUTHORIZED' });
+
+    controller.updateMe(createRequest(), response, next);
+    await flush();
+    expect(next.mock.calls.at(-1)?.[0]).toMatchObject({ code: 'UNAUTHORIZED' });
+
+    controller.uploadAvatar(createRequest(), response, next);
+    await flush();
+    expect(next.mock.calls.at(-1)?.[0]).toMatchObject({ code: 'UNAUTHORIZED' });
+
+    controller.devices(createRequest(), response, next);
     await flush();
     expect(next.mock.calls.at(-1)?.[0]).toMatchObject({ code: 'UNAUTHORIZED' });
   });
@@ -713,5 +781,17 @@ describe('backend controllers, routes, and app', () => {
       .options('/health')
       .set('Origin', 'https://forbidden.example.com')
       .expect(403);
+
+    const previousAllowedOrigins = [...env.allowedOrigins];
+    env.allowedOrigins.length = 0;
+    try {
+      await request(app)
+        .get('/health')
+        .set('Origin', 'https://forbidden.example.com')
+        .expect('access-control-allow-origin', 'https://forbidden.example.com')
+        .expect(200);
+    } finally {
+      env.allowedOrigins.splice(0, env.allowedOrigins.length, ...previousAllowedOrigins);
+    }
   });
 });

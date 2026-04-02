@@ -218,6 +218,7 @@ describe('frontend api clients', () => {
     expect(client.resolveAssetUrl(null)).toBeNull();
     expect(client.resolveAssetUrl('https://example.com/a.png')).toBe('https://example.com/a.png');
     expect(client.resolveAssetUrl('uploads/a.png')).toBe('http://localhost:4000/uploads/a.png');
+    expect(client.resolveAssetUrl('/uploads/b.png')).toBe('http://localhost:4000/uploads/b.png');
 
     await expect(client.getProfile('access-token')).resolves.toEqual(user);
     await expect(client.updateProfile('access-token', { name: 'Player One' })).resolves.toEqual(
@@ -256,6 +257,17 @@ describe('frontend api clients', () => {
     await expectRejectedAppApiError(client.getDevices('access-token', 'device-1'), {
       code: 'UNKNOWN_PROFILE_ERROR',
       message: 'Profile request failed.',
+    });
+
+    fetchSpy.mockResolvedValueOnce(
+      new Response(null, {
+        status: 418,
+      }),
+    );
+    await expectRejectedAppApiError(client.getProfile('access-token'), {
+      code: 'UNKNOWN_PROFILE_ERROR',
+      message: 'Profile request failed.',
+      status: 418,
     });
   });
 });
@@ -392,6 +404,109 @@ describe('frontend stores and auth service', () => {
     await expectRejectedAppApiError(unsupportedStore.saveSession(createTestSession()), {
       code: 'REMEMBER_DEVICE_UNAVAILABLE',
     });
+  });
+
+  it('covers session-store guard rails for malformed objects, desktop precedence, and failed persistence probes', async () => {
+    const desktopRememberedSession = {
+      refreshToken: 'desktop-refresh-token',
+      sessionExpiresAt: '2099-01-01T00:00:00.000Z',
+      savedAt: '2024-01-01T00:00:00.000Z',
+      rememberDevice: true,
+    };
+    const desktop = createDesktopBridgeMock({
+      authStorage: {
+        clearRememberedSession: vi.fn(async () => undefined),
+        getRememberedSession: vi.fn(async () => null),
+        isPersistentStorageAvailable: vi.fn(async () => false),
+        setRememberedSession: vi.fn(async () => undefined),
+      },
+    });
+    const store = new SessionStore(desktop);
+
+    sessionStorage.setItem(STORAGE_KEYS.authSession, 'null');
+    expect(await store.loadSession()).toBeNull();
+    expect(sessionStorage.getItem(STORAGE_KEYS.authSession)).toBeNull();
+
+    sessionStorage.setItem(
+      STORAGE_KEYS.authSession,
+      JSON.stringify({
+        refreshToken: 123,
+        sessionExpiresAt: '2099-01-01T00:00:00.000Z',
+        rememberDevice: true,
+        accessToken: null,
+        user: null,
+      }),
+    );
+    expect(await store.loadSession()).toBeNull();
+    expect(sessionStorage.getItem(STORAGE_KEYS.authSession)).toBeNull();
+
+    store.updateRuntimeUser(createTestUser({ name: 'No Runtime Session' }));
+    expect(sessionStorage.getItem(STORAGE_KEYS.authSession)).toBeNull();
+
+    localStorage.setItem(
+      STORAGE_KEYS.rememberedAuthSession,
+      JSON.stringify({
+        refreshToken: 'local-refresh-token',
+        sessionExpiresAt: '2099-01-02T00:00:00.000Z',
+        savedAt: '2024-01-02T00:00:00.000Z',
+        rememberDevice: true,
+      }),
+    );
+    desktop.authStorage.getRememberedSession = vi.fn(async () => desktopRememberedSession);
+
+    await expect(store.loadSession()).resolves.toEqual({
+      accessToken: null,
+      accessTokenExpiresAt: null,
+      refreshToken: 'desktop-refresh-token',
+      rememberDevice: true,
+      sessionExpiresAt: '2099-01-01T00:00:00.000Z',
+      user: null,
+    });
+    expect(localStorage.getItem(STORAGE_KEYS.rememberedAuthSession)).toBeNull();
+
+    localStorage.setItem(STORAGE_KEYS.rememberedAuthSession, 'null');
+    desktop.authStorage.getRememberedSession = vi.fn(async () => null);
+    expect(await store.loadSession()).toBeNull();
+    expect(localStorage.getItem(STORAGE_KEYS.rememberedAuthSession)).toBeNull();
+
+    const noStorageDesktop = createDesktopBridgeMock({
+      authStorage: {
+        clearRememberedSession: vi.fn(async () => undefined),
+        getRememberedSession: vi.fn(async () => null),
+        isPersistentStorageAvailable: vi.fn(async () => false),
+        setRememberedSession: vi.fn(async () => undefined),
+      },
+    });
+    const noStorageStore = new SessionStore(noStorageDesktop);
+    (noStorageStore as unknown as { persistentSessionSupport: boolean }).persistentSessionSupport = true;
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: () => null,
+        removeItem: () => {
+          throw new Error('remove failed');
+        },
+        setItem: () => {
+          throw new Error('set failed');
+        },
+      },
+    });
+
+    await expectRejectedAppApiError(noStorageStore.saveSession(createTestSession()), {
+      code: 'REMEMBER_DEVICE_UNAVAILABLE',
+    });
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: originalLocalStorage,
+    });
+
+    const browserOnlyStore = new SessionStore(
+      createDesktopBridgeMock({
+        authStorage: undefined,
+      }) as never,
+    );
+    expect(await browserOnlyStore.supportsRememberedSessions()).toBe(true);
   });
 
   it('runs auth service session flows and login fallbacks', async () => {
@@ -579,6 +694,28 @@ describe('frontend stores and auth service', () => {
     );
     expect(apiClient.logout).toHaveBeenCalled();
 
+    const logoutOnPersistenceFailure = new AuthService(desktop, '0.1.0', {
+      ...apiClient,
+      login: vi.fn(async () => session),
+      logout: vi.fn(async () => {
+        throw new Error('logout failed');
+      }),
+    } as never);
+    desktop.authStorage.isPersistentStorageAvailable = vi.fn(async () => true);
+    desktop.authStorage.setRememberedSession = vi.fn(async () => {
+      throw new Error('persist failed again');
+    });
+    await expectRejectedAppApiError(
+      logoutOnPersistenceFailure.login({
+        identifier: 'player@example.com',
+        password: '12345678',
+        rememberDevice: true,
+      }),
+      {
+        code: 'SESSION_PERSISTENCE_FAILED',
+      },
+    );
+
     const directPersistenceError = new AuthService(desktop, '0.1.0', {
       ...apiClient,
       login: vi.fn(async () => session),
@@ -599,8 +736,16 @@ describe('frontend stores and auth service', () => {
       },
     );
 
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: originalLocalStorage,
+    });
+    desktop.authStorage.isPersistentStorageAvailable = vi.fn(async () => true);
+    desktop.authStorage.setRememberedSession = vi.fn(async () => undefined);
+
     const unauthenticatedService = new AuthService(desktop, '0.1.0', apiClient as never);
     await expect(unauthenticatedService.ensureAccessToken()).resolves.toBeNull();
+    await expect(unauthenticatedService.logout()).resolves.toBeUndefined();
     await expectRejectedAppApiError(
       (unauthenticatedService as unknown as { refreshCurrentSession: () => Promise<string> }).refreshCurrentSession(),
       {
@@ -608,6 +753,32 @@ describe('frontend stores and auth service', () => {
       },
     );
     unauthenticatedService.syncCurrentUser(createTestUser());
+
+    const logoutFailureService = new AuthService(desktop, '0.1.0', {
+      ...apiClient,
+      logout: vi.fn(async () => {
+        throw new Error('logout failed');
+      }),
+    } as never);
+    (logoutFailureService as unknown as { currentSession: typeof session }).currentSession = {
+      ...session,
+      accessTokenExpiresAt: null,
+    };
+    await expect(logoutFailureService.ensureAccessToken()).resolves.toBe('new-access-token');
+    await expect(logoutFailureService.logout()).resolves.toBeUndefined();
+
+    sessionStorage.setItem(
+      STORAGE_KEYS.authSession,
+      JSON.stringify({
+        ...session,
+        accessToken: null,
+      }),
+    );
+    const storedLogoutService = new AuthService(desktop, '0.1.0', {
+      ...apiClient,
+      logout: vi.fn(async () => undefined),
+    } as never);
+    await expect(storedLogoutService.logout()).resolves.toBeUndefined();
   });
 
   it('loads and updates the profile store with auth-aware access tokens', async () => {
@@ -687,5 +858,68 @@ describe('frontend stores and auth service', () => {
     await expectRejectedAppApiError(unauthenticatedStore.load(), {
       code: 'UNAUTHENTICATED',
     });
+  });
+
+  it('hydrates missing profile devices during profile updates and supports the default api client path', async () => {
+    const snapshot = createTestProfileSnapshot();
+    const authService = {
+      ensureAccessToken: vi.fn(async () => 'access-token'),
+      getCurrentSession: vi.fn(() => ({
+        user: snapshot.profile,
+      })),
+      syncCurrentUser: vi.fn(),
+    };
+    const apiClient = {
+      getDevices: vi.fn(async () => snapshot.devices),
+      getProfile: vi.fn(async () => snapshot.profile),
+      resolveAssetUrl: vi.fn((url: string | null) => url),
+      updateProfile: vi.fn(async () => snapshot.profile),
+      uploadAvatar: vi.fn(async () => snapshot.profile),
+    };
+
+    const updateNameStore = new ProfileStore({
+      apiClient: apiClient as never,
+      appVersion: '0.1.0',
+      authService: authService as never,
+      desktop: createDesktopBridgeMock(),
+    });
+    await expect(updateNameStore.updateName('Updated Player')).resolves.toEqual(snapshot);
+    expect(apiClient.getDevices).toHaveBeenCalledTimes(1);
+
+    const uploadStore = new ProfileStore({
+      apiClient: apiClient as never,
+      appVersion: '0.1.0',
+      authService: authService as never,
+      desktop: createDesktopBridgeMock(),
+    });
+    await expect(
+      uploadStore.uploadAvatar(new File(['avatar'], 'avatar.png', { type: 'image/png' })),
+    ).resolves.toEqual(snapshot);
+    expect(apiClient.getDevices).toHaveBeenCalledTimes(2);
+
+    const getProfileSpy = vi
+      .spyOn(ProfileApiClient.prototype, 'getProfile')
+      .mockResolvedValue(snapshot.profile);
+    const getDevicesSpy = vi
+      .spyOn(ProfileApiClient.prototype, 'getDevices')
+      .mockResolvedValue(snapshot.devices);
+    const resolveAssetUrlSpy = vi
+      .spyOn(ProfileApiClient.prototype, 'resolveAssetUrl')
+      .mockImplementation((url) => url);
+
+    const defaultClientStore = new ProfileStore({
+      appVersion: '0.1.0',
+      authService: authService as never,
+      desktop: createDesktopBridgeMock(),
+    });
+    (
+      defaultClientStore as unknown as {
+        cachedProfile: null;
+      }
+    ).cachedProfile = null;
+    await expect(defaultClientStore.load()).resolves.toEqual(snapshot);
+    expect(getProfileSpy).toHaveBeenCalled();
+    expect(getDevicesSpy).toHaveBeenCalled();
+    expect(resolveAssetUrlSpy).toHaveBeenCalled();
   });
 });

@@ -131,6 +131,32 @@ describe('frontend interactive components', () => {
 
     expect(onSubmit).not.toHaveBeenCalled();
     expect(onLocaleChange).not.toHaveBeenCalled();
+
+    const noCallbackScreen = createLoginScreen({
+      appVersion: '0.1.0',
+      enableDevShortcut: true,
+      i18n: createTestI18n('en'),
+      isSubmitting: false,
+      locale: 'en',
+      musicMuted: false,
+      onSubmit: vi.fn(),
+      rememberDevice: true,
+      rememberDeviceSupported: true,
+    });
+    const noCallbackLocale = noCallbackScreen.querySelector<HTMLButtonElement>(
+      '[data-login-locale-option="pt-BR"]',
+    )!;
+    const noCallbackDevShortcut = noCallbackScreen.querySelector<HTMLButtonElement>(
+      '[data-login-dev-shortcut]',
+    )!;
+    const localeDetails = noCallbackScreen.querySelector<HTMLDetailsElement>(
+      '[data-login-locale-details]',
+    )!;
+
+    localeDetails.open = true;
+    noCallbackLocale.click();
+    expect(localeDetails.open).toBe(false);
+    noCallbackDevShortcut.click();
   });
 
   it('throws when the login screen structure is incomplete', async () => {
@@ -289,6 +315,12 @@ describe('frontend interactive components', () => {
 
     trigger.click();
     expect(fileInput).toBeDefined();
+    confirm.click();
+    expect(onConfirm).not.toHaveBeenCalled();
+
+    setInputFiles(fileInput, []);
+    fileInput.dispatchEvent(new Event('change'));
+    expect(onInvalid).not.toHaveBeenCalled();
 
     setInputFiles(fileInput, [new File(['avatar'], 'avatar.txt', { type: 'text/plain' })]);
     fileInput.dispatchEvent(new Event('change'));

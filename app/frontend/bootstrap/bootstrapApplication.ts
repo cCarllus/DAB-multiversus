@@ -30,7 +30,7 @@ interface LoadingSequence {
 }
 type LoadingSequenceKey = keyof TranslationMessages['loading']['sequences'];
 
-function createDesktopBridgeFallback(): DesktopBridge {
+export function createDesktopBridgeFallback(): DesktopBridge {
   return {
     authStorage: {
       clearRememberedSession: () => Promise.resolve(),
@@ -61,6 +61,36 @@ function createDesktopBridgeFallback(): DesktopBridge {
       toggleMaximize: () => Promise.resolve({ isMaximized: false }),
     },
   };
+}
+
+interface RerenderActiveSurfaceOptions {
+  activeSurface: AppSurface;
+  i18n: ReturnType<typeof createI18n>;
+  renderGamePage: () => void;
+  renderLoginPage: () => void;
+  renderMenuPage: () => void;
+  router: ReturnType<typeof createAppRouter>;
+}
+
+export function rerenderActiveSurface(options: RerenderActiveSurfaceOptions): void {
+  if (options.activeSurface === 'login') {
+    options.renderLoginPage();
+    return;
+  }
+
+  if (options.activeSurface === 'menu') {
+    options.renderMenuPage();
+    return;
+  }
+
+  if (options.activeSurface === 'game') {
+    options.renderGamePage();
+    return;
+  }
+
+  if (options.activeSurface === 'boot') {
+    options.router.showBoot(options.i18n.t('boot.statuses.validatingRememberedSession'));
+  }
 }
 
 export function bootstrapApplication(host: HTMLElement): void {
@@ -273,24 +303,14 @@ export function bootstrapApplication(host: HTMLElement): void {
       errorMessage: null,
     };
 
-    if (activeSurface === 'login') {
-      renderLoginPage();
-      return;
-    }
-
-    if (activeSurface === 'menu') {
-      renderMenuPage();
-      return;
-    }
-
-    if (activeSurface === 'game') {
-      renderGamePage();
-      return;
-    }
-
-    if (activeSurface === 'boot') {
-      router.showBoot(i18n.t('boot.statuses.validatingRememberedSession'));
-    }
+    rerenderActiveSurface({
+      activeSurface,
+      i18n,
+      renderGamePage,
+      renderLoginPage,
+      renderMenuPage,
+      router,
+    });
   };
 
   const renderLoginPage = (): void => {

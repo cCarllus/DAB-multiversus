@@ -93,6 +93,22 @@ describe('frontend composed screens and renderer', () => {
     confirmAvatar.click();
     await flushPromises();
     expect(screen.textContent).toContain('upload failed');
+
+    const sessionOnlyScreen = createProfileScreen({
+      i18n: createTestI18n('en'),
+      profileStore: {
+        getSnapshot: vi.fn(() => snapshot),
+        load: vi.fn(async () => snapshot),
+        updateName: vi.fn(async () => snapshot),
+        uploadAvatar: vi.fn(async () => snapshot),
+      } as never,
+      session: createTestSessionSnapshot({
+        rememberDevice: false,
+      }),
+    });
+    document.body.append(sessionOnlyScreen);
+    await flushPromises();
+    expect(sessionOnlyScreen.textContent).toContain('Session only');
   });
 
   it('loads the profile screen without a cached snapshot and handles load failures', async () => {
@@ -137,6 +153,58 @@ describe('frontend composed screens and renderer', () => {
     document.body.append(screen);
     await flushPromises();
     expect(screen.textContent).toContain('load failed');
+  });
+
+  it('surfaces invalid profile edits from nested uploader and name editor callbacks', async () => {
+    let avatarInvalid: ((message: string) => void) | null = null;
+    let nameInvalid: ((message: string) => void) | null = null;
+
+    vi.doMock('../../app/frontend/screens/profile/profile-avatar-uploader', () => ({
+      createProfileAvatarUploader: vi.fn((options: { onInvalid: (message: string) => void }) => {
+        avatarInvalid = options.onInvalid;
+        return {
+          button: document.createElement('button'),
+          modal: document.createElement('div'),
+          setBusy: vi.fn(),
+          setProfile: vi.fn(),
+        };
+      }),
+    }));
+    vi.doMock('../../app/frontend/screens/profile/profile-header', () => ({
+      createProfileHeader: vi.fn(() => ({
+        element: document.createElement('div'),
+        setState: vi.fn(),
+      })),
+    }));
+    vi.doMock('../../app/frontend/screens/profile/profile-name-editor', () => ({
+      createProfileNameEditor: vi.fn((options: { onInvalid: (message: string) => void }) => {
+        nameInvalid = options.onInvalid;
+        return {
+          element: document.createElement('div'),
+          setBusy: vi.fn(),
+          setProfile: vi.fn(),
+        };
+      }),
+    }));
+
+    const { createProfileScreen: createScreen } = await import(
+      '../../app/frontend/screens/profile/profile-screen'
+    );
+    const screen = createScreen({
+      i18n: createTestI18n('en'),
+      profileStore: {
+        getSnapshot: vi.fn(() => createTestProfileSnapshot()),
+        load: vi.fn(async () => createTestProfileSnapshot()),
+      } as never,
+      session: createTestSessionSnapshot(),
+    });
+    document.body.append(screen);
+    await flushPromises();
+
+    avatarInvalid?.('invalid avatar');
+    expect(screen.textContent).toContain('invalid avatar');
+    nameInvalid?.('invalid name');
+    expect(screen.textContent).toContain('invalid name');
   });
 
   it('throws when the profile screen structure is incomplete', async () => {
@@ -198,6 +266,65 @@ describe('frontend composed screens and renderer', () => {
     await flushPromises();
     expect(failed.textContent).toContain('Session only');
     expect(failed.textContent).toContain('devices failed');
+
+    const windows = createSystemScreen({
+      desktop: createDesktopBridgeMock({
+        platform: 'win32',
+      }),
+      i18n: createTestI18n('en'),
+      profileStore: store as never,
+      session: createTestSessionSnapshot(),
+    });
+    document.body.append(windows);
+    await flushPromises();
+    expect(windows.textContent).toContain('Windows');
+
+    const browser = createSystemScreen({
+      desktop: createDesktopBridgeMock({
+        platform: 'browser',
+      }),
+      i18n: createTestI18n('en'),
+      profileStore: store as never,
+      session: createTestSessionSnapshot(),
+    });
+    document.body.append(browser);
+    await flushPromises();
+    expect(browser.textContent).toContain('Browser');
+
+    const noVersionSnapshot = createTestProfileSnapshot({
+      devices: {
+        ...snapshot.devices,
+        devices: snapshot.devices.devices.map((device, index) =>
+          index === 0 ? { ...device, appVersion: null } : device,
+        ),
+      },
+    });
+    const noVersionSystem = createSystemScreen({
+      desktop: createDesktopBridgeMock(),
+      i18n: createTestI18n('en'),
+      profileStore: {
+        getSnapshot: vi.fn(() => noVersionSnapshot),
+        load: vi.fn(async () => noVersionSnapshot),
+      } as never,
+      session: createTestSessionSnapshot(),
+    });
+    document.body.append(noVersionSystem);
+    await flushPromises();
+    expect(noVersionSystem.textContent).toContain(
+      createTestI18n('en').getMessages().menu.system.list.noVersion,
+    );
+
+    const linux = createSystemScreen({
+      desktop: createDesktopBridgeMock({
+        platform: 'linux',
+      }),
+      i18n: createTestI18n('en'),
+      profileStore: store as never,
+      session: createTestSessionSnapshot(),
+    });
+    document.body.append(linux);
+    await flushPromises();
+    expect(linux.textContent).toContain('Linux');
   });
 
   it('throws when the system screen structure is incomplete', async () => {

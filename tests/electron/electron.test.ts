@@ -283,6 +283,7 @@ describe('electron modules', () => {
 
     delete process.env.VITE_DEV_SERVER_URL;
     electronState.app.isPackaged = true;
+    await expect(electronState.ipcHandlers.get(AUTH_STORAGE_CHANNELS.get)?.()).resolves.toBeNull();
     await expect(
       electronState.ipcHandlers.get(AUTH_STORAGE_CHANNELS.set)?.(null, {
         refreshToken: 'refresh-token',
@@ -291,6 +292,15 @@ describe('electron modules', () => {
         sessionExpiresAt: '2099-01-01T00:00:00.000Z',
       }),
     ).rejects.toThrow('Electron secure storage is unavailable on this system.');
+
+    await expect(
+      electronState.ipcHandlers.get(AUTH_STORAGE_CHANNELS.set)?.(null, null),
+    ).rejects.toThrow('Remembered auth session is malformed.');
+    await expect(
+      electronState.ipcHandlers.get(AUTH_STORAGE_CHANNELS.set)?.(null, {
+        refreshToken: 'refresh-token',
+      }),
+    ).rejects.toThrow('Remembered auth session payload is invalid.');
   });
 
   it('creates and controls the main browser window plus ipc handlers', async () => {
@@ -329,24 +339,30 @@ describe('electron modules', () => {
     };
     await electronState.ipcHandlers.get('desktop-window:minimize')?.(senderEvent);
     expect(mainWindow.isMinimized()).toBe(true);
+    await electronState.ipcHandlers.get('desktop-window:minimize')?.(senderEvent);
 
     expect(
       electronState.ipcHandlers.get('desktop-window:toggle-maximize')?.(senderEvent),
     ).toEqual({
       isMaximized: true,
     });
+    expect(
+      electronState.ipcHandlers.get('desktop-window:toggle-maximize')?.(senderEvent),
+    ).toEqual({
+      isMaximized: false,
+    });
     mainWindow.maximizable = false;
     expect(
       electronState.ipcHandlers.get('desktop-window:toggle-maximize')?.(senderEvent),
     ).toEqual({
-      isMaximized: true,
+      isMaximized: false,
     });
 
     await electronState.ipcHandlers.get('desktop-window:close')?.(senderEvent);
     expect(mainWindow.destroy).toHaveBeenCalled();
     expect(electronState.app.exit).toHaveBeenCalledWith(0);
     expect(electronState.ipcHandlers.get('desktop-window:get-state')?.(senderEvent)).toEqual({
-      isMaximized: true,
+      isMaximized: false,
     });
 
     electronState.MockBrowserWindow.fromWebContents.mockReturnValueOnce(null);
@@ -359,11 +375,16 @@ describe('electron modules', () => {
       configurable: true,
       value: '/tmp/resources',
     });
+    Object.defineProperty(process, 'platform', {
+      configurable: true,
+      value: 'linux',
+    });
     vi.resetModules();
     const prodCreateMainWindow = (await import('../../app/desktop/main/create-main-window'))
       .createMainWindow;
     const prodWindow = prodCreateMainWindow();
     expect(prodWindow.loadFile).toHaveBeenCalledWith(expect.stringContaining('/dist/index.html'));
+    expect(prodWindow.options.icon).toContain('/tmp/resources/icons/icon-desktop-game.png');
   });
 
   it('exposes the preload bridge and boots the electron main process', async () => {
@@ -387,7 +408,12 @@ describe('electron modules', () => {
     await exposedBridge.windowControls.close();
     await exposedBridge.windowControls.getState();
     await exposedBridge.windowControls.minimize();
-    const unsubscribe = exposedBridge.windowControls.onStateChange(vi.fn());
+    const stateListener = vi.fn();
+    const unsubscribe = exposedBridge.windowControls.onStateChange(stateListener);
+    electronState.ipcRendererListeners
+      .get('desktop-window:state-changed')
+      ?.({} as never, { isMaximized: true });
+    expect(stateListener).toHaveBeenCalledWith({ isMaximized: true });
     unsubscribe();
     await exposedBridge.windowControls.toggleMaximize();
     expect(exposedBridge.environment).toBe('development');
@@ -424,5 +450,16 @@ describe('electron modules', () => {
 
     electronState.appHandlers.get('window-all-closed')?.();
     expect(electronState.app.quit).toHaveBeenCalled();
+
+    vi.resetModules();
+    electronState.app.quit.mockClear();
+    Object.defineProperty(process, 'platform', {
+      configurable: true,
+      value: 'darwin',
+    });
+    await import('../../app/desktop/main/index');
+    await Promise.resolve();
+    electronState.appHandlers.get('window-all-closed')?.();
+    expect(electronState.app.quit).not.toHaveBeenCalled();
   });
 });

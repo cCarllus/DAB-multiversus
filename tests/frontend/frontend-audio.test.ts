@@ -175,6 +175,177 @@ describe('frontend audio manager', () => {
     expect(warnSpy).not.toHaveBeenCalled();
   });
 
+  it('reuses cached audio resources and updates gain nodes and element state across branches', () => {
+    localStorage.setItem(STORAGE_KEYS.musicVolume, JSON.stringify('bad'));
+    localStorage.setItem(STORAGE_KEYS.soundVolume, JSON.stringify(null));
+
+    const manager = new AppAudioManager();
+    const audiolessManager = new AppAudioManager();
+
+    expect(
+      (audiolessManager as unknown as { applyMusicState: () => void }).applyMusicState(),
+    ).toBeUndefined();
+    expect(
+      (manager as unknown as { readStoredBoolean: (key: string) => boolean | null }).readStoredBoolean(
+        STORAGE_KEYS.musicMuted,
+      ),
+    ).toBeNull();
+    expect(
+      (manager as unknown as { readVolumePreference: (channel: 'music', fallback: number) => number }).readVolumePreference(
+        'music',
+        0.2,
+      ),
+    ).toBe(0.2);
+    expect(
+      (manager as unknown as { clampVolume: (value: number) => number }).clampVolume(0.25),
+    ).toBe(0.25);
+    expect(
+      (manager as unknown as { resolveInitialSoundMuted: (stored: boolean) => boolean }).resolveInitialSoundMuted(
+        false,
+      ),
+    ).toBe(false);
+
+    const context = (manager as unknown as { ensureContext: () => MockAudioContext }).ensureContext();
+    const backgroundMusic = (
+      manager as unknown as { ensureBackgroundMusic: () => MockAudio }
+    ).ensureBackgroundMusic();
+    const confirmSound = (manager as unknown as { ensureConfirmSound: () => MockAudio }).ensureConfirmSound();
+    const clickSound = (manager as unknown as { ensureClickSound: () => MockAudio }).ensureClickSound();
+    const hoverSound = (manager as unknown as { ensureHoverSound: () => MockAudio }).ensureHoverSound();
+
+    expect((manager as unknown as { ensureContext: () => MockAudioContext }).ensureContext()).toBe(context);
+    expect(
+      (manager as unknown as { ensureBackgroundMusic: () => MockAudio }).ensureBackgroundMusic(),
+    ).toBe(backgroundMusic);
+    expect((manager as unknown as { ensureConfirmSound: () => MockAudio }).ensureConfirmSound()).toBe(
+      confirmSound,
+    );
+    expect((manager as unknown as { ensureClickSound: () => MockAudio }).ensureClickSound()).toBe(
+      clickSound,
+    );
+    expect((manager as unknown as { ensureHoverSound: () => MockAudio }).ensureHoverSound()).toBe(
+      hoverSound,
+    );
+
+    context.state = 'running';
+    (manager as unknown as { playTone: (options: object) => void }).playTone({
+      duration: 0.25,
+      endFrequency: 0.2,
+      frequency: 200,
+      gain: 0.1,
+      type: 'triangle',
+    });
+    expect(context.createOscillator).toHaveBeenCalledTimes(1);
+    const oscillator = context.createOscillator.mock.results[0]?.value as MockOscillatorNode;
+    expect(oscillator.frequency.exponentialRampToValueAtTime).toHaveBeenCalledWith(1, 1.25);
+    expect(oscillator.start).toHaveBeenCalledWith(1);
+    expect(oscillator.stop).toHaveBeenCalledWith(1.27);
+
+    manager.setMusicVolume(0.3);
+    expect(backgroundMusic.volume).toBe(0.3);
+    expect(backgroundMusic.muted).toBe(false);
+
+    manager.setSoundVolume(0.4);
+    expect(context.createGain.mock.results[0]?.value.gain.setTargetAtTime).toHaveBeenCalledWith(
+      0.4,
+      1,
+      0.03,
+    );
+    expect(confirmSound.volume).toBeCloseTo(0.72 * 0.4);
+    expect(clickSound.volume).toBeCloseTo(0.78 * 0.4);
+    expect(hoverSound.volume).toBeCloseTo(0.62 * 0.4);
+
+    manager.toggleSoundMute();
+    expect(confirmSound.muted).toBe(true);
+    expect(clickSound.muted).toBe(true);
+    expect(hoverSound.muted).toBe(true);
+
+    const confirmButton = document.createElement('button');
+    confirmButton.dataset.uiCue = 'confirm';
+    expect(
+      (manager as unknown as { resolveUiCue: (element: HTMLElement) => string }).resolveUiCue(
+        confirmButton,
+      ),
+    ).toBe('confirm');
+  });
+
+  it('covers unlock, storage warning, and private fallback branches', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => {
+          if (key === STORAGE_KEYS.soundMuted) {
+            return JSON.stringify(true);
+          }
+
+          return null;
+        },
+        removeItem: () => {
+          throw new Error('remove failed');
+        },
+        setItem: () => {
+          throw new Error('set failed');
+        },
+      },
+    });
+
+    const manager = new AppAudioManager();
+    const context = (manager as unknown as { ensureContext: () => MockAudioContext }).ensureContext();
+    context.state = 'suspended';
+    context.resume = vi.fn(async () => {
+      throw new Error('resume failed');
+    });
+
+    const button = document.createElement('button');
+    button.textContent = 'Play';
+    document.body.append(button);
+
+    (manager as unknown as { handleUnlock: () => void }).handleUnlock();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(warnSpy).toHaveBeenCalledWith('Audio unlock failed.', expect.any(Error));
+
+    (manager as unknown as { handleUnlock: () => void }).handleUnlock();
+    expect(context.resume).toHaveBeenCalledTimes(1);
+
+    manager.toggleMusicMute();
+    manager.toggleSoundMute();
+    manager.setMusicVolume(0.6);
+    manager.setSoundVolume(0.7);
+
+    expect(warnSpy).toHaveBeenCalledWith('Mute preference could not be persisted.', expect.any(Error));
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Volume preference could not be persisted.',
+      expect.any(Error),
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Sound mute preference could not be normalized.',
+      expect.any(Error),
+    );
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) =>
+          key === STORAGE_KEYS.audioMuted ? JSON.stringify(true) : null,
+        removeItem: () => {
+          throw new Error('remove failed');
+        },
+        setItem: () => {
+          throw new Error('set failed');
+        },
+      },
+    });
+
+    new AppAudioManager();
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Legacy mute preference could not be migrated.',
+      expect.any(Error),
+    );
+  });
+
   it('handles missing browser audio APIs and internal private branches', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     Object.defineProperty(globalThis, 'localStorage', {
@@ -245,6 +416,9 @@ describe('frontend audio manager', () => {
         }),
       }),
     );
+    expect(
+      (manager as unknown as { playBufferedCue: (cueId: 'confirm') => void }).playBufferedCue('confirm'),
+    ).toBeUndefined();
     expect(warnSpy).toHaveBeenCalled();
   });
 });

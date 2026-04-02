@@ -33,6 +33,18 @@ describe('backend environment configuration', () => {
       'http://localhost:5173',
       'http://127.0.0.1:5173',
     ]);
+
+    vi.resetModules();
+    process.env = {
+      NODE_ENV: 'test',
+      POSTGRES_DB: 'dab_auth',
+      POSTGRES_USER: 'dab',
+      POSTGRES_PASSWORD: 'secret',
+      ACCESS_TOKEN_SECRET: 'test-access-token-secret-with-32-chars',
+    };
+
+    const { env: defaultEnv } = await import('../../config/env/backend-env');
+    expect(defaultEnv.DATABASE_URL).toBe('postgresql://dab:secret@127.0.0.1:5432/dab_auth');
   });
 
   it('prefers DATABASE_URL and rejects invalid environment setups', async () => {
@@ -137,6 +149,122 @@ describe('backend postgres helpers', () => {
 
     await postgres.closeDatabase();
     expect(end).toHaveBeenCalled();
+  });
+
+  it('normalizes legacy user columns, nicknames, and display names during schema migration', async () => {
+    const query = vi.fn(async (sql: string, params?: unknown[]) => {
+      const normalizedSql = String(sql).replace(/\s+/g, ' ').trim();
+
+      if (normalizedSql.includes('FROM information_schema.columns')) {
+        const [tableName, columnName] = (params ?? []) as [string, string];
+
+        if (tableName === 'users' && columnName === 'name') {
+          return { rows: [{ exists: false }] };
+        }
+
+        if (tableName === 'users' && columnName === 'nickname') {
+          return { rows: [{ exists: false }] };
+        }
+
+        if (tableName === 'users' && columnName === 'profile_image_url') {
+          return { rows: [{ exists: false }] };
+        }
+
+        if (tableName === 'users' && columnName === 'username') {
+          return { rows: [{ exists: true }] };
+        }
+      }
+
+      if (normalizedSql.includes('FROM information_schema.table_constraints')) {
+        return { rows: [{ exists: false }] };
+      }
+
+      if (normalizedSql.startsWith('SELECT id, email, name, nickname FROM users')) {
+        return {
+          rows: [
+            {
+              id: '123e4567-e89b-12d3-a456-426614174000',
+              email: 'Jõsé..Player+one@example.com',
+              name: '  John   Doe  ',
+              nickname: null,
+            },
+            {
+              id: '223e4567-e89b-12d3-a456-426614174000',
+              email: 'a@example.com',
+              name: null,
+              nickname: '__',
+            },
+            {
+              id: '323e4567-e89b-12d3-a456-426614174000',
+              email: 'duplicate@example.com',
+              name: '',
+              nickname: 'Jose.Player.one',
+            },
+            {
+              id: '423e4567-e89b-12d3-a456-426614174000',
+              email: 'stable@example.com',
+              name: 'Stable User',
+              nickname: 'stable.user',
+            },
+          ],
+        };
+      }
+
+      return { rows: [] };
+    });
+    const release = vi.fn();
+
+    class MockPool {
+      connect = vi.fn(async () => ({
+        query,
+        release,
+      }));
+
+      end = vi.fn(async () => undefined);
+    }
+
+    vi.doMock('pg', () => ({
+      Pool: MockPool,
+    }));
+
+    const postgres = await import('../../app/backend/lib/postgres');
+    await postgres.initializeDatabase();
+
+    expect(query).toHaveBeenCalledWith('ALTER TABLE users ADD COLUMN name TEXT');
+    expect(query).toHaveBeenCalledWith('ALTER TABLE users ADD COLUMN nickname TEXT');
+    expect(query).toHaveBeenCalledWith('ALTER TABLE users ADD COLUMN profile_image_url TEXT');
+    expect(
+      query.mock.calls.some(([sql]) =>
+        String(sql).includes('SET nickname = COALESCE(NULLIF(BTRIM(nickname), \'\'), NULLIF(BTRIM(username), \'\'))'),
+      ),
+    ).toBe(true);
+    expect(query).toHaveBeenCalledWith('ALTER TABLE users DROP COLUMN username');
+    expect(query).toHaveBeenCalledWith(
+      expect.stringContaining('ALTER TABLE users ADD CONSTRAINT users_nickname_unique UNIQUE (nickname)'),
+    );
+
+    const userUpdates = query.mock.calls.filter(([sql]) =>
+      String(sql).includes('UPDATE users') && String(sql).includes('SET nickname = $2, name = $3, updated_at = NOW()'),
+    );
+
+    expect(userUpdates).toEqual([
+      [
+        expect.any(String),
+        ['123e4567-e89b-12d3-a456-426614174000', 'jose.player.one', 'John Doe'],
+      ],
+      [
+        expect.any(String),
+        ['223e4567-e89b-12d3-a456-426614174000', 'player223e4567', 'player223e4567'],
+      ],
+      [
+        expect.any(String),
+        ['323e4567-e89b-12d3-a456-426614174000', 'jose.player.one-2', 'jose.player.one-2'],
+      ],
+    ]);
+    expect(
+      userUpdates.some(([, params]) => (params as string[])[0] === '423e4567-e89b-12d3-a456-426614174000'),
+    ).toBe(false);
+    expect(release).toHaveBeenCalled();
   });
 });
 
@@ -256,6 +384,117 @@ describe('backend entrypoint', () => {
     expect(serverClose).toHaveBeenCalled();
     expect(closeDatabase).toHaveBeenCalled();
     expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  it('exits with code 1 when shutdown cleanup fails or times out', async () => {
+    const exitSpy = vi.fn();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const handlers = new Map<string, () => void>();
+    const closeDatabase = vi.fn(async () => {
+      throw new Error('close failed');
+    });
+    const initializeDatabase = vi.fn(async () => undefined);
+    const serverClose = vi.fn((callback: () => void) => callback());
+    let timeoutHandler: (() => void) | null = null;
+    const listen = vi.fn((port: number, callback: () => void) => {
+      callback();
+      return {
+        close: serverClose,
+      };
+    });
+
+    process.exit = exitSpy as never;
+    process.on = vi.fn((event, handler) => {
+      handlers.set(event, handler as () => void);
+      return process;
+    }) as never;
+    globalThis.setTimeout = vi.fn((handler) => {
+      timeoutHandler = handler as () => void;
+      return {
+        unref: vi.fn(),
+      } as never;
+    }) as never;
+
+    vi.doMock('../../app/backend/lib/postgres', () => ({
+      closeDatabase,
+      initializeDatabase,
+      withTransaction: vi.fn(),
+    }));
+    vi.doMock('../../app/backend/lib/create-app', () => ({
+      createApp: vi.fn(() => ({
+        listen,
+      })),
+    }));
+    vi.doMock('../../app/backend/middleware/auth.middleware', () => ({
+      createAuthMiddleware: vi.fn(() => 'auth-middleware'),
+      createOptionalAuthMiddleware: vi.fn(() => 'optional-auth-middleware'),
+    }));
+    vi.doMock('../../app/backend/controllers/auth.controller', () => ({
+      createAuthController: vi.fn(() => 'auth-controller'),
+    }));
+    vi.doMock('../../app/backend/controllers/profile.controller', () => ({
+      createProfileController: vi.fn(() => 'profile-controller'),
+    }));
+    vi.doMock('../../app/backend/routes/auth.routes', () => ({
+      createAuthRouter: vi.fn(() => 'auth-router'),
+    }));
+    vi.doMock('../../app/backend/routes/profile.routes', () => ({
+      createProfileRouter: vi.fn(() => 'profile-router'),
+    }));
+    class AuthRepository {}
+    class ProfileRepository {}
+    class UsersRepository {}
+    class ProfileService {
+      async ensureStorage(): Promise<void> {
+        return undefined;
+      }
+    }
+    class AuthService {}
+    class PasswordService {}
+    class TokenService {}
+    class UsersService {}
+
+    vi.doMock('../../app/backend/repositories/auth.repository', () => ({
+      AuthRepository,
+    }));
+    vi.doMock('../../app/backend/repositories/profile.repository', () => ({
+      ProfileRepository,
+    }));
+    vi.doMock('../../app/backend/repositories/users.repository', () => ({
+      UsersRepository,
+    }));
+    vi.doMock('../../app/backend/services/profile.service', () => ({
+      ProfileService,
+    }));
+    vi.doMock('../../app/backend/services/auth.service', () => ({
+      AuthService,
+    }));
+    vi.doMock('../../app/backend/services/password.service', () => ({
+      PasswordService,
+    }));
+    vi.doMock('../../app/backend/services/token.service', () => ({
+      TokenService,
+    }));
+    vi.doMock('../../app/backend/services/users.service', () => ({
+      UsersService,
+    }));
+
+    await import('../../app/backend/index');
+    await Promise.resolve();
+    handlers.get('SIGTERM')?.();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(serverClose).toHaveBeenCalled();
+    expect(closeDatabase).toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Failed to close the database pool cleanly.',
+      expect.any(Error),
+    );
+    expect(exitSpy).toHaveBeenCalledWith(1);
+
+    timeoutHandler?.();
+    expect(exitSpy).toHaveBeenCalledWith(1);
   });
 
   it('exits with code 1 when startup fails', async () => {

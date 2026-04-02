@@ -106,6 +106,14 @@ describe('frontend simple ui modules', () => {
     expect(exitModal.textContent).toContain('Player One');
     expect(exitModal.textContent).toContain('logout failed');
     expect(exitModal.className).toContain('exit-modal--closing');
+
+    const quietExitModal = createExitModal({
+      i18n,
+      isClosing: false,
+      isLoggingOut: false,
+      userLabel: 'Player One',
+    });
+    expect(quietExitModal.querySelector('[data-exit-modal-error]')?.textContent).toBe('');
   });
 
   it('throws when menu shell or exit modal structure is incomplete', async () => {
@@ -166,6 +174,16 @@ describe('frontend simple ui modules', () => {
     });
     expect(homeWithAvatar.innerHTML).toContain('https://example.com/avatar.png');
 
+    const homeWithFallbackMonogram = createHomeScreen({
+      i18n,
+      user: createTestUser({
+        email: '',
+        name: '',
+        nickname: '',
+      }),
+    });
+    expect(homeWithFallbackMonogram.innerHTML).toContain('%3F');
+
     const game = createGameScreen({
       appVersion: '0.1.0',
       i18n,
@@ -199,6 +217,11 @@ describe('frontend simple ui modules', () => {
     });
     expect(loading.element.textContent).toContain('100%');
     expect(loading.element.textContent).toContain('Done');
+
+    loading.setState({
+      title: undefined,
+    });
+    expect(loading.element.textContent).toContain(i18n.getMessages().loading.defaultTitle);
   });
 
   it('throws when game or loading screen structure is incomplete', async () => {
