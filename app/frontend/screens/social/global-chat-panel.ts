@@ -138,7 +138,7 @@ export function createGlobalChatPanel(options: CreateGlobalChatPanelOptions): HT
     const showFeedback = isExpanded && Boolean(nextFeedback);
 
     feedback.hidden = !showFeedback;
-    feedback.textContent = showFeedback ? nextFeedback ?? '' : '';
+    feedback.textContent = showFeedback ? (nextFeedback as string) : '';
 
     if (snapshot.isLoading && snapshot.messages.length === 0) {
       const loading = document.createElement('div');
@@ -174,7 +174,7 @@ export function createGlobalChatPanel(options: CreateGlobalChatPanelOptions): HT
           : 'global-chat-panel__message global-chat-panel__message--other';
 
         if (!isExpanded) {
-          item.style.opacity = String(collapsedOpacities[index] ?? 1);
+          item.style.opacity = String(collapsedOpacities[index]!);
         } else {
           item.style.opacity = '1';
         }
@@ -228,7 +228,7 @@ export function createGlobalChatPanel(options: CreateGlobalChatPanelOptions): HT
     );
 
     if (isExpanded) {
-      const newestMessageId = visibleMessages[visibleMessages.length - 1]?.id ?? null;
+      const newestMessageId = visibleMessages[visibleMessages.length - 1]?.id;
 
       if (newestMessageId && newestMessageId !== lastRenderedMessageId) {
         list.scrollTop = list.scrollHeight;
