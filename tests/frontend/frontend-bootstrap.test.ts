@@ -113,6 +113,43 @@ const bootstrapState = vi.hoisted(() => ({
   profileStore: {
     reset: vi.fn(),
   },
+  progressionStore: {
+    load: vi.fn(async () => ({ level: 1, nextLevelXp: 100, xp: 0 })),
+    reset: vi.fn(),
+  },
+  walletStore: {
+    load: vi.fn(async () => ({
+      transactions: [],
+      transactionsTotal: 0,
+      wallet: { shards: 500 },
+    })),
+    reset: vi.fn(),
+  },
+  notificationsStore: {
+    closePanel: vi.fn(),
+    disconnectRealtime: vi.fn(async () => undefined),
+    load: vi.fn(async () => ({
+      isConnected: false,
+      isLoading: false,
+      isOpen: false,
+      notifications: [],
+      unreadCount: 0,
+    })),
+    openPanel: vi.fn(),
+    reset: vi.fn(),
+    subscribeEvents: vi.fn(() => () => undefined),
+    togglePanel: vi.fn(),
+  },
+  chatStore: {
+    connectRealtime: vi.fn(async () => true),
+    disconnectRealtime: vi.fn(async () => undefined),
+    reset: vi.fn(),
+  },
+  socialStore: {
+    disconnectRealtime: vi.fn(async () => undefined),
+    reset: vi.fn(),
+    updatePresence: vi.fn(async () => undefined),
+  },
   router: {
     showBoot: vi.fn(),
     showGame: vi.fn(),
@@ -144,6 +181,36 @@ vi.mock('@frontend/services/auth/auth-service', () => ({
 vi.mock('@frontend/stores/profile.store', () => ({
   ProfileStore: function ProfileStore() {
     return bootstrapState.profileStore;
+  },
+}));
+
+vi.mock('@frontend/stores/progression.store', () => ({
+  ProgressionStore: function ProgressionStore() {
+    return bootstrapState.progressionStore;
+  },
+}));
+
+vi.mock('@frontend/stores/wallet.store', () => ({
+  WalletStore: function WalletStore() {
+    return bootstrapState.walletStore;
+  },
+}));
+
+vi.mock('@frontend/stores/notifications.store', () => ({
+  NotificationsStore: function NotificationsStore() {
+    return bootstrapState.notificationsStore;
+  },
+}));
+
+vi.mock('@frontend/stores/chat.store', () => ({
+  ChatStore: function ChatStore() {
+    return bootstrapState.chatStore;
+  },
+}));
+
+vi.mock('@frontend/stores/social.store', () => ({
+  SocialStore: function SocialStore() {
+    return bootstrapState.socialStore;
   },
 }));
 
@@ -203,6 +270,37 @@ describe('frontend bootstrap application', () => {
     });
     bootstrapState.authService.supportsRememberedSessions.mockReset().mockResolvedValue(true);
     bootstrapState.profileStore.reset.mockReset();
+    bootstrapState.progressionStore.load.mockReset().mockResolvedValue({
+      level: 1,
+      nextLevelXp: 100,
+      xp: 0,
+    });
+    bootstrapState.progressionStore.reset.mockReset();
+    bootstrapState.walletStore.load.mockReset().mockResolvedValue({
+      transactions: [],
+      transactionsTotal: 0,
+      wallet: { shards: 500 },
+    });
+    bootstrapState.walletStore.reset.mockReset();
+    bootstrapState.notificationsStore.closePanel.mockReset();
+    bootstrapState.notificationsStore.disconnectRealtime.mockReset().mockResolvedValue(undefined);
+    bootstrapState.notificationsStore.load.mockReset().mockResolvedValue({
+      isConnected: false,
+      isLoading: false,
+      isOpen: false,
+      notifications: [],
+      unreadCount: 0,
+    });
+    bootstrapState.notificationsStore.openPanel.mockReset();
+    bootstrapState.notificationsStore.reset.mockReset();
+    bootstrapState.notificationsStore.subscribeEvents.mockReset().mockReturnValue(() => undefined);
+    bootstrapState.notificationsStore.togglePanel.mockReset();
+    bootstrapState.chatStore.connectRealtime.mockReset().mockResolvedValue(true);
+    bootstrapState.chatStore.disconnectRealtime.mockReset().mockResolvedValue(undefined);
+    bootstrapState.chatStore.reset.mockReset();
+    bootstrapState.socialStore.disconnectRealtime.mockReset().mockResolvedValue(undefined);
+    bootstrapState.socialStore.reset.mockReset();
+    bootstrapState.socialStore.updatePresence.mockReset().mockResolvedValue(undefined);
     bootstrapState.router.showBoot.mockReset();
     bootstrapState.router.showGame.mockReset();
     bootstrapState.router.showLoading.mockReset().mockReturnValue({

@@ -106,12 +106,7 @@ export function resolveActivityLabel(user: SocialUserSummary, i18n: AppI18n): st
 }
 
 export function resolveUserLevel(user: SocialUserSummary): number {
-  const seed = [...user.nickname].reduce(
-    (value, character, index) => value + character.charCodeAt(0) * (index + 3),
-    0,
-  );
-
-  return (seed % 67) + 12;
+  return user.level;
 }
 
 export function resolvePresenceTone(

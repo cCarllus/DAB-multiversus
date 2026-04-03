@@ -14,12 +14,17 @@ export type AppApiErrorCode =
   | 'FRIEND_REQUEST_ALREADY_SENT'
   | 'FRIEND_REQUEST_NOT_FOUND'
   | 'FRIEND_REQUEST_NOT_OWNED'
+  | 'CHAT_MESSAGE_EMPTY'
+  | 'CHAT_MESSAGE_TOO_LONG'
+  | 'CHAT_RATE_LIMITED'
   | 'EMAIL_ALREADY_IN_USE'
+  | 'INSUFFICIENT_SHARDS'
   | 'INVALID_AVATAR_TYPE'
   | 'INVALID_CREDENTIALS'
   | 'INVALID_NAME'
   | 'LOGOUT_TARGET_REQUIRED'
   | 'NICKNAME_ALREADY_IN_USE'
+  | 'NOTIFICATION_NOT_FOUND'
   | 'REFRESH_TOKEN_INVALID'
   | 'REMEMBER_DEVICE_UNAVAILABLE'
   | 'REQUEST_INVALID'
@@ -86,6 +91,12 @@ export function resolveApiErrorMessage(error: unknown, i18n: AppI18n): string {
       case 'FRIENDSHIP_NOT_OWNED':
       case 'FRIENDSHIP_BLOCKED':
         return i18n.t('menu.social.errors.forbiddenAction');
+      case 'CHAT_MESSAGE_EMPTY':
+      case 'CHAT_MESSAGE_TOO_LONG':
+      case 'CHAT_RATE_LIMITED':
+      case 'NOTIFICATION_NOT_FOUND':
+      case 'INSUFFICIENT_SHARDS':
+        return error.message;
       default:
         return error.message;
     }

@@ -249,7 +249,28 @@
       "featuredLoadoutAriaLabel": "Conjunto em destaque",
       "matchDetails": "Detalhes da partida",
       "proCircuit": "CIRCUITO PRO",
-      "livePopularMatch": "Partida popular ao vivo"
+      "livePopularMatch": "Partida popular ao vivo",
+      "globalChat": {
+        "eyebrow": "Canal Global",
+        "title": "Chat do launcher",
+        "liveNow": "Ao vivo",
+        "connectedSummary": "Lutadores autenticados conversam em tempo real por todo o launcher.",
+        "disconnectedSummary": "O link em tempo real caiu. O histórico continua visível enquanto o canal reconecta.",
+        "loading": "Carregando o chat global recente...",
+        "empty": "O canal está silencioso. Quebre o gelo primeiro.",
+        "placeholder": "Envie uma mensagem para o canal global do launcher.",
+        "send": "Enviar",
+        "unavailable": "O chat global está indisponível no momento."
+      }
+    },
+    "notifications": {
+      "eyebrow": "Central de Sinais",
+      "title": "Notificações",
+      "summary": "{{count}} notificações não lidas no seu feed do launcher.",
+      "markAllRead": "Marcar todas",
+      "close": "Fechar",
+      "loading": "Carregando notificações...",
+      "empty": "Seu feed está limpo por enquanto."
     },
     "social": {
       "actions": {
@@ -517,8 +538,15 @@
     "footer": {
       "musicEnable": "Ativar a música do launcher",
       "musicMute": "Mutar a música do launcher",
+      "globalPrefix": "(Global):",
       "partyPrefix": "(Grupo):",
       "chatPlaceholder": "Digite uma mensagem ou '/' para comandos.",
+      "emojiAriaLabel": "Abrir seletor de emoji",
+      "connectedSummary": "Canal global online",
+      "disconnectedSummary": "Reconectando canal global",
+      "liveUsers": "ao vivo",
+      "loading": "Carregando mensagens recentes...",
+      "empty": "Ainda não há mensagens globais. Seja o primeiro a falar.",
       "play": "Jogar"
     },
     "exitModal": {

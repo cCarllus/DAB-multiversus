@@ -307,7 +307,9 @@ describe('backend entrypoint', () => {
       this.gracefullyShutdown = gracefullyShutdown;
       this.listen = listen;
     });
-    const SocialPresenceRoom = class MockSocialPresenceRoom {};
+    const SocialPresenceRoom = class MockSocialPresenceRoom { };
+    const GlobalChatRoom = class MockGlobalChatRoom { };
+    const PlayerNotificationsRoom = class MockPlayerNotificationsRoom { };
 
     vi.doMock('../../config/env/backend-env', () => ({
       env: {
@@ -318,6 +320,7 @@ describe('backend entrypoint', () => {
       createServer,
     }));
     vi.doMock('@colyseus/core', () => ({
+      Room: class MockRoom { },
       Server: MockRealtimeServer,
     }));
     vi.doMock('@colyseus/ws-transport', () => ({
@@ -325,6 +328,12 @@ describe('backend entrypoint', () => {
     }));
     vi.doMock('../../app/backend/colyseus/social-presence-room', () => ({
       SocialPresenceRoom,
+    }));
+    vi.doMock('../../app/backend/colyseus/global-chat-room', () => ({
+      GlobalChatRoom,
+    }));
+    vi.doMock('../../app/backend/colyseus/player-notifications-room', () => ({
+      PlayerNotificationsRoom,
     }));
     vi.doMock('../../app/backend/lib/postgres', () => ({
       closeDatabase,
@@ -342,6 +351,15 @@ describe('backend entrypoint', () => {
     vi.doMock('../../app/backend/controllers/auth.controller', () => ({
       createAuthController: vi.fn(() => 'auth-controller'),
     }));
+    vi.doMock('../../app/backend/controllers/chat.controller', () => ({
+      createChatController: vi.fn(() => 'chat-controller'),
+    }));
+    vi.doMock('../../app/backend/controllers/notifications.controller', () => ({
+      createNotificationsController: vi.fn(() => 'notifications-controller'),
+    }));
+    vi.doMock('../../app/backend/controllers/player-state.controller', () => ({
+      createPlayerStateController: vi.fn(() => 'player-state-controller'),
+    }));
     vi.doMock('../../app/backend/controllers/presence.controller', () => ({
       createPresenceController: vi.fn(() => 'presence-controller'),
     }));
@@ -354,8 +372,14 @@ describe('backend entrypoint', () => {
     vi.doMock('../../app/backend/routes/auth.routes', () => ({
       createAuthRouter: vi.fn(() => 'auth-router'),
     }));
+    vi.doMock('../../app/backend/routes/chat.routes', () => ({
+      createChatRouter: vi.fn(() => 'chat-router'),
+    }));
     vi.doMock('../../app/backend/routes/friends.routes', () => ({
       createFriendsRouter: vi.fn(() => 'friends-router'),
+    }));
+    vi.doMock('../../app/backend/routes/me.routes', () => ({
+      createMeRouter: vi.fn(() => 'me-router'),
     }));
     vi.doMock('../../app/backend/routes/presence.routes', () => ({
       createPresenceRouter: vi.fn(() => 'presence-router'),
@@ -367,16 +391,28 @@ describe('backend entrypoint', () => {
       createUsersRouter: vi.fn(() => 'users-router'),
     }));
     vi.doMock('../../app/backend/repositories/auth.repository', () => ({
-      AuthRepository: vi.fn(function MockAuthRepository() {}),
+      AuthRepository: vi.fn(function MockAuthRepository() { }),
+    }));
+    vi.doMock('../../app/backend/repositories/chat.repository', () => ({
+      ChatRepository: vi.fn(function MockChatRepository() { }),
+    }));
+    vi.doMock('../../app/backend/repositories/notifications.repository', () => ({
+      NotificationsRepository: vi.fn(function MockNotificationsRepository() { }),
     }));
     vi.doMock('../../app/backend/repositories/profile.repository', () => ({
-      ProfileRepository: vi.fn(function MockProfileRepository() {}),
+      ProfileRepository: vi.fn(function MockProfileRepository() { }),
+    }));
+    vi.doMock('../../app/backend/repositories/progression.repository', () => ({
+      ProgressionRepository: vi.fn(function MockProgressionRepository() { }),
     }));
     vi.doMock('../../app/backend/repositories/social.repository', () => ({
-      SocialRepository: vi.fn(function MockSocialRepository() {}),
+      SocialRepository: vi.fn(function MockSocialRepository() { }),
     }));
     vi.doMock('../../app/backend/repositories/users.repository', () => ({
-      UsersRepository: vi.fn(function MockUsersRepository() {}),
+      UsersRepository: vi.fn(function MockUsersRepository() { }),
+    }));
+    vi.doMock('../../app/backend/repositories/wallet.repository', () => ({
+      WalletRepository: vi.fn(function MockWalletRepository() { }),
     }));
     vi.doMock('../../app/backend/services/profile.service', () => ({
       ProfileService: vi.fn(function MockProfileService() {
@@ -385,29 +421,49 @@ describe('backend entrypoint', () => {
         };
       }),
     }));
+    vi.doMock('../../app/backend/services/chat.service', () => ({
+      ChatService: vi.fn(function MockChatService() { }),
+    }));
+    vi.doMock('../../app/backend/services/notifications-realtime.gateway', () => ({
+      NotificationsRealtimeGateway: vi.fn(function MockNotificationsRealtimeGateway() { }),
+    }));
+    vi.doMock('../../app/backend/services/notifications.service', () => ({
+      NotificationsService: vi.fn(function MockNotificationsService() { }),
+    }));
+    vi.doMock('../../app/backend/services/player-account-bootstrap.service', () => ({
+      PlayerAccountBootstrapService: vi.fn(function MockPlayerAccountBootstrapService() { }),
+    }));
     vi.doMock('../../app/backend/services/social-presence-session.service', () => ({
-      SocialPresenceSessionService: vi.fn(function MockSocialPresenceSessionService() {}),
+      SocialPresenceSessionService: vi.fn(function MockSocialPresenceSessionService() { }),
+    }));
+    vi.doMock('../../app/backend/services/progression.service', () => ({
+      ProgressionService: vi.fn(function MockProgressionService() { }),
     }));
     vi.doMock('../../app/backend/services/session-auth.service', () => ({
-      SessionAuthService: vi.fn(function MockSessionAuthService() {}),
+      SessionAuthService: vi.fn(function MockSessionAuthService() { }),
     }));
     vi.doMock('../../app/backend/services/social.service', () => ({
-      SocialService: vi.fn(function MockSocialService() {}),
+      SocialService: vi.fn(function MockSocialService() { }),
     }));
     vi.doMock('../../app/backend/services/auth.service', () => ({
-      AuthService: vi.fn(function MockAuthService() {}),
+      AuthService: vi.fn(function MockAuthService() { }),
     }));
     vi.doMock('../../app/backend/services/password.service', () => ({
-      PasswordService: vi.fn(function MockPasswordService() {}),
+      PasswordService: vi.fn(function MockPasswordService() { }),
     }));
     vi.doMock('../../app/backend/services/token.service', () => ({
-      TokenService: vi.fn(function MockTokenService() {}),
+      TokenService: vi.fn(function MockTokenService() { }),
     }));
     vi.doMock('../../app/backend/services/users.service', () => ({
-      UsersService: vi.fn(function MockUsersService() {}),
+      UsersService: vi.fn(function MockUsersService() { }),
+    }));
+    vi.doMock('../../app/backend/services/wallet.service', () => ({
+      WalletService: vi.fn(function MockWalletService() { }),
     }));
 
     return {
+      GlobalChatRoom,
+      PlayerNotificationsRoom,
       SocialPresenceRoom,
       WebSocketTransport,
       app,
@@ -453,7 +509,9 @@ describe('backend entrypoint', () => {
     expect(mocks.ensureStorage).toHaveBeenCalled();
     expect(mocks.createApp).toHaveBeenCalledWith({
       authRouter: 'auth-router',
+      chatRouter: 'chat-router',
       friendsRouter: 'friends-router',
+      meRouter: 'me-router',
       presenceRouter: 'presence-router',
       profileRouter: 'profile-router',
       usersRouter: 'users-router',
@@ -469,6 +527,25 @@ describe('backend entrypoint', () => {
         presenceSessionService: expect.any(Object),
         sessionAuthService: expect.any(Object),
         socialService: expect.any(Object),
+      }),
+    );
+    expect(mocks.define).toHaveBeenCalledWith(
+      'global_chat',
+      mocks.GlobalChatRoom,
+      expect.objectContaining({
+        chatService: expect.any(Object),
+        presenceSessionService: expect.any(Object),
+        sessionAuthService: expect.any(Object),
+      }),
+    );
+    expect(mocks.define).toHaveBeenCalledWith(
+      'player_notifications',
+      mocks.PlayerNotificationsRoom,
+      expect.objectContaining({
+        notificationsRealtimeGateway: expect.any(Object),
+        notificationsService: expect.any(Object),
+        presenceSessionService: expect.any(Object),
+        sessionAuthService: expect.any(Object),
       }),
     );
     expect(mocks.listen).toHaveBeenCalledWith(4000);

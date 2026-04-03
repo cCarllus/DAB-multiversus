@@ -8,6 +8,7 @@ import {
   createSocialAvatar,
   resolveActivityLabel,
 } from '@frontend/screens/social/social-formatters';
+import type { ProgressionStore } from '@frontend/stores/progression.store';
 import type { SocialStore } from '@frontend/stores/social.store';
 import type { AppI18n } from '@shared/i18n';
 
@@ -16,6 +17,7 @@ import './home-screen.css';
 
 interface HomeScreenOptions {
   i18n: AppI18n;
+  progressionStore?: ProgressionStore;
   socialStore?: SocialStore;
   user: AuthUser;
 }
@@ -64,6 +66,7 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
     MATCH_DETAILS_LABEL: messages.menu.home.matchDetails,
     PLAYER_ALIAS: resolveAuthDisplayName(options.user),
     PLAYER_AVATAR_URL: avatarUrl,
+    PLAYER_LEVEL: String(options.progressionStore?.getSnapshot()?.level ?? 1),
     PLAYER_STATUS: options.i18n.t('menu.social.presence.inLauncher'),
     PLAYER_STATUS_CLASS: 'home-profile-card__status--launcher',
     PRO_CIRCUIT_LABEL: messages.menu.home.proCircuit,
@@ -71,9 +74,10 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
     SEASON_OBJECTIVE_LABEL: messages.menu.home.seasonObjective,
     SEASON_OBJECTIVE_PROGRESS_LABEL: messages.menu.home.seasonObjectiveProgressLabel,
   });
+  const levelElement = rootElement.querySelector<HTMLElement>('[data-home-player-level]');
   const friendsList = rootElement.querySelector<HTMLElement>('[data-home-friends-list]');
 
-  if (!friendsList) {
+  if (!levelElement || !friendsList) {
     throw new Error('Home screen social widgets could not be initialized.');
   }
 
@@ -159,6 +163,24 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
   };
 
   renderHomeSocial();
+
+  if (options.progressionStore) {
+    const renderProgression = (): void => {
+      levelElement.textContent = String(options.progressionStore?.getSnapshot()?.level ?? 1);
+    };
+
+    renderProgression();
+    const unsubscribeProgression = options.progressionStore.subscribe(() => {
+      if (!rootElement.isConnected) {
+        unsubscribeProgression();
+        return;
+      }
+
+      renderProgression();
+    });
+
+    void options.progressionStore.load(!options.progressionStore.getSnapshot()).catch(() => undefined);
+  }
 
   if (!options.socialStore) {
     friendsList.replaceChildren(createHomeEmptyState(messages.menu.home.friendsUnavailable));

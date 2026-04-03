@@ -771,11 +771,13 @@ describe('backend controllers, routes, and app', () => {
 
   it('builds the express app with CORS, health, static uploads, 404s, and error handling', async () => {
     const authRouter = express.Router();
+    const chatRouter = express.Router();
     authRouter.get('/explode', () => {
       throw new AppError(418, 'TEAPOT', 'short and stout');
     });
 
     const friendsRouter = express.Router();
+    const meRouter = express.Router();
     const presenceRouter = express.Router();
     const profileRouter = express.Router();
     profileRouter.get('/db', () => {
@@ -787,7 +789,9 @@ describe('backend controllers, routes, and app', () => {
 
     const app = createApp({
       authRouter,
+      chatRouter,
       friendsRouter,
+      meRouter,
       presenceRouter,
       profileRouter,
       usersRouter,

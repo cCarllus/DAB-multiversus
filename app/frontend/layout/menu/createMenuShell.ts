@@ -1,4 +1,9 @@
 import { createElementFromTemplate } from '@frontend/lib/html';
+import { createNotificationsModal } from '@frontend/screens/notifications/notifications-modal';
+import type { ChatStore } from '@frontend/stores/chat.store';
+import type { NotificationsStore } from '@frontend/stores/notifications.store';
+import type { ProgressionStore } from '@frontend/stores/progression.store';
+import type { WalletStore } from '@frontend/stores/wallet.store';
 import type { AppI18n } from '@shared/i18n';
 
 import { createMenuFooterBar } from './createMenuFooterBar';
@@ -10,9 +15,14 @@ import menuShellTemplate from './menu-shell.html?raw';
 interface CreateMenuShellOptions {
   activeView: 'home' | 'players' | 'profile' | 'system';
   brandImage: string;
+  chatStore?: ChatStore;
   content: HTMLElement;
+  currentUserNickname?: string;
   i18n: AppI18n;
   musicMuted: boolean;
+  notificationsStore?: NotificationsStore;
+  progressionStore?: ProgressionStore;
+  walletStore?: WalletStore;
 }
 
 export function createMenuShell(options: CreateMenuShellOptions): HTMLElement {
@@ -33,6 +43,9 @@ export function createMenuShell(options: CreateMenuShellOptions): HTMLElement {
       activeView: options.activeView,
       brandImage: options.brandImage,
       i18n: options.i18n,
+      notificationsStore: options.notificationsStore,
+      progressionStore: options.progressionStore,
+      walletStore: options.walletStore,
     }),
     options.content,
   );
@@ -40,8 +53,19 @@ export function createMenuShell(options: CreateMenuShellOptions): HTMLElement {
   if (options.activeView === 'home') {
     frame.append(
       createMenuFooterBar({
+        chatStore: options.chatStore,
+        currentUserNickname: options.currentUserNickname,
         i18n: options.i18n,
         musicMuted: options.musicMuted,
+      }),
+    );
+  }
+
+  if (options.notificationsStore) {
+    rootElement.append(
+      createNotificationsModal({
+        i18n: options.i18n,
+        notificationsStore: options.notificationsStore,
       }),
     );
   }

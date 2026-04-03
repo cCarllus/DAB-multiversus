@@ -13,6 +13,7 @@ import type {
   RegisterInput,
 } from '../types/auth.types';
 import { PasswordService } from './password.service';
+import { PlayerAccountBootstrapService } from './player-account-bootstrap.service';
 import { ProfileService } from './profile.service';
 import { SocialPresenceSessionService } from './social-presence-session.service';
 import { SocialService } from './social.service';
@@ -23,6 +24,7 @@ interface AuthServiceDependencies {
   authRepository: AuthRepository;
   passwordService: PasswordService;
   presenceSessionService?: SocialPresenceSessionService;
+  playerAccountBootstrapService: PlayerAccountBootstrapService;
   profileService: ProfileService;
   socialService: SocialService;
   tokenService: TokenService;
@@ -42,11 +44,23 @@ export class AuthService {
 
   async register(input: RegisterInput): Promise<{ user: AuthResponse['user'] }> {
     const passwordHash = await this.dependencies.passwordService.hashPassword(input.password);
-    const user = await this.dependencies.usersService.createUser({
-      email: input.email,
-      name: input.name,
-      nickname: input.nickname,
-      passwordHash,
+    const user = await withTransaction(async (client) => {
+      const createdUser = await this.dependencies.usersService.createUser(
+        {
+          email: input.email,
+          name: input.name,
+          nickname: input.nickname,
+          passwordHash,
+        },
+        client,
+      );
+
+      await this.dependencies.playerAccountBootstrapService.initializeNewAccount(
+        createdUser.id,
+        client,
+      );
+
+      return createdUser;
     });
 
     return {

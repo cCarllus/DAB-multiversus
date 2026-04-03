@@ -23,6 +23,7 @@ interface SocialPresenceRoomOptions {
 interface SocialPresenceClientData {
   authSessionId: string;
   nickname: string;
+  unregisterSession: () => void;
   userId: string;
 }
 
@@ -124,11 +125,11 @@ export class SocialPresenceRoom extends Room<
     client.userData = {
       authSessionId: auth.sessionId,
       nickname: auth.nickname,
+      unregisterSession: this.presenceSessionService.registerSession(auth.sessionId, () => {
+        client.leave();
+      }),
       userId: auth.userId,
     };
-    this.presenceSessionService.registerSession(auth.sessionId, () => {
-      client.leave();
-    });
 
     this.nicknameByUserId.set(auth.userId, auth.nickname);
     this.setConnection(auth.userId, client.sessionId, {
@@ -162,7 +163,7 @@ export class SocialPresenceRoom extends Room<
       return;
     }
 
-    this.presenceSessionService.unregisterSession(userData.authSessionId);
+    userData.unregisterSession();
     this.deleteConnection(userData.userId, client.sessionId);
     const entry = await this.persistResolvedPresence(userData.userId);
 

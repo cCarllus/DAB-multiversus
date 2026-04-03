@@ -8,7 +8,9 @@ import { PROFILE_UPLOADS_ROOT } from './profile-storage';
 
 interface CreateAppOptions {
   authRouter: Router;
+  chatRouter: Router;
   friendsRouter: Router;
+  meRouter: Router;
   presenceRouter: Router;
   profileRouter: Router;
   usersRouter: Router;
@@ -55,6 +57,8 @@ export function createApp(options: CreateAppOptions) {
   });
 
   app.use('/auth', options.authRouter);
+  app.use('/chat', options.chatRouter);
+  app.use('/me', options.meRouter);
   app.use('/users', options.usersRouter);
   app.use('/friends', options.friendsRouter);
   app.use('/presence', options.presenceRouter);

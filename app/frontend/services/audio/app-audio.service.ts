@@ -12,6 +12,7 @@ const UI_BUS_VOLUME = 0.85;
 const UI_CLICK_VOLUME = 0.78;
 const UI_CONFIRM_VOLUME = 0.72;
 const UI_HOVER_VOLUME = 0.62;
+const NOTIFICATION_CUE_COOLDOWN_MS = 700;
 
 interface ToneOptions {
   duration: number;
@@ -41,6 +42,8 @@ export class AppAudioManager {
   private musicMuted = false;
 
   private musicVolume = DEFAULT_MUSIC_VOLUME;
+
+  private lastNotificationCueAt = 0;
 
   private soundMuted = false;
 
@@ -190,6 +193,69 @@ export class AppAudioManager {
     if (cueId === 'confirm') {
       this.playBufferedCue('confirm');
     }
+  }
+
+  public playNotificationCue(cueId: 'info' | 'reward' | 'social' | 'warning'): void {
+    if (Date.now() - this.lastNotificationCueAt < NOTIFICATION_CUE_COOLDOWN_MS) {
+      return;
+    }
+
+    this.lastNotificationCueAt = Date.now();
+
+    if (cueId === 'reward') {
+      this.playTone({
+        duration: 0.16,
+        endFrequency: 780,
+        frequency: 560,
+        gain: 0.015,
+        type: 'triangle',
+      });
+      this.playTone({
+        duration: 0.22,
+        endFrequency: 520,
+        frequency: 720,
+        gain: 0.012,
+        type: 'sine',
+      });
+      return;
+    }
+
+    if (cueId === 'social') {
+      this.playTone({
+        duration: 0.14,
+        endFrequency: 440,
+        frequency: 330,
+        gain: 0.012,
+        type: 'triangle',
+      });
+      this.playTone({
+        duration: 0.12,
+        endFrequency: 620,
+        frequency: 520,
+        gain: 0.008,
+        type: 'sine',
+      });
+      return;
+    }
+
+    if (cueId === 'warning') {
+      this.playTone({
+        duration: 0.24,
+        endFrequency: 190,
+        frequency: 280,
+        gain: 0.018,
+        type: 'sawtooth',
+      });
+      return;
+    }
+
+    this.playTone({
+      duration: 0.14,
+      endFrequency: 360,
+      frequency: 300,
+      gain: 0.01,
+      type: 'sine',
+    });
   }
 
   private ensureContext(): AudioContext | null {

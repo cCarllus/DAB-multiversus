@@ -36,6 +36,9 @@ describe('auth service', () => {
       hashPassword: ReturnType<typeof vi.fn>;
       verifyPassword: ReturnType<typeof vi.fn>;
     };
+    playerAccountBootstrapService: {
+      initializeNewAccount: ReturnType<typeof vi.fn>;
+    };
     presenceSessionService: {
       disconnectSession: ReturnType<typeof vi.fn>;
     };
@@ -99,6 +102,9 @@ describe('auth service', () => {
       passwordService: {
         hashPassword: vi.fn(async () => 'password-hash'),
         verifyPassword: vi.fn(async () => true),
+      },
+      playerAccountBootstrapService: {
+        initializeNewAccount: vi.fn(async () => undefined),
       },
       presenceSessionService: {
         disconnectSession: vi.fn(async () => true),
@@ -186,12 +192,19 @@ describe('auth service', () => {
     });
 
     expect(dependencies.passwordService.hashPassword).toHaveBeenCalledWith('SenhaForte123!');
-    expect(dependencies.usersService.createUser).toHaveBeenCalledWith({
-      email: 'player@example.com',
-      name: 'Player One',
-      nickname: 'player.one',
-      passwordHash: 'password-hash',
-    });
+    expect(dependencies.usersService.createUser).toHaveBeenCalledWith(
+      {
+        email: 'player@example.com',
+        name: 'Player One',
+        nickname: 'player.one',
+        passwordHash: 'password-hash',
+      },
+      transactionClient,
+    );
+    expect(dependencies.playerAccountBootstrapService.initializeNewAccount).toHaveBeenCalledWith(
+      'user-1',
+      transactionClient,
+    );
   });
 
   it('rejects invalid credentials during login', async () => {

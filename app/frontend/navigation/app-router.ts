@@ -8,8 +8,12 @@ import {
 import { createBootScreen } from '@frontend/screens/boot/boot-screen';
 import { createGameScreen } from '@game/shell/game-screen';
 import { createMenuScreen } from '@frontend/screens/menu/menu-screen';
+import type { ChatStore } from '@frontend/stores/chat.store';
+import type { NotificationsStore } from '@frontend/stores/notifications.store';
 import type { SocialStore } from '@frontend/stores/social.store';
 import type { ProfileStore } from '@frontend/stores/profile.store';
+import type { ProgressionStore } from '@frontend/stores/progression.store';
+import type { WalletStore } from '@frontend/stores/wallet.store';
 import type { DesktopBridge } from '@shared/contracts/desktop.contract';
 import {
   createLoadingScreen,
@@ -25,8 +29,10 @@ interface CreateAppRouterOptions {
 }
 
 interface MenuRouteOptions {
+  chatStore: ChatStore;
   desktop: DesktopBridge;
   musicMuted: boolean;
+  notificationsStore: NotificationsStore;
   exitModal?: {
     errorMessage?: string | null;
     isLoggingOut: boolean;
@@ -35,10 +41,12 @@ interface MenuRouteOptions {
   onOpenProfile: (nickname: string) => void;
   profileStore: ProfileStore;
   profileTargetNickname?: string | null;
+  progressionStore: ProgressionStore;
   socialStore: SocialStore;
   session: AuthSessionSnapshot;
   user: AuthUser;
   view: 'home' | 'players' | 'profile' | 'system';
+  walletStore: WalletStore;
 }
 
 interface GameRouteOptions {
@@ -89,17 +97,21 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
     showMenu(menuOptions) {
       options.shell.setPage(
         createMenuScreen({
+          chatStore: menuOptions.chatStore,
           desktop: menuOptions.desktop,
           i18n: options.i18n,
           musicMuted: menuOptions.musicMuted,
+          notificationsStore: menuOptions.notificationsStore,
           exitModal: menuOptions.exitModal,
           onOpenProfile: menuOptions.onOpenProfile,
           session: menuOptions.session,
           profileStore: menuOptions.profileStore,
           profileTargetNickname: menuOptions.profileTargetNickname,
+          progressionStore: menuOptions.progressionStore,
           socialStore: menuOptions.socialStore,
           user: menuOptions.user,
           view: menuOptions.view,
+          walletStore: menuOptions.walletStore,
         }),
       );
     },

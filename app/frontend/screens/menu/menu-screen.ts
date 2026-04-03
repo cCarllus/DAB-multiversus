@@ -9,16 +9,22 @@ import { createHomeScreen } from '@frontend/screens/home/home-screen';
 import { createProfileScreen } from '@frontend/screens/profile/profile-screen';
 import { createSocialScreen } from '@frontend/screens/social/social-screen';
 import { createSystemScreen } from '@frontend/screens/system/system-screen';
+import type { ChatStore } from '@frontend/stores/chat.store';
+import type { NotificationsStore } from '@frontend/stores/notifications.store';
 import type { ProfileStore } from '@frontend/stores/profile.store';
+import type { ProgressionStore } from '@frontend/stores/progression.store';
 import type { SocialStore } from '@frontend/stores/social.store';
+import type { WalletStore } from '@frontend/stores/wallet.store';
 import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
 import type { DesktopBridge } from '@shared/contracts/desktop.contract';
 
 interface MenuScreenOptions {
+  chatStore?: ChatStore;
   desktop: DesktopBridge;
   musicMuted: boolean;
   i18n: AppI18n;
+  notificationsStore?: NotificationsStore;
   exitModal?: {
     errorMessage?: string | null;
     isLoggingOut: boolean;
@@ -27,10 +33,12 @@ interface MenuScreenOptions {
   onOpenProfile: (nickname: string) => void;
   profileStore: ProfileStore;
   profileTargetNickname?: string | null;
+  progressionStore?: ProgressionStore;
   socialStore: SocialStore;
   view: 'home' | 'players' | 'profile' | 'system';
   session: AuthSessionSnapshot;
   user: AuthUser;
+  walletStore?: WalletStore;
 }
 
 export function createMenuScreen(options: MenuScreenOptions): HTMLElement {
@@ -59,6 +67,7 @@ export function createMenuScreen(options: MenuScreenOptions): HTMLElement {
           })
         : createHomeScreen({
             i18n: options.i18n,
+            progressionStore: options.progressionStore,
             socialStore: options.socialStore,
             user: options.user,
           });
@@ -66,9 +75,14 @@ export function createMenuScreen(options: MenuScreenOptions): HTMLElement {
   const rootElement = createMenuShell({
     activeView: options.view,
     brandImage: titleGameNameImage,
+    chatStore: options.chatStore,
     content,
+    currentUserNickname: options.user.nickname,
     i18n: options.i18n,
     musicMuted: options.musicMuted,
+    notificationsStore: options.notificationsStore,
+    progressionStore: options.progressionStore,
+    walletStore: options.walletStore,
   });
 
   if (options.exitModal) {

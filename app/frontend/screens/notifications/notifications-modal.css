@@ -1,0 +1,179 @@
+.notifications-modal {
+  position: absolute;
+  inset: 56px 0 0 0;
+  z-index: 18;
+  display: grid;
+  justify-items: end;
+  padding: 18px 20px 20px;
+  background: rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.notifications-modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.notifications-modal__card {
+  width: min(460px, 100%);
+  max-height: calc(100vh - 120px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(11, 18, 28, 0.98), rgba(4, 8, 14, 0.98)),
+    radial-gradient(circle at top right, rgba(105, 169, 207, 0.16), transparent 32%);
+  box-shadow:
+    0 24px 54px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(var(--launcher-color-gold-rgb), 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.notifications-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notifications-modal__copy {
+  min-width: 0;
+}
+
+.notifications-modal__eyebrow {
+  margin: 0 0 6px;
+  color: rgba(231, 194, 104, 0.78);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.notifications-modal__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.notifications-modal__summary {
+  margin: 8px 0 0;
+  color: rgba(220, 228, 238, 0.68);
+  font-size: 0.94rem;
+}
+
+.notifications-modal__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.notifications-modal__action {
+  min-height: 2.5rem;
+  padding: 0 0.95rem;
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.28);
+  background: rgba(var(--launcher-color-gold-rgb), 0.08);
+  color: #ffe7a0;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notifications-modal__action--ghost {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(220, 228, 238, 0.78);
+}
+
+.notifications-modal__action:disabled {
+  opacity: 0.42;
+}
+
+.notifications-modal__list {
+  display: grid;
+  gap: 10px;
+  max-height: calc(100vh - 230px);
+  padding: 14px 12px 14px 14px;
+  overflow-y: auto;
+}
+
+.notifications-modal__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 12px 12px 12px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+}
+
+.notifications-modal__item[data-read='false'] {
+  border-color: rgba(var(--launcher-color-gold-rgb), 0.22);
+  background:
+    linear-gradient(135deg, rgba(var(--launcher-color-gold-rgb), 0.08), transparent 50%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.notifications-modal__item-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(220, 228, 238, 0.84);
+}
+
+.notifications-modal__item-icon[data-type='reward'] {
+  color: #ffe38d;
+}
+
+.notifications-modal__item-icon[data-type='social'] {
+  color: #8fd6ff;
+}
+
+.notifications-modal__item-icon[data-type='warning'],
+.notifications-modal__item-icon[data-type='error'] {
+  color: #ffb6a9;
+}
+
+.notifications-modal__item-body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.notifications-modal__item-topline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.notifications-modal__item-title {
+  color: var(--launcher-color-parchment);
+  font-size: 0.98rem;
+}
+
+.notifications-modal__item-time {
+  color: rgba(220, 228, 238, 0.46);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.notifications-modal__item-message {
+  color: rgba(220, 228, 238, 0.72);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.notifications-modal__empty {
+  padding: 18px 8px 12px;
+  color: rgba(220, 228, 238, 0.62);
+  text-align: center;
+}

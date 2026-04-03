@@ -55,13 +55,14 @@
             <span class="home-currency__icon-bottom"></span>
           </span>
           <span class="home-currency__copy">
-            <span class="home-currency__value">__CURRENCY_VALUE__</span>
+            <span class="home-currency__value" data-topbar-currency-value>__CURRENCY_VALUE__</span>
             <span class="home-currency__label">__CURRENCY_LABEL__</span>
           </span>
         </button>
 
         <button type="button" class="home-topbar__mini-block home-topbar__mini-block--mail __PROFILE_BUTTON_STATE_CLASS__"
           data-action="show-profile-page" aria-label="__PROFILE_ARIA_LABEL__" aria-pressed="__PROFILE_BUTTON_PRESSED__">
+          <span class="home-topbar__mini-badge home-topbar__mini-badge--level" data-topbar-level>__PLAYER_LEVEL_LABEL__</span>
           <span class="home-topbar__mini-content">
             <svg class="home-icon home-icon--medium">
               <use href="#icon-user"></use>
@@ -70,7 +71,8 @@
         </button>
 
         <button type="button" class="home-topbar__mini-block home-topbar__mini-block--notifications"
-          aria-label="__NOTIFICATIONS_ARIA_LABEL__">
+          data-action="toggle-notifications-panel" aria-label="__NOTIFICATIONS_ARIA_LABEL__">
+          <span class="home-topbar__mini-badge home-topbar__mini-badge--notifications" data-topbar-notifications-badge __NOTIFICATIONS_BADGE_HIDDEN__>__NOTIFICATIONS_BADGE_VALUE__</span>
           <span class="home-topbar__mini-content">
             <svg class="home-icon home-icon--medium">
               <use href="#icon-bell"></use>

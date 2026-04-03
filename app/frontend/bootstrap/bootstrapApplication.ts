@@ -9,8 +9,13 @@ import {
 } from '@frontend/bootstrap/rerender-active-surface';
 import { createApplicationShell } from '@frontend/layout/create-application-shell';
 import { createAppRouter } from '@frontend/navigation/app-router';
+import type { PlayerNotification } from '@frontend/services/notifications/notifications-types';
+import { ChatStore } from '@frontend/stores/chat.store';
+import { NotificationsStore } from '@frontend/stores/notifications.store';
 import { ProfileStore } from '@frontend/stores/profile.store';
+import { ProgressionStore } from '@frontend/stores/progression.store';
 import { SocialStore } from '@frontend/stores/social.store';
+import { WalletStore } from '@frontend/stores/wallet.store';
 import {
   createI18n,
   type AppLocale,
@@ -51,6 +56,18 @@ export function bootstrapApplication(host: HTMLElement): void {
     authService,
     desktop,
   });
+  const progressionStore = new ProgressionStore({
+    authService,
+  });
+  const walletStore = new WalletStore({
+    authService,
+  });
+  const notificationsStore = new NotificationsStore({
+    authService,
+  });
+  const chatStore = new ChatStore({
+    authService,
+  });
   const enableDevLoginShortcut =
     desktop.environment === 'development' ||
     window.location.hostname === 'localhost' ||
@@ -60,6 +77,34 @@ export function bootstrapApplication(host: HTMLElement): void {
   let activeSurface: AppSurface = 'boot';
   const socialStore = new SocialStore({
     authService,
+  });
+
+  const resolveNotificationCue = (
+    notification: PlayerNotification,
+  ): 'info' | 'reward' | 'social' | 'warning' => {
+    if (notification.type === 'reward' || notification.category === 'economy') {
+      return 'reward';
+    }
+
+    if (notification.type === 'social' || notification.category === 'social') {
+      return 'social';
+    }
+
+    if (
+      notification.type === 'warning' ||
+      notification.type === 'error' ||
+      notification.category === 'system'
+    ) {
+      return 'warning';
+    }
+
+    return 'info';
+  };
+
+  notificationsStore.subscribeEvents((event) => {
+    if (event.type === 'received' && activeSurface !== 'login') {
+      audio.playNotificationCue(resolveNotificationCue(event.notification));
+    }
   });
 
   let activeMenuView: MenuView = 'home';
@@ -145,8 +190,10 @@ export function bootstrapApplication(host: HTMLElement): void {
     cancelLoadingSequence();
     activeSurface = 'menu';
     router.showMenu({
+      chatStore,
       desktop,
       musicMuted: audio.isMusicMuted(),
+      notificationsStore,
       exitModal:
         exitModalState.status === 'closed'
           ? undefined
@@ -165,10 +212,17 @@ export function bootstrapApplication(host: HTMLElement): void {
       },
       profileStore,
       profileTargetNickname: activeProfileNickname,
+      progressionStore,
       socialStore,
       user: session.user,
       view: activeMenuView,
+      walletStore,
     });
+
+    void progressionStore.load().catch(() => undefined);
+    void walletStore.load().catch(() => undefined);
+    void notificationsStore.load().catch(() => undefined);
+    void chatStore.connectRealtime().catch(() => false);
 
     void socialStore.updatePresence({
       currentActivity: resolveMenuPresenceActivity(),
@@ -353,6 +407,10 @@ export function bootstrapApplication(host: HTMLElement): void {
       })
       .then(() => {
         profileStore.reset();
+        progressionStore.reset();
+        walletStore.reset();
+        notificationsStore.reset();
+        chatStore.reset();
         socialStore.reset();
         activeMenuView = 'home';
         activeProfileNickname = null;
@@ -382,6 +440,10 @@ export function bootstrapApplication(host: HTMLElement): void {
       .loginWithDevAccount()
       .then(() => {
         profileStore.reset();
+        progressionStore.reset();
+        walletStore.reset();
+        notificationsStore.reset();
+        chatStore.reset();
         socialStore.reset();
         activeMenuView = 'home';
         activeProfileNickname = null;
@@ -413,12 +475,21 @@ export function bootstrapApplication(host: HTMLElement): void {
     };
     renderMenuPage();
 
-    void socialStore
-      .disconnectRealtime()
-      .catch(() => undefined)
-      .then(() => authService.logout())
+    const realtimeShutdown = Promise.allSettled([
+      socialStore.disconnectRealtime(),
+      notificationsStore.disconnectRealtime(),
+      chatStore.disconnectRealtime(),
+    ]);
+
+    void authService
+      .logout()
+      .then(() => realtimeShutdown)
       .then(() => {
         profileStore.reset();
+        progressionStore.reset();
+        walletStore.reset();
+        notificationsStore.reset();
+        chatStore.reset();
         socialStore.reset();
         activeMenuView = 'home';
         activeProfileNickname = null;
@@ -484,6 +555,10 @@ export function bootstrapApplication(host: HTMLElement): void {
 
       if (restoredSession?.user) {
         profileStore.reset();
+        progressionStore.reset();
+        walletStore.reset();
+        notificationsStore.reset();
+        chatStore.reset();
         socialStore.reset();
         activeProfileNickname = null;
         exitModalState = {
@@ -541,6 +616,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         return;
       }
 
+      notificationsStore.closePanel();
       activeMenuView = 'home';
       activeProfileNickname = null;
       renderMenuPage();
@@ -552,6 +628,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         return;
       }
 
+      notificationsStore.closePanel();
       activeMenuView = 'profile';
       activeProfileNickname = null;
       renderMenuPage();
@@ -563,6 +640,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         return;
       }
 
+      notificationsStore.closePanel();
       activeMenuView = 'players';
       activeProfileNickname = null;
       renderMenuPage();
@@ -574,6 +652,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         return;
       }
 
+      notificationsStore.closePanel();
       activeMenuView = 'system';
       activeProfileNickname = null;
       renderMenuPage();
@@ -585,6 +664,15 @@ export function bootstrapApplication(host: HTMLElement): void {
       if (activeSurface === 'menu') {
         void transitionToGame();
       }
+      return;
+    }
+
+    if (action === 'toggle-notifications-panel') {
+      if (activeSurface !== 'menu') {
+        return;
+      }
+
+      notificationsStore.togglePanel();
       return;
     }
 
@@ -632,6 +720,8 @@ export function bootstrapApplication(host: HTMLElement): void {
   window.addEventListener('beforeunload', () => {
     clearExitModalCloseTimer();
     void socialStore.disconnectRealtime().catch(() => undefined);
+    void notificationsStore.disconnectRealtime().catch(() => undefined);
+    void chatStore.disconnectRealtime().catch(() => undefined);
     audio.dispose();
   });
 }

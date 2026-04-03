@@ -26,6 +26,7 @@ export interface SocialUserRecord {
   currentActivity: string | null;
   id: string;
   lastSeenAt: Date;
+  level: number;
   name: string;
   nickname: string;
   presenceStatus: PresenceStatus;

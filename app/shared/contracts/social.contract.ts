@@ -40,6 +40,7 @@ export interface SocialLivePresenceSnapshot {
 
 export interface SocialUserSummary {
   createdAt: string;
+  level: number;
   name: string;
   nickname: string;
   presence: SocialPresence;

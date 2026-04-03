@@ -25,6 +25,7 @@ interface SocialUserRow {
   current_activity: string | null;
   id: string;
   last_seen_at: Date;
+  level: number;
   name: string;
   nickname: string;
   presence_status: PresenceStatus;
@@ -69,6 +70,7 @@ function mapSocialUserRow(row: SocialUserRow): SocialUserRecord {
     currentActivity: row.current_activity,
     id: row.id,
     lastSeenAt: row.last_seen_at,
+    level: row.level,
     name: row.name,
     nickname: row.nickname,
     presenceStatus: row.presence_status,
@@ -103,6 +105,8 @@ function buildDirectoryFromClause(viewerParam: number): string {
     FROM users u
     LEFT JOIN user_presence p
       ON p.user_id = u.id
+    LEFT JOIN player_progression pg
+      ON pg.user_id = u.id
     LEFT JOIN LATERAL (
       SELECT
         f.id,
@@ -190,6 +194,7 @@ export class SocialRepository {
          u.name,
          u.profile_image_url,
          u.created_at,
+         COALESCE(pg.level, 1) AS level,
          COALESCE(p.status, 'offline') AS presence_status,
          p.current_activity,
          COALESCE(p.last_seen_at, u.created_at) AS last_seen_at,
@@ -226,6 +231,7 @@ export class SocialRepository {
          u.name,
          u.profile_image_url,
          u.created_at,
+         COALESCE(pg.level, 1) AS level,
          COALESCE(p.status, 'offline') AS presence_status,
          p.current_activity,
          COALESCE(p.last_seen_at, u.created_at) AS last_seen_at,
@@ -371,6 +377,7 @@ export class SocialRepository {
          u.name,
          u.profile_image_url,
          u.created_at,
+         COALESCE(pg.level, 1) AS level,
          COALESCE(p.status, 'offline') AS presence_status,
          p.current_activity,
          COALESCE(p.last_seen_at, u.created_at) AS last_seen_at,
@@ -384,6 +391,8 @@ export class SocialRepository {
            WHEN f.requester_user_id = $1 THEN f.addressee_user_id
            ELSE f.requester_user_id
          END
+       LEFT JOIN player_progression pg
+         ON pg.user_id = u.id
        LEFT JOIN user_presence p
          ON p.user_id = u.id
        WHERE (f.requester_user_id = $1 OR f.addressee_user_id = $1)
@@ -406,6 +415,7 @@ export class SocialRepository {
          u.name,
          u.profile_image_url,
          u.created_at,
+         COALESCE(pg.level, 1) AS level,
          COALESCE(p.status, 'offline') AS presence_status,
          p.current_activity,
          COALESCE(p.last_seen_at, u.created_at) AS last_seen_at,
@@ -418,6 +428,8 @@ export class SocialRepository {
        FROM friendships f
        JOIN users u
          ON u.id = f.requester_user_id
+       LEFT JOIN player_progression pg
+         ON pg.user_id = u.id
        LEFT JOIN user_presence p
          ON p.user_id = u.id
        WHERE f.addressee_user_id = $1
@@ -438,6 +450,7 @@ export class SocialRepository {
          u.name,
          u.profile_image_url,
          u.created_at,
+         COALESCE(pg.level, 1) AS level,
          COALESCE(p.status, 'offline') AS presence_status,
          p.current_activity,
          COALESCE(p.last_seen_at, u.created_at) AS last_seen_at,
@@ -450,6 +463,8 @@ export class SocialRepository {
        FROM friendships f
        JOIN users u
          ON u.id = f.addressee_user_id
+       LEFT JOIN player_progression pg
+         ON pg.user_id = u.id
        LEFT JOIN user_presence p
          ON p.user_id = u.id
        WHERE f.requester_user_id = $1
@@ -501,4 +516,3 @@ export class SocialRepository {
     return mapPresenceRow(presence);
   }
 }
-

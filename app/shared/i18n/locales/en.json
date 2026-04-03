@@ -249,7 +249,28 @@
       "featuredLoadoutAriaLabel": "Featured loadout",
       "matchDetails": "Match Details",
       "proCircuit": "PRO CIRCUIT",
-      "livePopularMatch": "Live Popular Match"
+      "livePopularMatch": "Live Popular Match",
+      "globalChat": {
+        "eyebrow": "Global Channel",
+        "title": "Launcher chatter",
+        "liveNow": "Live now",
+        "connectedSummary": "Authenticated fighters are talking in real time across the launcher.",
+        "disconnectedSummary": "Realtime link is down. History remains visible while the channel reconnects.",
+        "loading": "Loading recent global chat...",
+        "empty": "The channel is quiet. Break the silence first.",
+        "placeholder": "Send a message to the global launcher channel.",
+        "send": "Send",
+        "unavailable": "Global chat is unavailable right now."
+      }
+    },
+    "notifications": {
+      "eyebrow": "Signal Feed",
+      "title": "Notifications",
+      "summary": "{{count}} unread notifications in your launcher feed.",
+      "markAllRead": "Mark all read",
+      "close": "Close",
+      "loading": "Loading notifications...",
+      "empty": "Your feed is clear for now."
     },
     "social": {
       "actions": {
@@ -517,8 +538,15 @@
     "footer": {
       "musicEnable": "Enable launcher music",
       "musicMute": "Mute launcher music",
+      "globalPrefix": "(Global):",
       "partyPrefix": "(Party):",
       "chatPlaceholder": "Enter message or '/' for commands.",
+      "emojiAriaLabel": "Open emoji picker",
+      "connectedSummary": "Global channel online",
+      "disconnectedSummary": "Reconnecting global channel",
+      "liveUsers": "live",
+      "loading": "Loading recent messages...",
+      "empty": "No global messages yet. Be the first to talk.",
       "play": "Play"
     },
     "exitModal": {

@@ -264,6 +264,7 @@ export class SocialService {
   private toSocialUserSummary(user: SocialUserRecord, viewerUserId: string) {
     return {
       createdAt: user.createdAt.toISOString(),
+      level: user.level,
       name: user.name,
       nickname: user.nickname,
       presence: {
