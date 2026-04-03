@@ -5,42 +5,14 @@
   align-items: stretch;
   justify-content: center;
   min-height: 0;
-  padding: 0 22px 24px;
+  padding: 0 20px 24px;
   overflow: hidden;
   isolation: isolate;
 }
 
 .social-content-shell::before,
 .social-content-shell::after {
-  content: '';
-  position: absolute;
-  inset: auto;
-  pointer-events: none;
-  filter: blur(24px);
-  opacity: 0.72;
-  will-change: transform, opacity;
-}
-
-.social-content-shell::before {
-  top: 8%;
-  left: 2%;
-  width: 34rem;
-  height: 34rem;
-  background: radial-gradient(
-    circle,
-    rgba(var(--launcher-color-gold-rgb), 0.16) 0%,
-    transparent 68%
-  );
-  animation: social-ambient-drift 14s ease-in-out infinite;
-}
-
-.social-content-shell::after {
-  right: -4rem;
-  bottom: -8rem;
-  width: 32rem;
-  height: 32rem;
-  background: radial-gradient(circle, rgba(47, 127, 168, 0.18) 0%, transparent 70%);
-  animation: social-ambient-drift 16s ease-in-out infinite reverse;
+  content: none;
 }
 
 .social-screen {
@@ -48,40 +20,16 @@
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  width: min(1480px, 100%);
+  width: min(1540px, 100%);
   min-height: 0;
   margin: 0 auto;
-  padding: 14px 0 18px;
+  padding: 18px 0 18px;
   isolation: isolate;
 }
 
 .social-screen::before,
 .social-screen::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: 8px;
-}
-
-.social-screen::before {
-  background:
-    linear-gradient(180deg, rgba(var(--launcher-color-gold-rgb), 0.04), transparent 24%),
-    radial-gradient(circle at 82% 18%, rgba(47, 127, 168, 0.16), transparent 22%),
-    radial-gradient(circle at 18% 0%, rgba(var(--launcher-color-gold-rgb), 0.12), transparent 28%);
-  opacity: 0.72;
-}
-
-.social-screen::after {
-  inset: 24px 40px auto;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(var(--launcher-color-gold-rgb), 0.44),
-    transparent
-  );
-  opacity: 0.54;
+  content: none;
 }
 
 .social-screen__feedback {
@@ -117,18 +65,12 @@
   align-items: center;
   gap: 10px;
   width: fit-content;
-  margin: 0 0 16px;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background:
-    linear-gradient(180deg, rgba(11, 18, 27, 0.94), rgba(5, 10, 16, 0.96)),
-    radial-gradient(circle at top left, rgba(var(--launcher-color-gold-rgb), 0.08), transparent 40%);
-  box-shadow:
-    0 18px 34px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 0 0 1px rgba(var(--launcher-color-gold-rgb), 0.06);
-  backdrop-filter: blur(18px);
+  margin: 0 0 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .social-screen__subnav-button {
@@ -136,9 +78,11 @@
   min-width: 9.25rem;
   min-height: 3rem;
   padding: 0 1.25rem;
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 4px;
-  background: transparent;
+  background:
+    linear-gradient(180deg, rgba(11, 18, 27, 0.78), rgba(5, 10, 16, 0.82)),
+    rgba(4, 10, 16, 0.72);
   color: rgba(220, 228, 238, 0.72);
   font-family: var(--font-display);
   font-size: 0.82rem;
@@ -208,42 +152,17 @@
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
-  padding: 24px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background:
-    linear-gradient(180deg, rgba(10, 20, 31, 0.96), rgba(3, 7, 12, 0.98) 100%),
-    radial-gradient(circle at top left, rgba(47, 127, 168, 0.16), transparent 34%);
-  box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 0 0 1px rgba(var(--launcher-color-gold-rgb), 0.06);
-  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
   isolation: isolate;
 }
 
 .social-board::before,
 .social-board::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.social-board::before {
-  background:
-    radial-gradient(circle at 18% -2%, rgba(var(--launcher-color-gold-rgb), 0.18), transparent 24%),
-    radial-gradient(circle at 86% 14%, rgba(47, 127, 168, 0.16), transparent 20%);
-  opacity: 0.88;
-}
-
-.social-board::after {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 5px 5px;
-  mix-blend-mode: soft-light;
-  opacity: 0.12;
+  content: none;
 }
 
 .social-board__header,
@@ -260,7 +179,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+  padding: 22px 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .social-board__header-copy {
@@ -304,15 +225,15 @@
   display: grid;
   gap: 4px;
   min-width: 10rem;
-  padding: 14px 16px;
-  border-radius: 6px;
-  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.16);
+  padding: 10px 0 10px 22px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
-    rgba(4, 9, 14, 0.66);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 14px 30px rgba(0, 0, 0, 0.22);
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 60%);
+  box-shadow: none;
 }
 
 .social-board__signal-label,
@@ -338,9 +259,17 @@
 
 .social-board__toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
-  margin-bottom: 18px;
+  align-items: stretch;
+  margin-bottom: 22px;
+}
+
+.social-board__toolbar-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 14px;
 }
 
 .social-board__search,
@@ -354,11 +283,11 @@
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018)),
-    rgba(4, 10, 15, 0.78);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    rgba(4, 10, 15, 0.54);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 0 0 1px rgba(var(--launcher-color-gold-rgb), 0.04);
+    inset 0 0 0 1px rgba(var(--launcher-color-gold-rgb), 0.03);
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,
@@ -375,6 +304,8 @@
 }
 
 .social-board__filter {
+  flex: none;
+  width: 220px;
   padding-right: 2.6rem;
 }
 
@@ -418,7 +349,7 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 2px 8px 2px 2px;
+  padding: 10px 12px 18px 4px;
   align-content: start;
 }
 
@@ -453,19 +384,15 @@
   --social-tone-rgb: 105, 169, 207;
   position: relative;
   display: grid;
-  gap: 18px;
-  min-height: 248px;
+  gap: 16px;
+  min-height: 224px;
   padding: 18px 18px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  background:
-    linear-gradient(160deg, rgba(12, 21, 31, 0.96), rgba(5, 10, 16, 0.98)),
-    radial-gradient(circle at top right, rgba(var(--social-tone-rgb), 0.1), transparent 34%);
-  box-shadow:
-    0 18px 34px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    inset 0 0 0 1px rgba(var(--social-tone-rgb), 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
+  overflow: visible;
   transition:
     transform 200ms ease,
     border-color 200ms ease,
@@ -480,27 +407,44 @@
 .social-board__card::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  left: 18px;
+  right: 18px;
   pointer-events: none;
 }
 
 .social-board__card::before {
-  background:
-    linear-gradient(135deg, rgba(var(--social-tone-rgb), 0.14), transparent 38%),
-    linear-gradient(110deg, transparent 18%, rgba(255, 255, 255, 0.08) 44%, transparent 72%);
-  opacity: 0;
-  transform: translate3d(-12px, 0, 0);
+  top: -12px;
+  height: 24px;
+  z-index: 0;
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(var(--social-tone-rgb), 0.28) 0%,
+    rgba(var(--social-tone-rgb), 0.12) 42%,
+    transparent 76%
+  );
+  filter: blur(10px);
+  opacity: 0.54;
+  transform: translate3d(0, -4px, 0);
   transition:
-    opacity 200ms ease,
-    transform 200ms ease;
+    opacity 220ms ease,
+    transform 220ms ease;
 }
 
 .social-board__card::after {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 26%),
-    radial-gradient(circle at 78% 16%, rgba(var(--social-tone-rgb), 0.18), transparent 18%);
-  opacity: 0.74;
+  top: 0;
+  height: 1px;
+  z-index: 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(var(--social-tone-rgb), 0.1) 12%,
+    rgba(var(--social-tone-rgb), 0.34) 34%,
+    rgba(var(--social-tone-rgb), 0.18) 62%,
+    transparent 100%
+  );
+  opacity: 0.72;
 }
 
 .social-board__card-hitbox {
@@ -518,7 +462,7 @@
   transform: translate3d(0, -4px, 0) scale(1.018);
   border-color: rgba(var(--social-tone-rgb), 0.46);
   box-shadow:
-    0 26px 46px rgba(0, 0, 0, 0.34),
+    0 24px 40px rgba(0, 0, 0, 0.24),
     0 0 0 1px rgba(var(--social-tone-rgb), 0.14),
     0 0 26px rgba(var(--social-tone-rgb), 0.16);
 }
@@ -526,8 +470,14 @@
 .social-board__card:hover::before,
 .social-board__card:focus-visible::before,
 .social-board__card[data-selected='true']::before {
-  opacity: 1;
+  opacity: 0.82;
   transform: translate3d(0, 0, 0);
+}
+
+.social-board__card:hover::after,
+.social-board__card:focus-visible::after,
+.social-board__card[data-selected='true']::after {
+  opacity: 0.84;
 }
 
 .social-board__card:active {
@@ -565,18 +515,22 @@
 .social-board__card-crest {
   position: absolute;
   inset: 0 18px auto;
-  height: 2px;
+  height: 1px;
   z-index: 0;
-  border-radius: 6px;
+  border-radius: 999px;
   background: linear-gradient(
     90deg,
-    transparent,
-    var(--social-accent),
-    rgba(var(--social-tone-rgb), 0.8),
-    transparent
+    transparent 0%,
+    rgba(var(--social-tone-rgb), 0.08) 10%,
+    var(--social-accent) 34%,
+    rgba(var(--social-tone-rgb), 0.72) 56%,
+    rgba(var(--social-tone-rgb), 0.14) 74%,
+    transparent 100%
   );
-  box-shadow: 0 0 18px rgba(var(--social-tone-rgb), 0.32);
-  opacity: 0.9;
+  box-shadow:
+    0 0 10px rgba(var(--social-tone-rgb), 0.14),
+    0 0 18px rgba(var(--social-tone-rgb), 0.1);
+  opacity: 0.88;
 }
 
 .social-board__card-top,
@@ -814,10 +768,10 @@
   min-height: 3.3rem;
   padding: 10px 12px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)),
-    rgba(2, 7, 12, 0.66);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.012)),
+    rgba(2, 7, 12, 0.38);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
@@ -1005,6 +959,7 @@
 
 .social-board__more {
   min-width: 12rem;
+  flex: none;
 }
 
 .social-board__more .home-icon {
@@ -1024,28 +979,15 @@
   min-height: 12rem;
   margin-top: 6px;
   padding: 24px;
-  border-radius: 22px;
+  border-radius: 10px;
   border: 1px dashed rgba(var(--launcher-color-gold-rgb), 0.18);
-  background: rgba(4, 9, 14, 0.54);
+  background: rgba(4, 9, 14, 0.32);
   color: rgba(220, 228, 238, 0.62);
   text-align: center;
 }
 
 .social-board__empty[hidden] {
   display: none;
-}
-
-.social-board__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 18px;
-}
-
-.social-board__footer-count {
-  color: rgba(221, 228, 238, 0.68);
-  font-size: 0.88rem;
 }
 
 .social-hover-card {
@@ -1257,11 +1199,12 @@ button:disabled {
     letter-spacing: 0.14em;
   }
 
-  .social-board {
-    padding: 18px;
+  .social-board__toolbar {
+    grid-template-columns: 1fr;
   }
 
-  .social-board__toolbar {
+  .social-board__toolbar-actions {
+    display: grid;
     grid-template-columns: 1fr;
   }
 
@@ -1277,11 +1220,6 @@ button:disabled {
   .social-board__action,
   .social-board__more {
     width: 100%;
-  }
-
-  .social-board__footer {
-    flex-direction: column;
-    align-items: stretch;
   }
 }
 

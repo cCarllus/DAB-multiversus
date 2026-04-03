@@ -19,12 +19,7 @@ export function createMenuShell(options: CreateMenuShellOptions): HTMLElement {
   const messages = options.i18n.getMessages();
   const rootElement = createElementFromTemplate(menuShellTemplate, {
     HOME_SCREEN_ARIA_LABEL: messages.menu.shellAriaLabel,
-    HOME_SCREEN_STATE_CLASS:
-      options.activeView === 'home'
-        ? 'home-screen--home'
-        : options.activeView === 'players'
-          ? 'home-screen--players'
-          : 'home-screen--profile',
+    HOME_SCREEN_STATE_CLASS: options.activeView === 'home' ? 'home-screen--home' : 'home-screen--profile',
     MENU_BACKGROUND_IMAGE: menuBackgroundImage,
   });
   const frame = rootElement.querySelector<HTMLElement>('[data-menu-frame]');

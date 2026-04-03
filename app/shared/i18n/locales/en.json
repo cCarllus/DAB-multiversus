@@ -371,7 +371,8 @@
       "heroAriaLabel": "Player identity header",
       "overviewAriaLabel": "Player profile overview",
       "eyebrow": "Player Identity",
-      "summary": "Your account identity for the launcher. Only player-facing information stays here: name, nickname, avatar, language and trusted-device status.",
+      "publicDisplayNameLabel": "Display Name",
+      "summary": "Your battle identity inside the launcher. Alias, portrait, presence, language and trusted-device sync live here.",
       "primaryAction": "Enter Arena",
       "hero": {
         "memberSince": "Member since",
@@ -411,17 +412,17 @@
         "eyebrow": "Future Ready",
         "summary": "This profile area is prepared for rank, owned champions, progression, match history and linked-device management."
       },
-      "accountEyebrow": "Account Details",
-      "accountTitle": "Account details",
+      "accountEyebrow": "Identity Archive",
+      "accountTitle": "Player record",
       "accountFields": {
         "displayName": "Display name",
         "userId": "ID USER",
         "memberSince": "Member since",
         "language": "Language"
       },
-      "devicesEyebrow": "Device Status",
-      "devicesTitle": "Device and access",
-      "devicesSummary": "Friendly launcher access details only. Raw device identifiers, tokens and session internals stay hidden.",
+      "devicesEyebrow": "Launcher Sync",
+      "devicesTitle": "Session imprint",
+      "devicesSummary": "Trusted-device state and launcher bond stay readable here. Raw device identifiers and session internals remain hidden.",
       "deviceCards": {
         "trustedDevice": {
           "label": "Trusted device",
@@ -441,7 +442,7 @@
         "appVersion": "Launcher v{{version}}"
       },
       "avatar": {
-        "changePhoto": "Change photo",
+        "changePhoto": "Change portrait",
         "previewEyebrow": "Avatar Preview",
         "previewTitle": "Confirm your new photo",
         "previewSummary": "Check how your avatar looks in the profile frame before saving it.",
@@ -450,9 +451,9 @@
         "uploading": "Uploading..."
       },
       "nameEditor": {
-        "label": "Display Name",
-        "edit": "Edit name",
-        "hint": "This is the name shown in the launcher. You can update it whenever you want.",
+        "label": "Player Identity",
+        "edit": "Edit profile",
+        "hint": "Display name shown beneath your battle alias across the launcher.",
         "inputLabel": "Display name",
         "save": "Save name",
         "saving": "Saving...",

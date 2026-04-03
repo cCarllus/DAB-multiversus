@@ -3,7 +3,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createElementFromTemplate } from '../../app/frontend/lib/html';
-import { resolveApiBaseUrl } from '../../app/frontend/services/api/api-base-url';
 import { AppApiError, resolveApiErrorMessage } from '../../app/frontend/services/api/api-error';
 import { resolveAuthDisplayName } from '../../app/frontend/services/auth/auth-types';
 import { createLauncherDeviceContext } from '../../app/frontend/services/auth/device-context';
@@ -45,6 +44,7 @@ describe('frontend shared and core utilities', () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.restoreAllMocks();
   });
 
@@ -139,14 +139,19 @@ describe('frontend shared and core utilities', () => {
   it('resolves api errors and launcher base url', async () => {
     const i18n = createTestI18n('en');
 
-    expect(resolveApiBaseUrl()).toBe('http://127.0.0.1:4000');
+    vi.stubEnv('VITE_AUTH_API_BASE_URL', '');
+    vi.resetModules();
+    const { resolveApiBaseUrl: resolveDefaultApiBaseUrl } = await import(
+      '../../app/frontend/services/api/api-base-url'
+    );
+    expect(resolveDefaultApiBaseUrl()).toBe('http://127.0.0.1:4000');
+
     vi.stubEnv('VITE_AUTH_API_BASE_URL', 'https://api.example.com///');
     vi.resetModules();
     const { resolveApiBaseUrl: resolveConfiguredApiBaseUrl } = await import(
       '../../app/frontend/services/api/api-base-url'
     );
     expect(resolveConfiguredApiBaseUrl()).toBe('https://api.example.com');
-    vi.unstubAllEnvs();
     expect(
       resolveApiErrorMessage(new AppApiError('INVALID_CREDENTIALS', 'invalid'), i18n),
     ).toBe(i18n.t('auth.errors.invalidCredentials'));

@@ -371,7 +371,8 @@
       "heroAriaLabel": "Cabeçalho de identidade do jogador",
       "overviewAriaLabel": "Visão geral do perfil do jogador",
       "eyebrow": "Identidade do Jogador",
-      "summary": "Sua identidade de conta dentro do launcher. Só ficam aqui informações feitas para o jogador: nome, nickname, avatar, idioma e status do dispositivo confiável.",
+      "publicDisplayNameLabel": "Nome de Exibição",
+      "summary": "Sua identidade de batalha dentro do launcher. Alias, retrato, presença, idioma e vínculo do dispositivo confiável vivem aqui.",
       "primaryAction": "Entrar na Arena",
       "hero": {
         "memberSince": "Membro desde",
@@ -411,17 +412,17 @@
         "eyebrow": "Pronto para o futuro",
         "summary": "Esta área de perfil já está preparada para ranking, campeões possuídos, progressão, histórico de partidas e gestão de dispositivos vinculados."
       },
-      "accountEyebrow": "Detalhes da Conta",
-      "accountTitle": "Detalhes da conta",
+      "accountEyebrow": "Arquivo de Identidade",
+      "accountTitle": "Registro do jogador",
       "accountFields": {
         "displayName": "Nome de exibição",
         "userId": "ID USER",
         "memberSince": "Membro desde",
         "language": "Idioma"
       },
-      "devicesEyebrow": "Status de Dispositivo",
-      "devicesTitle": "Dispositivo e acesso",
-      "devicesSummary": "Só detalhes amigáveis de acesso do launcher. Identificadores brutos, tokens e dados internos de sessão continuam ocultos.",
+      "devicesEyebrow": "Sincronia do Launcher",
+      "devicesTitle": "Marca da sessão",
+      "devicesSummary": "O estado do dispositivo confiável e o vínculo com o launcher ficam legíveis aqui. Identificadores brutos e dados internos da sessão continuam ocultos.",
       "deviceCards": {
         "trustedDevice": {
           "label": "Dispositivo confiável",
@@ -441,7 +442,7 @@
         "appVersion": "Launcher v{{version}}"
       },
       "avatar": {
-        "changePhoto": "Trocar foto",
+        "changePhoto": "Trocar retrato",
         "previewEyebrow": "Prévia do Avatar",
         "previewTitle": "Confirmar nova foto",
         "previewSummary": "Veja como o avatar fica no molde final antes de salvar no seu perfil.",
@@ -450,9 +451,9 @@
         "uploading": "Enviando..."
       },
       "nameEditor": {
-        "label": "Nome de Exibição",
-        "edit": "Editar nome",
-        "hint": "Este é o nome mostrado no launcher. Você pode alterar quando quiser.",
+        "label": "Identidade do Jogador",
+        "edit": "Editar perfil",
+        "hint": "Nome de exibição mostrado abaixo do seu alias de batalha em todo o launcher.",
         "inputLabel": "Nome de exibição",
         "save": "Salvar nome",
         "saving": "Salvando...",

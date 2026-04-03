@@ -6,6 +6,7 @@ import { createElementFromTemplate } from '@frontend/lib/html';
 import {
   createSocialAvatar,
   resolveActivityLabel,
+  resolvePresenceTone,
   resolvePresenceStatusLabel,
   resolveProfileAction,
 } from '@frontend/screens/social/social-formatters';
@@ -34,47 +35,115 @@ interface ProfileScreenOptions {
 const publicProfileTemplate = `
   <section class="profile-hero profile-hero--public">
     <div class="profile-public-hero__avatar-slot">
-      <img class="profile-public-hero__avatar" data-public-avatar />
+      <div class="profile-public-hero__avatar-shell">
+        <img class="profile-public-hero__avatar" data-public-avatar />
+      </div>
     </div>
 
     <div class="profile-hero__copy">
-      <p class="profile-hero__eyebrow" data-public-eyebrow></p>
+      <div class="profile-public-hero__heading">
+        <p class="profile-hero__eyebrow" data-public-eyebrow></p>
 
-      <div class="profile-name-editor__row">
-        <h1 class="profile-name-editor__value" data-public-display-name></h1>
-        <button type="button" class="profile-public-hero__action" data-public-action></button>
+        <span class="profile-status-badge" data-public-status-badge>
+          <span class="profile-status-badge__signal" aria-hidden="true"></span>
+          <span data-public-status></span>
+        </span>
       </div>
 
+      <h1 class="profile-public-hero__nickname" data-public-nickname></h1>
+      <span class="profile-name-editor__value-kicker" data-public-display-label></span>
+      <p class="profile-public-hero__display-name" data-public-display-name></p>
       <p class="profile-hero__summary" data-public-summary></p>
 
-      <div class="profile-hero__meta">
-        <span class="profile-hero__meta-pill">
-          <span class="profile-hero__meta-label" data-public-member-label></span>
-          <strong class="profile-hero__meta-value" data-public-member-value></strong>
-        </span>
+      <div class="profile-public-hero__command">
+        <div class="profile-hero__intel profile-hero__intel--public">
+          <div class="profile-hero__intel-group">
+            <span class="profile-hero__intel-label" data-public-member-label></span>
+            <strong class="profile-hero__intel-value" data-public-member-value></strong>
+          </div>
 
-        <span class="profile-hero__meta-pill">
-          <span class="profile-hero__meta-label" data-public-user-id-label></span>
-          <strong class="profile-hero__meta-value" data-public-user-id-value></strong>
-        </span>
+          <div class="profile-hero__intel-group">
+            <span class="profile-hero__intel-label" data-public-user-id-label></span>
+            <strong class="profile-hero__intel-value" data-public-user-id-value></strong>
+          </div>
 
-        <span class="profile-hero__meta-pill">
-          <span class="profile-hero__meta-label" data-public-status-label></span>
-          <strong class="profile-hero__meta-value" data-public-status></strong>
-        </span>
+          <div class="profile-hero__intel-group">
+            <span class="profile-hero__intel-label" data-public-activity-label></span>
+            <strong class="profile-hero__intel-value" data-public-activity-value></strong>
+          </div>
 
-        <span class="profile-hero__meta-pill">
-          <span class="profile-hero__meta-label" data-public-activity-label></span>
-          <strong class="profile-hero__meta-value" data-public-activity-value></strong>
-        </span>
+          <div class="profile-hero__intel-group">
+            <span class="profile-hero__intel-label" data-public-relationship-label></span>
+            <strong class="profile-hero__intel-value" data-public-relationship-value></strong>
+          </div>
+        </div>
 
-        <span class="profile-hero__meta-pill">
-          <span class="profile-hero__meta-label" data-public-relationship-label></span>
-          <strong class="profile-hero__meta-value" data-public-relationship-value></strong>
-        </span>
+        <button type="button" class="profile-public-hero__action" data-public-action></button>
       </div>
     </div>
   </section>
+`;
+
+const currentProfileZonesTemplate = `
+  <div class="profile-zones">
+    <section class="profile-zone profile-zone--identity" aria-label="__PROFILE_OVERVIEW_ARIA_LABEL__">
+      <div class="profile-zone__header">
+        <p class="profile-zone__eyebrow">__PROFILE_ACCOUNT_EYEBROW__</p>
+        <h2 class="profile-zone__title">__PROFILE_ACCOUNT_TITLE__</h2>
+        <p class="profile-zone__summary">__PROFILE_SUMMARY__</p>
+      </div>
+
+      <dl class="profile-zone__list">
+        <div class="profile-zone__row">
+          <dt>__PROFILE_ACCOUNT_DISPLAY_NAME__</dt>
+          <dd data-detail-display-name></dd>
+        </div>
+
+        <div class="profile-zone__row">
+          <dt>__PROFILE_ACCOUNT_USER_ID__</dt>
+          <dd data-detail-user-id></dd>
+        </div>
+
+        <div class="profile-zone__row">
+          <dt>__PROFILE_ACCOUNT_MEMBER_SINCE__</dt>
+          <dd data-detail-member-since></dd>
+        </div>
+
+        <div class="profile-zone__row">
+          <dt>__PROFILE_ACCOUNT_LANGUAGE__</dt>
+          <dd data-detail-language></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="profile-zone profile-zone--launcher">
+      <div class="profile-zone__header">
+        <p class="profile-zone__eyebrow">__PROFILE_DEVICES_EYEBROW__</p>
+        <h2 class="profile-zone__title">__PROFILE_DEVICES_TITLE__</h2>
+        <p class="profile-zone__summary">__PROFILE_DEVICES_SUMMARY__</p>
+      </div>
+
+      <div class="profile-zone__rail">
+        <article class="profile-zone__rail-item">
+          <span class="profile-zone__rail-label">__PROFILE_TRUSTED_DEVICE_LABEL__</span>
+          <strong class="profile-zone__rail-value" data-device-trusted></strong>
+          <p class="profile-zone__rail-meta">__PROFILE_TRUSTED_DEVICE_META__</p>
+        </article>
+
+        <article class="profile-zone__rail-item">
+          <span class="profile-zone__rail-label">__PROFILE_CURRENT_DEVICE_LABEL__</span>
+          <strong class="profile-zone__rail-value" data-device-current></strong>
+          <p class="profile-zone__rail-meta" data-device-current-meta></p>
+        </article>
+
+        <article class="profile-zone__rail-item">
+          <span class="profile-zone__rail-label">__PROFILE_LAST_ACTIVE_LABEL__</span>
+          <strong class="profile-zone__rail-value" data-device-last-active></strong>
+          <p class="profile-zone__rail-meta" data-device-last-active-meta></p>
+        </article>
+      </div>
+    </section>
+  </div>
 `;
 
 function formatDate(value: string, locale: string): string {
@@ -97,6 +166,108 @@ function createFeedbackSetter(feedbackElement: HTMLElement) {
     feedbackElement.hidden = false;
     feedbackElement.textContent = feedback.message;
     feedbackElement.dataset.tone = feedback.tone;
+  };
+}
+
+function resolveDeviceMeta(snapshot: ProfileSnapshot, i18n: AppI18n): {
+  currentDeviceMeta: string;
+  currentDeviceValue: string;
+  lastActiveMeta: string;
+  lastActiveValue: string;
+} {
+  const locale = i18n.getLocale();
+  const messages = i18n.getMessages().menu.profile;
+  const currentDevice = snapshot.devices.currentDevice;
+  const lastActiveDevice = snapshot.devices.lastActiveDevice;
+  const currentDeviceValue = currentDevice?.label || messages.fallbackValue;
+  const currentDeviceMeta = currentDevice
+    ? [
+        currentDevice.osName,
+        currentDevice.osVersion,
+        currentDevice.appVersion
+          ? i18n.t('menu.profile.deviceList.appVersion', {
+              version: currentDevice.appVersion,
+            })
+          : i18n.t('menu.profile.deviceList.noVersion'),
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : messages.fallbackValue;
+  const lastActiveValue = lastActiveDevice
+    ? formatDate(lastActiveDevice.lastLoginAt, locale)
+    : messages.fallbackValue;
+  const lastActiveMeta = lastActiveDevice?.label || messages.fallbackValue;
+
+  return {
+    currentDeviceMeta,
+    currentDeviceValue,
+    lastActiveMeta,
+    lastActiveValue,
+  };
+}
+
+function createCurrentProfileZones(options: ProfileScreenOptions) {
+  const messages = options.i18n.getMessages().menu.profile;
+  const element = createElementFromTemplate(currentProfileZonesTemplate, {
+    PROFILE_ACCOUNT_DISPLAY_NAME: messages.accountFields.displayName,
+    PROFILE_ACCOUNT_EYEBROW: messages.accountEyebrow,
+    PROFILE_ACCOUNT_LANGUAGE: messages.accountFields.language,
+    PROFILE_ACCOUNT_MEMBER_SINCE: messages.accountFields.memberSince,
+    PROFILE_ACCOUNT_TITLE: messages.accountTitle,
+    PROFILE_ACCOUNT_USER_ID: messages.accountFields.userId,
+    PROFILE_CURRENT_DEVICE_LABEL: messages.deviceCards.currentDevice.label,
+    PROFILE_DEVICES_EYEBROW: messages.devicesEyebrow,
+    PROFILE_DEVICES_SUMMARY: messages.devicesSummary,
+    PROFILE_DEVICES_TITLE: messages.devicesTitle,
+    PROFILE_LAST_ACTIVE_LABEL: messages.deviceCards.lastActive.label,
+    PROFILE_OVERVIEW_ARIA_LABEL: messages.overviewAriaLabel,
+    PROFILE_SUMMARY: messages.summary,
+    PROFILE_TRUSTED_DEVICE_LABEL: messages.deviceCards.trustedDevice.label,
+    PROFILE_TRUSTED_DEVICE_META: messages.deviceCards.trustedDevice.meta,
+  });
+  const displayName = element.querySelector<HTMLElement>('[data-detail-display-name]');
+  const userId = element.querySelector<HTMLElement>('[data-detail-user-id]');
+  const memberSince = element.querySelector<HTMLElement>('[data-detail-member-since]');
+  const language = element.querySelector<HTMLElement>('[data-detail-language]');
+  const trustedDevice = element.querySelector<HTMLElement>('[data-device-trusted]');
+  const currentDevice = element.querySelector<HTMLElement>('[data-device-current]');
+  const currentDeviceMeta = element.querySelector<HTMLElement>('[data-device-current-meta]');
+  const lastActive = element.querySelector<HTMLElement>('[data-device-last-active]');
+  const lastActiveMeta = element.querySelector<HTMLElement>('[data-device-last-active-meta]');
+
+  if (
+    !displayName ||
+    !userId ||
+    !memberSince ||
+    !language ||
+    !trustedDevice ||
+    !currentDevice ||
+    !currentDeviceMeta ||
+    !lastActive ||
+    !lastActiveMeta
+  ) {
+    throw new Error('Current profile zones could not be initialized.');
+  }
+
+  return {
+    element,
+    setState(input: {
+      languageLabel: string;
+      memberSince: string;
+      snapshot: ProfileSnapshot;
+      trustedDeviceLabel: string;
+    }) {
+      const deviceMeta = resolveDeviceMeta(input.snapshot, options.i18n);
+      displayName.textContent = input.snapshot.profile.name || messages.fallbackUsername;
+      userId.textContent = `@${input.snapshot.profile.nickname}`;
+      memberSince.textContent = input.memberSince;
+      language.textContent = input.languageLabel;
+      trustedDevice.textContent = input.trustedDeviceLabel;
+      currentDevice.textContent = deviceMeta.currentDeviceValue;
+      currentDeviceMeta.textContent = deviceMeta.currentDeviceMeta;
+      lastActive.textContent = deviceMeta.lastActiveValue;
+      lastActiveMeta.textContent = deviceMeta.lastActiveMeta;
+    },
   };
 }
 
@@ -173,8 +344,9 @@ function createCurrentProfileScreen(
     i18n: options.i18n,
     nameEditor,
   });
+  const zones = createCurrentProfileZones(options);
 
-  content.append(header.element, avatarUploader.modal);
+  content.append(header.element, zones.element, avatarUploader.modal);
 
   const applySnapshot = (snapshot: ProfileSnapshot): void => {
     const locale = options.i18n.getLocale();
@@ -192,6 +364,12 @@ function createCurrentProfileScreen(
       profile: snapshot.profile,
       trustedDevice: trustedDeviceStatus,
       userId: `@${snapshot.profile.nickname}`,
+    });
+    zones.setState({
+      languageLabel,
+      memberSince,
+      snapshot,
+      trustedDeviceLabel: trustedDeviceStatus,
     });
   };
 
@@ -225,14 +403,16 @@ function createPublicProfileScreen(
 ): HTMLElement {
   const publicProfile = createElementFromTemplate(publicProfileTemplate);
   const avatar = publicProfile.querySelector<HTMLImageElement>('[data-public-avatar]');
+  const nickname = publicProfile.querySelector<HTMLElement>('[data-public-nickname]');
+  const displayLabel = publicProfile.querySelector<HTMLElement>('[data-public-display-label]');
   const displayName = publicProfile.querySelector<HTMLElement>('[data-public-display-name]');
   const status = publicProfile.querySelector<HTMLElement>('[data-public-status]');
+  const statusBadge = publicProfile.querySelector<HTMLElement>('[data-public-status-badge]');
   const summary = publicProfile.querySelector<HTMLElement>('[data-public-summary]');
   const memberLabel = publicProfile.querySelector<HTMLElement>('[data-public-member-label]');
   const memberValue = publicProfile.querySelector<HTMLElement>('[data-public-member-value]');
   const userIdLabel = publicProfile.querySelector<HTMLElement>('[data-public-user-id-label]');
   const userIdValue = publicProfile.querySelector<HTMLElement>('[data-public-user-id-value]');
-  const statusLabel = publicProfile.querySelector<HTMLElement>('[data-public-status-label]');
   const activityLabel = publicProfile.querySelector<HTMLElement>('[data-public-activity-label]');
   const activityValue = publicProfile.querySelector<HTMLElement>('[data-public-activity-value]');
   const relationshipLabel = publicProfile.querySelector<HTMLElement>(
@@ -246,14 +426,16 @@ function createPublicProfileScreen(
 
   if (
     !avatar ||
+    !nickname ||
+    !displayLabel ||
     !displayName ||
     !status ||
+    !statusBadge ||
     !summary ||
     !memberLabel ||
     !memberValue ||
     !userIdLabel ||
     !userIdValue ||
-    !statusLabel ||
     !activityLabel ||
     !activityValue ||
     !relationshipLabel ||
@@ -268,10 +450,10 @@ function createPublicProfileScreen(
 
   memberLabel.textContent = options.i18n.t('menu.profile.hero.memberSince');
   userIdLabel.textContent = options.i18n.t('menu.profile.hero.userId');
-  statusLabel.textContent = options.i18n.t('menu.profile.hero.launcherStatus');
+  displayLabel.textContent = options.i18n.t('menu.profile.publicDisplayNameLabel');
   activityLabel.textContent = options.i18n.t('menu.social.profile.currentActivity');
   relationshipLabel.textContent = options.i18n.t('menu.social.directory.relationshipFilter');
-  eyebrow.textContent = options.i18n.t('menu.profile.nameEditor.label');
+  eyebrow.textContent = options.i18n.t('menu.social.profile.eyebrow');
 
   let activeProfile: SocialUserSummary | null = null;
   let isBusy = false;
@@ -295,11 +477,13 @@ function createPublicProfileScreen(
       snapshot?.profile?.nickname === targetNickname ? snapshot.profile : activeProfile;
 
     if (!snapshotProfile) {
-      displayName.textContent = options.i18n.t('menu.social.profile.loading');
-      summary.textContent = options.i18n.t('menu.profile.nameEditor.hint');
+      nickname.textContent = options.i18n.t('menu.social.profile.loading');
+      displayName.textContent = options.i18n.t('menu.profile.fallbackUsername');
+      summary.textContent = options.i18n.t('menu.social.profile.sectionSummary');
       memberValue.textContent = '...';
       userIdValue.textContent = `@${targetNickname}`;
       status.textContent = options.i18n.t('menu.social.profile.loading');
+      statusBadge.dataset.tone = 'offline';
       activityValue.textContent = '...';
       relationshipValue.textContent = '...';
       actionButton.disabled = true;
@@ -311,10 +495,13 @@ function createPublicProfileScreen(
     const action = resolveProfileAction(snapshotProfile, options.i18n);
     avatar.src = createSocialAvatar(snapshotProfile);
     avatar.alt = snapshotProfile.nickname;
-    displayName.textContent = snapshotProfile.name;
-    status.className = 'profile-hero__meta-value';
+    nickname.textContent = snapshotProfile.nickname;
+    displayName.textContent = snapshotProfile.name || options.i18n.t('menu.profile.fallbackUsername');
     status.textContent = resolvePresenceStatusLabel(snapshotProfile, options.i18n);
-    summary.textContent = options.i18n.t('menu.profile.nameEditor.hint');
+    statusBadge.dataset.tone = resolvePresenceTone(snapshotProfile).replace('is-', '');
+    summary.textContent = snapshotProfile.presence.currentActivity?.trim()
+      ? `${options.i18n.t('menu.social.profile.currentActivity')}: ${resolveActivityLabel(snapshotProfile, options.i18n)}`
+      : options.i18n.t('menu.social.profile.sectionSummary');
     memberValue.textContent = formatDate(snapshotProfile.createdAt, options.i18n.getLocale());
     userIdValue.textContent = `@${snapshotProfile.nickname}`;
     activityValue.textContent = resolveActivityLabel(snapshotProfile, options.i18n);
@@ -415,7 +602,7 @@ export function createProfileScreen(options: ProfileScreenOptions): HTMLElement 
 
   const setFeedback = createFeedbackSetter(feedbackElement);
   const targetNickname = options.profileTargetNickname?.trim().toLowerCase() ?? null;
-  const currentNickname = options.currentUser.nickname.trim().toLowerCase();
+  const currentNickname = options.currentUser?.nickname?.trim().toLowerCase() ?? '';
 
   if (!targetNickname || targetNickname === currentNickname) {
     return createCurrentProfileScreen(options, rootElement, content, setFeedback);

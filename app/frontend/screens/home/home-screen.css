@@ -65,6 +65,14 @@
   inset: 0;
 }
 
+.home-screen__background::before,
+.home-screen__background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 .home-screen__background-image {
   z-index: 0;
   width: 100%;
@@ -77,7 +85,26 @@
 
 .home-screen--profile .home-screen__background {
   background:
+    radial-gradient(circle at 50% -10%, rgba(19, 34, 50, 0.24), transparent 42%),
     linear-gradient(180deg, rgba(1, 10, 19, 0.98) 0%, rgba(2, 7, 13, 1) 100%);
+}
+
+.home-screen--profile .home-screen__background::before {
+  inset: -14% -10%;
+  background:
+    radial-gradient(circle at 16% 20%, rgba(var(--launcher-color-gold-rgb), 0.16), transparent 24%),
+    radial-gradient(circle at 78% 14%, rgba(47, 127, 168, 0.18), transparent 28%),
+    radial-gradient(circle at 52% 70%, rgba(19, 34, 50, 0.42), transparent 44%);
+  filter: blur(64px);
+  opacity: 0.92;
+}
+
+.home-screen--profile .home-screen__background::after {
+  inset: -6%;
+  background:
+    radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.16) 72%, rgba(0, 0, 0, 0.62) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 20%, transparent 82%, rgba(0, 0, 0, 0.18) 100%);
+  opacity: 0.9;
 }
 
 .home-screen--profile .home-screen__background-image,
@@ -88,21 +115,19 @@
 }
 
 .home-screen--profile .home-screen__background-layer--top {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent 18%);
+  background:
+    radial-gradient(ellipse at top center, rgba(255, 255, 255, 0.02), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%);
 }
 
 .home-screen--profile .home-screen__background-layer--side {
-  background: linear-gradient(
-    to right,
-    rgba(1, 10, 19, 0.94),
-    rgba(1, 10, 19, 0.82) 18%,
-    rgba(1, 10, 19, 0.82) 82%,
-    rgba(1, 10, 19, 0.94)
-  );
+  background:
+    radial-gradient(ellipse at left center, rgba(1, 10, 19, 0.62), transparent 34%),
+    radial-gradient(ellipse at right center, rgba(1, 10, 19, 0.58), transparent 34%);
 }
 
 .home-screen--profile .home-screen__background-layer--vignette {
-  background: none;
+  background: radial-gradient(ellipse at center, transparent 48%, rgba(0, 0, 0, 0.26) 74%, rgba(0, 0, 0, 0.72) 100%);
 }
 
 .home-screen__background-layer,

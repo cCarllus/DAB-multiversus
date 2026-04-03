@@ -537,6 +537,184 @@ describe('frontend social ui', () => {
     expect(socialScreen.textContent).toContain('Friend removed.');
   });
 
+  it('accepts an incoming friend request from the pending section', async () => {
+    const snapshot = createSocialSnapshot({
+      incomingRequests: createRequestsResponse([
+        {
+          createdAt: '2026-04-02T00:00:00.000Z',
+          id: 'request-incoming-1',
+          user: createSocialUser({
+            nickname: 'luna',
+            name: 'Luna',
+            relationship: {
+              friendshipId: null,
+              requestId: 'request-incoming-1',
+              state: 'pending_received',
+            },
+          }),
+        },
+      ]),
+      profile: createSocialUser({
+        nickname: 'luna',
+        name: 'Luna',
+        relationship: {
+          friendshipId: null,
+          requestId: 'request-incoming-1',
+          state: 'pending_received',
+        },
+      }),
+    });
+    const acceptFriendRequest = vi.fn(async () => snapshot);
+    const socialScreen = createSocialScreen({
+      i18n: createTestI18n('en'),
+      onOpenProfile: vi.fn(),
+      socialStore: {
+        acceptFriendRequest,
+        cancelOutgoingRequest: vi.fn(),
+        getSnapshot: vi.fn(() => snapshot),
+        load: vi.fn(async () => snapshot),
+        loadMoreDirectory: vi.fn(async () => snapshot),
+        rejectFriendRequest: vi.fn(),
+        removeFriend: vi.fn(),
+        searchDirectory: vi.fn(async () => snapshot),
+        selectProfile: vi.fn(async () => snapshot),
+        sendFriendRequest: vi.fn(async () => snapshot),
+        subscribe: vi.fn(() => () => undefined),
+      } as never,
+    });
+    document.body.append(socialScreen);
+    await flushPromises();
+
+    socialScreen.querySelector<HTMLButtonElement>('[data-social-section="pending"]')?.click();
+    await flushPromises();
+
+    const actionButton = socialScreen.querySelector<HTMLButtonElement>('.social-board__action');
+    expect(actionButton?.textContent).toContain('Accept');
+
+    actionButton?.click();
+    await flushPromises();
+
+    expect(acceptFriendRequest).toHaveBeenCalledWith('request-incoming-1');
+    expect(socialScreen.textContent).toContain('Friend request accepted.');
+  });
+
+  it('cancels an outgoing friend request from the pending section', async () => {
+    const snapshot = createSocialSnapshot({
+      outgoingRequests: createRequestsResponse([
+        {
+          createdAt: '2026-04-02T00:00:00.000Z',
+          id: 'request-outgoing-1',
+          user: createSocialUser({
+            nickname: 'orca',
+            name: 'Orca',
+            relationship: {
+              friendshipId: null,
+              requestId: 'request-outgoing-1',
+              state: 'pending_sent',
+            },
+          }),
+        },
+      ]),
+      profile: createSocialUser({
+        nickname: 'orca',
+        name: 'Orca',
+        relationship: {
+          friendshipId: null,
+          requestId: 'request-outgoing-1',
+          state: 'pending_sent',
+        },
+      }),
+    });
+    const cancelOutgoingRequest = vi.fn(async () => snapshot);
+    const socialScreen = createSocialScreen({
+      i18n: createTestI18n('en'),
+      onOpenProfile: vi.fn(),
+      socialStore: {
+        acceptFriendRequest: vi.fn(),
+        cancelOutgoingRequest,
+        getSnapshot: vi.fn(() => snapshot),
+        load: vi.fn(async () => snapshot),
+        loadMoreDirectory: vi.fn(async () => snapshot),
+        rejectFriendRequest: vi.fn(),
+        removeFriend: vi.fn(),
+        searchDirectory: vi.fn(async () => snapshot),
+        selectProfile: vi.fn(async () => snapshot),
+        sendFriendRequest: vi.fn(async () => snapshot),
+        subscribe: vi.fn(() => () => undefined),
+      } as never,
+    });
+    document.body.append(socialScreen);
+    await flushPromises();
+
+    socialScreen.querySelector<HTMLButtonElement>('[data-social-section="pending"]')?.click();
+    await flushPromises();
+
+    const actionButton = socialScreen.querySelector<HTMLButtonElement>('.social-board__action');
+    expect(actionButton?.textContent).toContain('Cancel');
+
+    actionButton?.click();
+    await flushPromises();
+
+    expect(cancelOutgoingRequest).toHaveBeenCalledWith('request-outgoing-1');
+    expect(socialScreen.textContent).toContain('Outgoing request cancelled.');
+  });
+
+  it('uses the toolbar for presence filtering and load more actions', async () => {
+    const snapshot = createSocialSnapshot({
+      directory: createDirectoryResponse([
+        createSocialUser({
+          nickname: 'zeph',
+          name: 'Zeph',
+        }),
+      ], {
+        hasMore: true,
+        total: 24,
+      }),
+    });
+    const searchDirectory = vi.fn(async () => snapshot);
+    const loadMoreDirectory = vi.fn(async () => snapshot);
+    const socialScreen = createSocialScreen({
+      i18n: createTestI18n('en'),
+      onOpenProfile: vi.fn(),
+      socialStore: {
+        acceptFriendRequest: vi.fn(),
+        cancelOutgoingRequest: vi.fn(),
+        getSnapshot: vi.fn(() => snapshot),
+        load: vi.fn(async () => snapshot),
+        loadMoreDirectory,
+        rejectFriendRequest: vi.fn(),
+        removeFriend: vi.fn(),
+        searchDirectory,
+        selectProfile: vi.fn(async () => snapshot),
+        sendFriendRequest: vi.fn(async () => snapshot),
+        subscribe: vi.fn(() => () => undefined),
+      } as never,
+    });
+    document.body.append(socialScreen);
+    await flushPromises();
+
+    expect(socialScreen.querySelector('.social-board__footer')).toBeNull();
+    expect(
+      socialScreen.querySelector('.social-board__toolbar-actions .social-board__more'),
+    ).not.toBeNull();
+
+    const presenceSelect = socialScreen.querySelector<HTMLSelectElement>('[data-social-presence]');
+    presenceSelect!.value = 'offline';
+    presenceSelect?.dispatchEvent(new Event('change'));
+    await flushPromises();
+
+    expect(searchDirectory).toHaveBeenCalledWith({
+      presence: 'offline',
+      q: '',
+      relationship: 'all',
+    });
+
+    socialScreen.querySelector<HTMLButtonElement>('.social-board__more')?.click();
+    await flushPromises();
+
+    expect(loadMoreDirectory).toHaveBeenCalledTimes(1);
+  });
+
   it('renders the shared dynamic profile layout for another player', async () => {
     const targetProfile = createSocialUser({
       nickname: 'kael',

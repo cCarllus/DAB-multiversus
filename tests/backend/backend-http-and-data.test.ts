@@ -20,6 +20,7 @@ import { createRequest, createResponse } from '../helpers/backend';
 async function flush(): Promise<void> {
   await Promise.resolve();
   await Promise.resolve();
+  await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 describe('backend repositories', () => {
@@ -318,7 +319,7 @@ describe('backend middleware', () => {
     await flush();
 
     expect(repository.findById).toHaveBeenCalledWith('session-1');
-    expect(request.auth).toEqual({
+    expect(request.authContext).toEqual({
       userId: 'user-1',
       sessionId: 'session-1',
       email: 'player@example.com',
@@ -338,11 +339,37 @@ describe('backend middleware', () => {
       })),
     };
 
-    const failingRepository = {
-      findById: vi
-        .fn()
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({
+    const noTokenRequest = createRequest();
+    const noTokenNext = vi.fn();
+    createAuthMiddleware({ findById: vi.fn() } as never, tokenService as never)(
+      noTokenRequest,
+      {} as never,
+      noTokenNext,
+    );
+    await flush();
+    expect(noTokenNext.mock.calls[0]?.[0]).toMatchObject({ code: 'UNAUTHORIZED' });
+
+    const invalidHeaderRequest = createRequest({
+      headers: { authorization: 'Basic x' },
+    });
+    const invalidHeaderNext = vi.fn();
+    createOptionalAuthMiddleware({ findById: vi.fn() } as never, tokenService as never)(
+      invalidHeaderRequest,
+      {} as never,
+      invalidHeaderNext,
+    );
+    await flush();
+    expect(invalidHeaderRequest.authContext).toBeUndefined();
+    expect(invalidHeaderNext).toHaveBeenCalledWith();
+
+    const invalidSessions = [
+      {
+        expectedCode: 'UNAUTHORIZED',
+        session: null,
+      },
+      {
+        expectedCode: 'UNAUTHORIZED',
+        session: {
           id: 'session-1',
           userId: 'other-user',
           refreshTokenHash: 'hash',
@@ -353,8 +380,11 @@ describe('backend middleware', () => {
           appAgent: null,
           createdAt: new Date(),
           updatedAt: new Date(),
-        })
-        .mockResolvedValueOnce({
+        },
+      },
+      {
+        expectedCode: 'SESSION_REVOKED',
+        session: {
           id: 'session-1',
           userId: 'user-1',
           refreshTokenHash: 'hash',
@@ -365,8 +395,11 @@ describe('backend middleware', () => {
           appAgent: null,
           createdAt: new Date(),
           updatedAt: new Date(),
-        })
-        .mockResolvedValueOnce({
+        },
+      },
+      {
+        expectedCode: 'SESSION_EXPIRED',
+        session: {
           id: 'session-1',
           userId: 'user-1',
           refreshTokenHash: 'hash',
@@ -377,59 +410,52 @@ describe('backend middleware', () => {
           appAgent: null,
           createdAt: new Date(),
           updatedAt: new Date(),
-        }),
-    };
-    const next = vi.fn();
+        },
+      },
+    ] as const;
 
-    const noTokenRequest = createRequest();
-    createAuthMiddleware(failingRepository as never, tokenService as never)(
-      noTokenRequest,
-      {} as never,
-      next,
-    );
-    await flush();
-    expect(next.mock.calls[0]?.[0]).toMatchObject({ code: 'UNAUTHORIZED' });
-
-    const invalidHeaderRequest = createRequest({
-      headers: { authorization: 'Basic x' },
-    });
-    createOptionalAuthMiddleware(failingRepository as never, tokenService as never)(
-      invalidHeaderRequest,
-      {} as never,
-      next,
-    );
-    await flush();
-    expect(invalidHeaderRequest.auth).toBeUndefined();
-
-    for (const expectedCode of ['UNAUTHORIZED', 'UNAUTHORIZED', 'SESSION_REVOKED', 'SESSION_EXPIRED']) {
+    for (const testCase of invalidSessions) {
       const request = createRequest({
         headers: { authorization: 'Bearer access-token' },
       });
-      createAuthMiddleware(failingRepository as never, tokenService as never)(
+      const caseNext = vi.fn();
+      createAuthMiddleware(
+        {
+          findById: vi.fn(async () => testCase.session),
+        } as never,
+        tokenService as never,
+      )(
         request,
         {} as never,
-        next,
+        caseNext,
       );
       await flush();
-      expect(next.mock.calls.at(-1)?.[0]).toMatchObject({ code: expectedCode });
+      expect(caseNext.mock.calls.at(-1)?.[0]).toMatchObject({ code: testCase.expectedCode });
     }
 
     const optionalRequest = createRequest({
       headers: { authorization: 'Bearer access-token' },
-      auth: {
+      authContext: {
         userId: 'stale',
         sessionId: 'stale',
         email: 'stale@example.com',
         nickname: 'stale',
       },
     });
-    createOptionalAuthMiddleware(failingRepository as never, tokenService as never)(
+    const optionalNext = vi.fn();
+    createOptionalAuthMiddleware(
+      {
+        findById: vi.fn(async () => null),
+      } as never,
+      tokenService as never,
+    )(
       optionalRequest,
       {} as never,
-      next,
+      optionalNext,
     );
     await flush();
-    expect(optionalRequest.auth).toBeUndefined();
+    expect(optionalRequest.authContext).toBeUndefined();
+    expect(optionalNext).toHaveBeenCalledWith();
   });
 });
 
@@ -490,7 +516,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.logout(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -511,7 +537,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.logout(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -530,7 +556,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.me(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -563,7 +589,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.me(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -578,7 +604,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.updateMe(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -596,7 +622,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.uploadAvatar(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -616,7 +642,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.devices(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -632,7 +658,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.devices(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -648,7 +674,7 @@ describe('backend controllers, routes, and app', () => {
 
     controller.uploadAvatar(
       createRequest({
-        auth: {
+        authContext: {
           userId: 'user-1',
           sessionId: 'session-1',
           email: 'player@example.com',
@@ -749,16 +775,22 @@ describe('backend controllers, routes, and app', () => {
       throw new AppError(418, 'TEAPOT', 'short and stout');
     });
 
+    const friendsRouter = express.Router();
+    const presenceRouter = express.Router();
     const profileRouter = express.Router();
     profileRouter.get('/db', () => {
       throw Object.assign(new Error('db down'), {
         code: '57P01',
       });
     });
+    const usersRouter = express.Router();
 
     const app = createApp({
       authRouter,
+      friendsRouter,
+      presenceRouter,
       profileRouter,
+      usersRouter,
     });
 
     await request(app).get('/health').expect(200, {

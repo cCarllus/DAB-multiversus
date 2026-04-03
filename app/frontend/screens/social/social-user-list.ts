@@ -70,23 +70,22 @@ const template = `
         <input type="search" class="social-board__search-input" data-social-search />
       </label>
 
-      <label class="social-board__filter">
-        <span class="social-board__filter-label" data-social-presence-label></span>
-        <select class="social-board__select" data-social-presence>
-          <option value="all"></option>
-          <option value="online"></option>
-          <option value="offline"></option>
-        </select>
-      </label>
+      <div class="social-board__toolbar-actions">
+        <label class="social-board__filter">
+          <span class="social-board__filter-label" data-social-presence-label></span>
+          <select class="social-board__select" data-social-presence>
+            <option value="all"></option>
+            <option value="online"></option>
+            <option value="offline"></option>
+          </select>
+        </label>
+
+        <button type="button" class="social-board__more" data-social-more></button>
+      </div>
     </div>
 
     <div class="social-board__rows" data-social-rows></div>
     <div class="social-board__empty" data-social-empty hidden></div>
-
-    <footer class="social-board__footer">
-      <span class="social-board__footer-count" data-social-count></span>
-      <button type="button" class="social-board__more" data-social-more></button>
-    </footer>
   </section>
 `;
 
@@ -135,7 +134,6 @@ export function createSocialUserList(options: SocialUserListOptions) {
   const presenceSelect = element.querySelector<HTMLSelectElement>('[data-social-presence]');
   const rows = element.querySelector<HTMLElement>('[data-social-rows]');
   const empty = element.querySelector<HTMLElement>('[data-social-empty]');
-  const count = element.querySelector<HTMLElement>('[data-social-count]');
   const loadMore = element.querySelector<HTMLButtonElement>('[data-social-more]');
 
   if (
@@ -149,7 +147,6 @@ export function createSocialUserList(options: SocialUserListOptions) {
     !presenceSelect ||
     !rows ||
     !empty ||
-    !count ||
     !loadMore
   ) {
     throw new Error('Social user list could not be initialized.');
@@ -301,7 +298,6 @@ export function createSocialUserList(options: SocialUserListOptions) {
       signal.textContent = String(state.total).padStart(2, '0');
       searchInput.value = state.query;
       presenceSelect.value = state.presence;
-      count.textContent = copy.count(state.total);
       loadMore.hidden = state.activeSection !== 'players' || !state.hasMore;
       loadMore.disabled = state.isBusy;
       rows.dataset.count = String(state.items.length);

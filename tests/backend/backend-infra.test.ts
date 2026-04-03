@@ -273,6 +273,156 @@ describe('backend entrypoint', () => {
   const originalOn = process.on;
   const originalSetTimeout = globalThis.setTimeout;
 
+  async function flushAsyncWork(): Promise<void> {
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+  }
+
+  function mockEntrypointDependencies(options?: {
+    closeDatabase?: ReturnType<typeof vi.fn>;
+    gracefullyShutdown?: ReturnType<typeof vi.fn>;
+    initializeDatabase?: ReturnType<typeof vi.fn>;
+  }) {
+    const app = { name: 'mock-app' };
+    const httpServer = { name: 'mock-http-server' };
+    const closeDatabase = options?.closeDatabase ?? vi.fn(async () => undefined);
+    const createApp = vi.fn(() => app);
+    const createServer = vi.fn(() => httpServer);
+    const define = vi.fn();
+    const ensureStorage = vi.fn(async () => undefined);
+    const gracefullyShutdown = options?.gracefullyShutdown ?? vi.fn(async () => undefined);
+    const initializeDatabase = options?.initializeDatabase ?? vi.fn(async () => undefined);
+    const listen = vi.fn(async () => undefined);
+    const WebSocketTransport = vi.fn(function MockWebSocketTransport(this: { options: unknown }, transportOptions: unknown) {
+      this.options = transportOptions;
+    });
+    const MockRealtimeServer = vi.fn(function MockRealtimeServer(this: {
+      define: typeof define;
+      gracefullyShutdown: typeof gracefullyShutdown;
+      listen: typeof listen;
+    }) {
+      this.define = define;
+      this.gracefullyShutdown = gracefullyShutdown;
+      this.listen = listen;
+    });
+    const SocialPresenceRoom = class MockSocialPresenceRoom {};
+
+    vi.doMock('../../config/env/backend-env', () => ({
+      env: {
+        PORT: 4000,
+      },
+    }));
+    vi.doMock('node:http', () => ({
+      createServer,
+    }));
+    vi.doMock('@colyseus/core', () => ({
+      Server: MockRealtimeServer,
+    }));
+    vi.doMock('@colyseus/ws-transport', () => ({
+      WebSocketTransport,
+    }));
+    vi.doMock('../../app/backend/colyseus/social-presence-room', () => ({
+      SocialPresenceRoom,
+    }));
+    vi.doMock('../../app/backend/lib/postgres', () => ({
+      closeDatabase,
+      dbPool: {},
+      initializeDatabase,
+      withTransaction: vi.fn(),
+    }));
+    vi.doMock('../../app/backend/lib/create-app', () => ({
+      createApp,
+    }));
+    vi.doMock('../../app/backend/middleware/auth.middleware', () => ({
+      createAuthMiddleware: vi.fn(() => 'auth-middleware'),
+      createOptionalAuthMiddleware: vi.fn(() => 'optional-auth-middleware'),
+    }));
+    vi.doMock('../../app/backend/controllers/auth.controller', () => ({
+      createAuthController: vi.fn(() => 'auth-controller'),
+    }));
+    vi.doMock('../../app/backend/controllers/presence.controller', () => ({
+      createPresenceController: vi.fn(() => 'presence-controller'),
+    }));
+    vi.doMock('../../app/backend/controllers/profile.controller', () => ({
+      createProfileController: vi.fn(() => 'profile-controller'),
+    }));
+    vi.doMock('../../app/backend/controllers/social.controller', () => ({
+      createSocialController: vi.fn(() => 'social-controller'),
+    }));
+    vi.doMock('../../app/backend/routes/auth.routes', () => ({
+      createAuthRouter: vi.fn(() => 'auth-router'),
+    }));
+    vi.doMock('../../app/backend/routes/friends.routes', () => ({
+      createFriendsRouter: vi.fn(() => 'friends-router'),
+    }));
+    vi.doMock('../../app/backend/routes/presence.routes', () => ({
+      createPresenceRouter: vi.fn(() => 'presence-router'),
+    }));
+    vi.doMock('../../app/backend/routes/profile.routes', () => ({
+      createProfileRouter: vi.fn(() => 'profile-router'),
+    }));
+    vi.doMock('../../app/backend/routes/users.routes', () => ({
+      createUsersRouter: vi.fn(() => 'users-router'),
+    }));
+    vi.doMock('../../app/backend/repositories/auth.repository', () => ({
+      AuthRepository: vi.fn(function MockAuthRepository() {}),
+    }));
+    vi.doMock('../../app/backend/repositories/profile.repository', () => ({
+      ProfileRepository: vi.fn(function MockProfileRepository() {}),
+    }));
+    vi.doMock('../../app/backend/repositories/social.repository', () => ({
+      SocialRepository: vi.fn(function MockSocialRepository() {}),
+    }));
+    vi.doMock('../../app/backend/repositories/users.repository', () => ({
+      UsersRepository: vi.fn(function MockUsersRepository() {}),
+    }));
+    vi.doMock('../../app/backend/services/profile.service', () => ({
+      ProfileService: vi.fn(function MockProfileService() {
+        return {
+          ensureStorage,
+        };
+      }),
+    }));
+    vi.doMock('../../app/backend/services/social-presence-session.service', () => ({
+      SocialPresenceSessionService: vi.fn(function MockSocialPresenceSessionService() {}),
+    }));
+    vi.doMock('../../app/backend/services/session-auth.service', () => ({
+      SessionAuthService: vi.fn(function MockSessionAuthService() {}),
+    }));
+    vi.doMock('../../app/backend/services/social.service', () => ({
+      SocialService: vi.fn(function MockSocialService() {}),
+    }));
+    vi.doMock('../../app/backend/services/auth.service', () => ({
+      AuthService: vi.fn(function MockAuthService() {}),
+    }));
+    vi.doMock('../../app/backend/services/password.service', () => ({
+      PasswordService: vi.fn(function MockPasswordService() {}),
+    }));
+    vi.doMock('../../app/backend/services/token.service', () => ({
+      TokenService: vi.fn(function MockTokenService() {}),
+    }));
+    vi.doMock('../../app/backend/services/users.service', () => ({
+      UsersService: vi.fn(function MockUsersService() {}),
+    }));
+
+    return {
+      SocialPresenceRoom,
+      WebSocketTransport,
+      app,
+      closeDatabase,
+      createApp,
+      createServer,
+      define,
+      ensureStorage,
+      gracefullyShutdown,
+      httpServer,
+      initializeDatabase,
+      listen,
+    };
+  }
+
   afterEach(() => {
     process.exit = originalExit;
     process.on = originalOn;
@@ -284,105 +434,54 @@ describe('backend entrypoint', () => {
   it('boots the backend server and registers shutdown handlers', async () => {
     const exitSpy = vi.fn();
     const handlers = new Map<string, () => void>();
-    const closeDatabase = vi.fn(async () => undefined);
-    const initializeDatabase = vi.fn(async () => undefined);
-    const serverClose = vi.fn((callback: () => void) => callback());
-    const listen = vi.fn((port: number, callback: () => void) => {
-      callback();
-      return {
-        close: serverClose,
-      };
-    });
+    const unref = vi.fn();
+    const mocks = mockEntrypointDependencies();
 
     process.exit = exitSpy as never;
     process.on = vi.fn((event, handler) => {
       handlers.set(event, handler as () => void);
       return process;
     }) as never;
-    globalThis.setTimeout = vi.fn(() => ({
-      unref: vi.fn(),
-    })) as never;
-
-    vi.doMock('../../app/backend/lib/postgres', () => ({
-      closeDatabase,
-      initializeDatabase,
-      withTransaction: vi.fn(),
-    }));
-    vi.doMock('../../app/backend/lib/create-app', () => ({
-      createApp: vi.fn(() => ({
-        listen,
-      })),
-    }));
-    vi.doMock('../../app/backend/middleware/auth.middleware', () => ({
-      createAuthMiddleware: vi.fn(() => 'auth-middleware'),
-      createOptionalAuthMiddleware: vi.fn(() => 'optional-auth-middleware'),
-    }));
-    vi.doMock('../../app/backend/controllers/auth.controller', () => ({
-      createAuthController: vi.fn(() => 'auth-controller'),
-    }));
-    vi.doMock('../../app/backend/controllers/profile.controller', () => ({
-      createProfileController: vi.fn(() => 'profile-controller'),
-    }));
-    vi.doMock('../../app/backend/routes/auth.routes', () => ({
-      createAuthRouter: vi.fn(() => 'auth-router'),
-    }));
-    vi.doMock('../../app/backend/routes/profile.routes', () => ({
-      createProfileRouter: vi.fn(() => 'profile-router'),
-    }));
-    class AuthRepository {}
-    class ProfileRepository {}
-    class UsersRepository {}
-    class ProfileService {
-      async ensureStorage(): Promise<void> {
-        return undefined;
-      }
-    }
-    class AuthService {}
-    class PasswordService {}
-    class TokenService {}
-    class UsersService {}
-
-    vi.doMock('../../app/backend/repositories/auth.repository', () => ({
-      AuthRepository,
-    }));
-    vi.doMock('../../app/backend/repositories/profile.repository', () => ({
-      ProfileRepository,
-    }));
-    vi.doMock('../../app/backend/repositories/users.repository', () => ({
-      UsersRepository,
-    }));
-    vi.doMock('../../app/backend/services/profile.service', () => ({
-      ProfileService,
-    }));
-    vi.doMock('../../app/backend/services/auth.service', () => ({
-      AuthService,
-    }));
-    vi.doMock('../../app/backend/services/password.service', () => ({
-      PasswordService,
-    }));
-    vi.doMock('../../app/backend/services/token.service', () => ({
-      TokenService,
-    }));
-    vi.doMock('../../app/backend/services/users.service', () => ({
-      UsersService,
-    }));
+    globalThis.setTimeout = vi.fn(() => ({ unref })) as never;
 
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
 
     await import('../../app/backend/index');
-    await Promise.resolve();
+    await flushAsyncWork();
 
-    expect(initializeDatabase).toHaveBeenCalled();
-    expect(listen).toHaveBeenCalledWith(4000, expect.any(Function));
+    expect(mocks.initializeDatabase).toHaveBeenCalled();
+    expect(mocks.ensureStorage).toHaveBeenCalled();
+    expect(mocks.createApp).toHaveBeenCalledWith({
+      authRouter: 'auth-router',
+      friendsRouter: 'friends-router',
+      presenceRouter: 'presence-router',
+      profileRouter: 'profile-router',
+      usersRouter: 'users-router',
+    });
+    expect(mocks.createServer).toHaveBeenCalledWith(mocks.app);
+    expect(mocks.WebSocketTransport).toHaveBeenCalledWith({
+      server: mocks.httpServer,
+    });
+    expect(mocks.define).toHaveBeenCalledWith(
+      'social_presence',
+      mocks.SocialPresenceRoom,
+      expect.objectContaining({
+        presenceSessionService: expect.any(Object),
+        sessionAuthService: expect.any(Object),
+        socialService: expect.any(Object),
+      }),
+    );
+    expect(mocks.listen).toHaveBeenCalledWith(4000);
     expect(logSpy).toHaveBeenCalledWith(
       'Dead As Battle auth server listening on port 4000.',
     );
+    expect(unref).not.toHaveBeenCalled();
 
     handlers.get('SIGINT')?.();
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(serverClose).toHaveBeenCalled();
-    expect(closeDatabase).toHaveBeenCalled();
+    await flushAsyncWork();
+    expect(mocks.gracefullyShutdown).toHaveBeenCalledWith(false);
+    expect(mocks.closeDatabase).toHaveBeenCalled();
+    expect(unref).toHaveBeenCalled();
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
@@ -393,14 +492,9 @@ describe('backend entrypoint', () => {
     const closeDatabase = vi.fn(async () => {
       throw new Error('close failed');
     });
-    const initializeDatabase = vi.fn(async () => undefined);
-    const serverClose = vi.fn((callback: () => void) => callback());
     let timeoutHandler: (() => void) | null = null;
-    const listen = vi.fn((port: number, callback: () => void) => {
-      callback();
-      return {
-        close: serverClose,
-      };
+    const mocks = mockEntrypointDependencies({
+      closeDatabase,
     });
 
     process.exit = exitSpy as never;
@@ -415,77 +509,12 @@ describe('backend entrypoint', () => {
       } as never;
     }) as never;
 
-    vi.doMock('../../app/backend/lib/postgres', () => ({
-      closeDatabase,
-      initializeDatabase,
-      withTransaction: vi.fn(),
-    }));
-    vi.doMock('../../app/backend/lib/create-app', () => ({
-      createApp: vi.fn(() => ({
-        listen,
-      })),
-    }));
-    vi.doMock('../../app/backend/middleware/auth.middleware', () => ({
-      createAuthMiddleware: vi.fn(() => 'auth-middleware'),
-      createOptionalAuthMiddleware: vi.fn(() => 'optional-auth-middleware'),
-    }));
-    vi.doMock('../../app/backend/controllers/auth.controller', () => ({
-      createAuthController: vi.fn(() => 'auth-controller'),
-    }));
-    vi.doMock('../../app/backend/controllers/profile.controller', () => ({
-      createProfileController: vi.fn(() => 'profile-controller'),
-    }));
-    vi.doMock('../../app/backend/routes/auth.routes', () => ({
-      createAuthRouter: vi.fn(() => 'auth-router'),
-    }));
-    vi.doMock('../../app/backend/routes/profile.routes', () => ({
-      createProfileRouter: vi.fn(() => 'profile-router'),
-    }));
-    class AuthRepository {}
-    class ProfileRepository {}
-    class UsersRepository {}
-    class ProfileService {
-      async ensureStorage(): Promise<void> {
-        return undefined;
-      }
-    }
-    class AuthService {}
-    class PasswordService {}
-    class TokenService {}
-    class UsersService {}
-
-    vi.doMock('../../app/backend/repositories/auth.repository', () => ({
-      AuthRepository,
-    }));
-    vi.doMock('../../app/backend/repositories/profile.repository', () => ({
-      ProfileRepository,
-    }));
-    vi.doMock('../../app/backend/repositories/users.repository', () => ({
-      UsersRepository,
-    }));
-    vi.doMock('../../app/backend/services/profile.service', () => ({
-      ProfileService,
-    }));
-    vi.doMock('../../app/backend/services/auth.service', () => ({
-      AuthService,
-    }));
-    vi.doMock('../../app/backend/services/password.service', () => ({
-      PasswordService,
-    }));
-    vi.doMock('../../app/backend/services/token.service', () => ({
-      TokenService,
-    }));
-    vi.doMock('../../app/backend/services/users.service', () => ({
-      UsersService,
-    }));
-
     await import('../../app/backend/index');
-    await Promise.resolve();
+    await flushAsyncWork();
     handlers.get('SIGTERM')?.();
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushAsyncWork();
 
-    expect(serverClose).toHaveBeenCalled();
+    expect(mocks.gracefullyShutdown).toHaveBeenCalledWith(false);
     expect(closeDatabase).toHaveBeenCalled();
     expect(errorSpy).toHaveBeenCalledWith(
       'Failed to close the database pool cleanly.',
@@ -494,25 +523,23 @@ describe('backend entrypoint', () => {
     expect(exitSpy).toHaveBeenCalledWith(1);
 
     timeoutHandler?.();
+    await flushAsyncWork();
     expect(exitSpy).toHaveBeenCalledWith(1);
   });
 
   it('exits with code 1 when startup fails', async () => {
     const exitSpy = vi.fn();
-    process.exit = exitSpy as never;
-
-    vi.doMock('../../app/backend/lib/postgres', () => ({
-      closeDatabase: vi.fn(),
+    mockEntrypointDependencies({
       initializeDatabase: vi.fn(async () => {
         throw new Error('startup failed');
       }),
-      withTransaction: vi.fn(),
-    }));
+    });
+    process.exit = exitSpy as never;
 
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     await import('../../app/backend/index');
-    await Promise.resolve();
+    await flushAsyncWork();
 
     expect(errorSpy).toHaveBeenCalledWith(
       'Failed to start the Dead As Battle auth server.',

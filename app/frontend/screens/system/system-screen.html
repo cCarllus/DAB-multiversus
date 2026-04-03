@@ -2,58 +2,59 @@
   <section class="system-screen">
     <div class="system-screen__feedback" data-system-feedback hidden></div>
 
-    <section class="system-panel">
-      <div class="system-panel__head">
-        <p class="system-panel__eyebrow">__SYSTEM_EYEBROW__</p>
-        <h1 class="system-panel__title">__SYSTEM_TITLE__</h1>
-        <p class="system-panel__summary">__SYSTEM_SUMMARY__</p>
-      </div>
+    <section class="system-stage">
+      <header class="system-stage__hero">
+        <p class="system-stage__eyebrow">__SYSTEM_EYEBROW__</p>
+        <h1 class="system-stage__title">__SYSTEM_TITLE__</h1>
+        <p class="system-stage__summary">__SYSTEM_SUMMARY__</p>
+      </header>
 
-      <div class="system-panel__grid">
-        <article class="system-card">
-          <span class="system-card__label">__SYSTEM_CARD_OPERATING_SYSTEM_LABEL__</span>
-          <strong class="system-card__value" data-system-platform></strong>
-          <span class="system-card__meta">__SYSTEM_CARD_OPERATING_SYSTEM_META__</span>
+      <section class="system-stage__metrics">
+        <article class="system-metric">
+          <span class="system-metric__label">__SYSTEM_CARD_OPERATING_SYSTEM_LABEL__</span>
+          <strong class="system-metric__value" data-system-platform></strong>
+          <span class="system-metric__meta">__SYSTEM_CARD_OPERATING_SYSTEM_META__</span>
         </article>
 
-        <article class="system-card">
-          <span class="system-card__label">__SYSTEM_CARD_OS_VERSION_LABEL__</span>
-          <strong class="system-card__value" data-system-os-version></strong>
-          <span class="system-card__meta">__SYSTEM_CARD_OS_VERSION_META__</span>
+        <article class="system-metric">
+          <span class="system-metric__label">__SYSTEM_CARD_OS_VERSION_LABEL__</span>
+          <strong class="system-metric__value" data-system-os-version></strong>
+          <span class="system-metric__meta">__SYSTEM_CARD_OS_VERSION_META__</span>
         </article>
 
-        <article class="system-card">
-          <span class="system-card__label">__SYSTEM_CARD_RUNTIME_LABEL__</span>
-          <strong class="system-card__value" data-system-runtime></strong>
-          <span class="system-card__meta">__SYSTEM_CARD_RUNTIME_META__</span>
+        <article class="system-metric">
+          <span class="system-metric__label">__SYSTEM_CARD_RUNTIME_LABEL__</span>
+          <strong class="system-metric__value" data-system-runtime></strong>
+          <span class="system-metric__meta">__SYSTEM_CARD_RUNTIME_META__</span>
         </article>
 
-        <article class="system-card">
-          <span class="system-card__label">__SYSTEM_CARD_TRUSTED_ACCESS_LABEL__</span>
-          <strong class="system-card__value" data-system-trusted></strong>
-          <span class="system-card__meta">__SYSTEM_CARD_TRUSTED_ACCESS_META__</span>
+        <article class="system-metric">
+          <span class="system-metric__label">__SYSTEM_CARD_TRUSTED_ACCESS_LABEL__</span>
+          <strong class="system-metric__value" data-system-trusted></strong>
+          <span class="system-metric__meta">__SYSTEM_CARD_TRUSTED_ACCESS_META__</span>
         </article>
 
-        <article class="system-card">
-          <span class="system-card__label">__SYSTEM_CARD_CURRENT_DEVICE_LABEL__</span>
-          <strong class="system-card__value" data-system-current-device></strong>
-          <span class="system-card__meta" data-system-current-meta></span>
+        <article class="system-metric">
+          <span class="system-metric__label">__SYSTEM_CARD_CURRENT_DEVICE_LABEL__</span>
+          <strong class="system-metric__value" data-system-current-device></strong>
+          <span class="system-metric__meta" data-system-current-meta></span>
         </article>
 
-        <article class="system-card">
-          <span class="system-card__label">__SYSTEM_CARD_LAST_ACTIVE_LABEL__</span>
-          <strong class="system-card__value" data-system-last-active></strong>
-          <span class="system-card__meta" data-system-last-active-meta></span>
+        <article class="system-metric">
+          <span class="system-metric__label">__SYSTEM_CARD_LAST_ACTIVE_LABEL__</span>
+          <strong class="system-metric__value" data-system-last-active></strong>
+          <span class="system-metric__meta" data-system-last-active-meta></span>
         </article>
-      </div>
+      </section>
 
-      <div class="system-panel__devices">
-        <div class="system-panel__devices-head">
-          <p class="system-panel__eyebrow">__SYSTEM_LIST_EYEBROW__</p>
-          <p class="system-panel__devices-summary">__SYSTEM_LIST_SUMMARY__</p>
+      <section class="system-stage__devices">
+        <div class="system-stage__devices-head">
+          <p class="system-stage__eyebrow">__SYSTEM_LIST_EYEBROW__</p>
+          <p class="system-stage__devices-summary">__SYSTEM_LIST_SUMMARY__</p>
         </div>
+
         <ul class="system-device-list" data-system-device-list></ul>
-      </div>
+      </section>
     </section>
   </section>
 </main>

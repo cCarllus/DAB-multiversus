@@ -1,16 +1,25 @@
 <section class="profile-name-editor">
   <div class="profile-name-editor__view" data-name-view>
     <span class="profile-name-editor__label">__PROFILE_NAME_EDITOR_LABEL__</span>
-    <div class="profile-name-editor__row">
-      <h1 class="profile-name-editor__value" data-name-value></h1>
+    <p class="profile-name-editor__nickname" data-name-nickname></p>
+
+    <div class="profile-name-editor__command">
+      <div class="profile-name-editor__identity-copy">
+        <span class="profile-name-editor__value-kicker">__PROFILE_NAME_EDITOR_INPUT_LABEL__</span>
+        <p class="profile-name-editor__value" data-name-value></p>
+        <p class="profile-name-editor__hint">__PROFILE_NAME_EDITOR_HINT__</p>
+      </div>
+
       <button type="button" class="profile-name-editor__edit" data-name-edit>
         __PROFILE_NAME_EDITOR_EDIT__
       </button>
     </div>
-    <p class="profile-name-editor__hint">__PROFILE_NAME_EDITOR_HINT__</p>
   </div>
 
   <form class="profile-name-editor__form" data-name-form hidden>
+    <span class="profile-name-editor__label">__PROFILE_NAME_EDITOR_LABEL__</span>
+    <p class="profile-name-editor__nickname" data-name-form-nickname></p>
+
     <label class="profile-name-editor__field">
       <span class="profile-name-editor__label">__PROFILE_NAME_EDITOR_INPUT_LABEL__</span>
       <input class="profile-name-editor__input" data-name-input maxlength="40" type="text" />
@@ -24,5 +33,7 @@
         __PROFILE_NAME_EDITOR_CANCEL__
       </button>
     </div>
+
+    <p class="profile-name-editor__hint">__PROFILE_NAME_EDITOR_HINT__</p>
   </form>
 </section>

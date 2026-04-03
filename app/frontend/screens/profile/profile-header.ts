@@ -28,6 +28,7 @@ export function createProfileHeader(options: CreateProfileHeaderOptions): Profil
   const messages = options.i18n.getMessages().menu.profile;
   const element = createElementFromTemplate(profileHeaderTemplate, {
     PROFILE_HERO_ARIA_LABEL: messages.heroAriaLabel,
+    PROFILE_HERO_SUMMARY: messages.summary,
     PROFILE_LANGUAGE_LABEL: messages.hero.language,
     PROFILE_LAUNCHER_STATUS_LABEL: messages.hero.launcherStatus,
     PROFILE_MEMBER_SINCE_LABEL: messages.hero.memberSince,
@@ -39,6 +40,7 @@ export function createProfileHeader(options: CreateProfileHeaderOptions): Profil
   const memberSinceValue = element.querySelector<HTMLElement>('[data-member-since]');
   const userIdValue = element.querySelector<HTMLElement>('[data-user-id-value]');
   const launcherStatusValue = element.querySelector<HTMLElement>('[data-launcher-status]');
+  const launcherStatusBadge = element.querySelector<HTMLElement>('[data-launcher-status-badge]');
   const languageValue = element.querySelector<HTMLElement>('[data-language-value]');
   const trustedDeviceValue = element.querySelector<HTMLElement>('[data-trusted-device]');
 
@@ -48,6 +50,7 @@ export function createProfileHeader(options: CreateProfileHeaderOptions): Profil
     !memberSinceValue ||
     !userIdValue ||
     !launcherStatusValue ||
+    !launcherStatusBadge ||
     !languageValue ||
     !trustedDeviceValue
   ) {
@@ -65,6 +68,7 @@ export function createProfileHeader(options: CreateProfileHeaderOptions): Profil
       memberSinceValue.textContent = input.memberSince;
       userIdValue.textContent = input.userId;
       launcherStatusValue.textContent = input.accountStatus;
+      launcherStatusBadge.dataset.tone = 'launcher';
       languageValue.textContent = input.languageLabel;
       trustedDeviceValue.textContent = input.trustedDevice;
     },

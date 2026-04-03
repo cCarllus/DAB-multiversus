@@ -357,6 +357,7 @@ describe('frontend bootstrap application', () => {
 
     bootstrapState.authService.logout.mockRejectedValueOnce(new Error('logout failed'));
     await clickAction('auth-logout');
+    await flushPromises();
     expect(bootstrapState.router.showMenu.mock.calls.at(-1)?.[0].exitModal.errorMessage).toBe(
       'logout failed',
     );
@@ -364,6 +365,7 @@ describe('frontend bootstrap application', () => {
     bootstrapState.authService.logout.mockResolvedValueOnce(undefined);
     bootstrapState.authService.getCurrentSession.mockReturnValue(loggedInSession);
     await clickAction('auth-logout');
+    await flushPromises();
     expect(bootstrapState.router.showLogin).toHaveBeenCalled();
 
     await clickAction('launcher-force-close');

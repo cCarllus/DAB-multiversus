@@ -15,7 +15,7 @@ import './home-screen.css';
 
 interface HomeScreenOptions {
   i18n: AppI18n;
-  socialStore: SocialStore;
+  socialStore?: SocialStore;
   user: AuthUser;
 }
 
@@ -77,7 +77,7 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
   }
 
   const renderHomeSocial = (): void => {
-    const snapshot = options.socialStore.getSnapshot();
+    const snapshot = options.socialStore?.getSnapshot();
 
     if (!snapshot) {
       friendsList.replaceChildren(createHomeEmptyState(messages.menu.home.friendsLoading));
@@ -155,6 +155,11 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
   };
 
   renderHomeSocial();
+
+  if (!options.socialStore) {
+    friendsList.replaceChildren(createHomeEmptyState(messages.menu.home.friendsUnavailable));
+    return rootElement;
+  }
 
   const unsubscribe = options.socialStore.subscribe(() => {
     if (!rootElement.isConnected) {
