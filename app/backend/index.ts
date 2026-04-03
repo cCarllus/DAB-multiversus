@@ -19,14 +19,20 @@ import { SocialPresenceRoom } from './colyseus/social-presence-room';
 import { createAuthMiddleware, createOptionalAuthMiddleware } from './middleware/auth.middleware';
 import { createAuthController } from './controllers/auth.controller';
 import { createChatController } from './controllers/chat.controller';
+import { createCharactersController } from './controllers/characters.controller';
+import { createDeckController } from './controllers/deck.controller';
 import { createNotificationsController } from './controllers/notifications.controller';
 import { createPlayerStateController } from './controllers/player-state.controller';
 import { AuthRepository } from './repositories/auth.repository';
 import { createAuthRouter } from './routes/auth.routes';
 import { createChatRouter } from './routes/chat.routes';
+import { createCharactersRouter } from './routes/characters.routes';
+import { createDeckRouter } from './routes/deck.routes';
 import { createMeRouter } from './routes/me.routes';
 import { AuthService } from './services/auth.service';
 import { ChatRepository } from './repositories/chat.repository';
+import { CharactersRepository } from './repositories/characters.repository';
+import { DeckRepository } from './repositories/deck.repository';
 import { NotificationsRepository } from './repositories/notifications.repository';
 import { PasswordService } from './services/password.service';
 import { PlayerAccountBootstrapService } from './services/player-account-bootstrap.service';
@@ -45,7 +51,10 @@ import { createProfileRouter } from './routes/profile.routes';
 import { createFriendsRouter } from './routes/friends.routes';
 import { createPresenceRouter } from './routes/presence.routes';
 import { createUsersRouter } from './routes/users.routes';
+import { UserCharactersRepository } from './repositories/user-characters.repository';
 import { ProfileService } from './services/profile.service';
+import { CharactersService } from './services/characters.service';
+import { DeckService } from './services/deck.service';
 import { ProgressionService } from './services/progression.service';
 import { SocialPresenceSessionService } from './services/social-presence-session.service';
 import { SessionAuthService } from './services/session-auth.service';
@@ -64,6 +73,9 @@ async function main(): Promise<void> {
   const socialRepository = new SocialRepository();
   const progressionRepository = new ProgressionRepository();
   const walletRepository = new WalletRepository();
+  const charactersRepository = new CharactersRepository();
+  const userCharactersRepository = new UserCharactersRepository();
+  const deckRepository = new DeckRepository();
   const notificationsRepository = new NotificationsRepository();
   const chatRepository = new ChatRepository();
   const profileService = new ProfileService(profileRepository, usersService);
@@ -78,10 +90,24 @@ async function main(): Promise<void> {
     notificationsService,
   );
   const walletService = new WalletService(walletRepository);
+  const deckService = new DeckService(
+    deckRepository,
+    charactersRepository,
+    userCharactersRepository,
+  );
+  const charactersService = new CharactersService(
+    charactersRepository,
+    userCharactersRepository,
+    deckRepository,
+    walletService,
+  );
+  await charactersService.ensureCatalogSeeded();
   const playerAccountBootstrapService = new PlayerAccountBootstrapService(
     progressionService,
     walletService,
     notificationsService,
+    charactersService,
+    deckService,
   );
   const chatService = new ChatService(chatRepository, progressionRepository, usersService);
   const presenceSessionService = new SocialPresenceSessionService();
@@ -101,6 +127,8 @@ async function main(): Promise<void> {
   });
   const authController = createAuthController(authService);
   const chatController = createChatController(chatService);
+  const charactersController = createCharactersController(charactersService);
+  const deckController = createDeckController(deckService);
   const notificationsController = createNotificationsController(notificationsService);
   const playerStateController = createPlayerStateController(progressionService, walletService);
   const profileController = createProfileController(profileService);
@@ -117,6 +145,14 @@ async function main(): Promise<void> {
     chatRouter: createChatRouter({
       authMiddleware,
       chatController,
+    }),
+    charactersRouter: createCharactersRouter({
+      authMiddleware,
+      charactersController,
+    }),
+    deckRouter: createDeckRouter({
+      authMiddleware,
+      deckController,
     }),
     friendsRouter: createFriendsRouter({
       authMiddleware,

@@ -354,6 +354,12 @@ describe('backend entrypoint', () => {
     vi.doMock('../../app/backend/controllers/chat.controller', () => ({
       createChatController: vi.fn(() => 'chat-controller'),
     }));
+    vi.doMock('../../app/backend/controllers/characters.controller', () => ({
+      createCharactersController: vi.fn(() => 'characters-controller'),
+    }));
+    vi.doMock('../../app/backend/controllers/deck.controller', () => ({
+      createDeckController: vi.fn(() => 'deck-controller'),
+    }));
     vi.doMock('../../app/backend/controllers/notifications.controller', () => ({
       createNotificationsController: vi.fn(() => 'notifications-controller'),
     }));
@@ -374,6 +380,12 @@ describe('backend entrypoint', () => {
     }));
     vi.doMock('../../app/backend/routes/chat.routes', () => ({
       createChatRouter: vi.fn(() => 'chat-router'),
+    }));
+    vi.doMock('../../app/backend/routes/characters.routes', () => ({
+      createCharactersRouter: vi.fn(() => 'characters-router'),
+    }));
+    vi.doMock('../../app/backend/routes/deck.routes', () => ({
+      createDeckRouter: vi.fn(() => 'deck-router'),
     }));
     vi.doMock('../../app/backend/routes/friends.routes', () => ({
       createFriendsRouter: vi.fn(() => 'friends-router'),
@@ -396,6 +408,12 @@ describe('backend entrypoint', () => {
     vi.doMock('../../app/backend/repositories/chat.repository', () => ({
       ChatRepository: vi.fn(function MockChatRepository() { }),
     }));
+    vi.doMock('../../app/backend/repositories/characters.repository', () => ({
+      CharactersRepository: vi.fn(function MockCharactersRepository() { }),
+    }));
+    vi.doMock('../../app/backend/repositories/deck.repository', () => ({
+      DeckRepository: vi.fn(function MockDeckRepository() { }),
+    }));
     vi.doMock('../../app/backend/repositories/notifications.repository', () => ({
       NotificationsRepository: vi.fn(function MockNotificationsRepository() { }),
     }));
@@ -411,6 +429,9 @@ describe('backend entrypoint', () => {
     vi.doMock('../../app/backend/repositories/users.repository', () => ({
       UsersRepository: vi.fn(function MockUsersRepository() { }),
     }));
+    vi.doMock('../../app/backend/repositories/user-characters.repository', () => ({
+      UserCharactersRepository: vi.fn(function MockUserCharactersRepository() { }),
+    }));
     vi.doMock('../../app/backend/repositories/wallet.repository', () => ({
       WalletRepository: vi.fn(function MockWalletRepository() { }),
     }));
@@ -423,6 +444,16 @@ describe('backend entrypoint', () => {
     }));
     vi.doMock('../../app/backend/services/chat.service', () => ({
       ChatService: vi.fn(function MockChatService() { }),
+    }));
+    vi.doMock('../../app/backend/services/characters.service', () => ({
+      CharactersService: vi.fn(function MockCharactersService() {
+        return {
+          ensureCatalogSeeded: vi.fn(async () => undefined),
+        };
+      }),
+    }));
+    vi.doMock('../../app/backend/services/deck.service', () => ({
+      DeckService: vi.fn(function MockDeckService() { }),
     }));
     vi.doMock('../../app/backend/services/notifications-realtime.gateway', () => ({
       NotificationsRealtimeGateway: vi.fn(function MockNotificationsRealtimeGateway() { }),
@@ -510,6 +541,8 @@ describe('backend entrypoint', () => {
     expect(mocks.createApp).toHaveBeenCalledWith({
       authRouter: 'auth-router',
       chatRouter: 'chat-router',
+      charactersRouter: 'characters-router',
+      deckRouter: 'deck-router',
       friendsRouter: 'friends-router',
       meRouter: 'me-router',
       presenceRouter: 'presence-router',

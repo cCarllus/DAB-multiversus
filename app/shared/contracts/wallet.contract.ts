@@ -4,6 +4,7 @@ export type WalletTransactionDirection = 'credit' | 'debit';
 
 export type WalletTransactionReason =
   | 'starter_bonus'
+  | 'character_unlock'
   | 'admin_grant'
   | 'reward_claim'
   | 'social_reward'

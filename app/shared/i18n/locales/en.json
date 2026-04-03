@@ -213,7 +213,7 @@
       "forwardAriaLabel": "Go forward",
       "playAriaLabel": "Dead As Battle",
       "tabs": {
-        "heroes": "Heroes",
+        "heroes": "Champions",
         "store": "Store",
         "watch": "Watch",
         "codex": "Codex",
@@ -226,6 +226,70 @@
       "notificationsAriaLabel": "Notifications",
       "minimizeAriaLabel": "Minimize launcher",
       "closeAriaLabel": "Close launcher"
+    },
+    "cards": {
+      "eyebrow": "Loadout Bay",
+      "title": "Build the active eight-card roster",
+      "summary": "Browse every champion in the current catalog, inspect lore and combat identity, unlock new entries with shards, and keep the active deck synced to the database.",
+      "searchPlaceholder": "Find character...",
+      "filters": {
+        "all": "All",
+        "strength": "Strength",
+        "agility": "Agility",
+        "intelligence": "Intelligence"
+      },
+      "sections": {
+        "unlocked": "Unlocked",
+        "locked": "Locked"
+      },
+      "deck": {
+        "title": "Active Roster",
+        "subtitle": "Eight-slot command deck",
+        "count": "{{count}} / {{max}} Slots",
+        "empty": "Empty",
+        "saving": "Syncing deck",
+        "saved": "Deck synced"
+      },
+      "overview": {
+        "title": "Tactical Overview",
+        "subtitle": "Curve and class spread",
+        "avgCost": "Avg. Cost"
+      },
+      "status": {
+        "locked": "Locked",
+        "unlocked": "Owned",
+        "inDeck": "In Deck",
+        "inactive": "Unavailable",
+        "owned": "Owned",
+        "level": "Lvl {{level}}"
+      },
+      "actions": {
+        "inspect": "Inspect",
+        "add": "Add to deck",
+        "addShort": "Add",
+        "remove": "Remove from deck",
+        "unlock": "Unlock for {{shards}} shards",
+        "unlockCompact": "Unlock {{shards}}",
+        "unlocking": "Unlocking...",
+        "close": "Close"
+      },
+      "detail": {
+        "lore": "Lore",
+        "fieldData": "Field Data",
+        "rarity": "Rarity",
+        "category": "Category",
+        "mana": "Mana Cost",
+        "price": "Unlock Price",
+        "status": "Status",
+        "level": "Level"
+      },
+      "feedback": {
+        "unlockSuccess": "{{name}} unlocked."
+      },
+      "loading": "Loading champion catalog...",
+      "loadingTitle": "Linking the champion archive",
+      "emptyTitle": "No matching champions",
+      "empty": "Adjust the search or filter to surface a different loadout option."
     },
     "settings": {
       "ariaLabel": "Launcher settings",
@@ -484,6 +548,7 @@
         "online": "Online",
         "offline": "Offline",
         "inLauncher": "In Launcher",
+        "configuringLoadout": "Configuring loadout",
         "browsingPlayers": "Browsing players",
         "reviewingProfile": "Reviewing profile",
         "checkingSystem": "Checking system",

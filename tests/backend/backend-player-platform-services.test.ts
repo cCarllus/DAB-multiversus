@@ -460,6 +460,13 @@ describe('backend player platform services', () => {
     const walletService = {
       ensureWallet: vi.fn(async () => createWalletRecord()),
     };
+    const charactersService = {
+      ensureCatalogSeeded: vi.fn(async () => undefined),
+      ensureDefaultUnlockedCharacters: vi.fn(async () => undefined),
+    };
+    const deckService = {
+      ensureActiveDeck: vi.fn(async () => undefined),
+    };
     const notificationsService = {
       createNotification: vi.fn(async () => createNotificationRecord()),
     };
@@ -467,6 +474,8 @@ describe('backend player platform services', () => {
       progressionService as never,
       walletService as never,
       notificationsService as never,
+      charactersService as never,
+      deckService as never,
     );
 
     await service.initializeNewAccount('user-1', postgresState.client as never);
@@ -476,11 +485,18 @@ describe('backend player platform services', () => {
       postgresState.client,
     );
     expect(walletService.ensureWallet).toHaveBeenCalledWith('user-1', postgresState.client);
+    expect(charactersService.ensureCatalogSeeded).toHaveBeenCalledWith(postgresState.client);
+    expect(charactersService.ensureDefaultUnlockedCharacters).toHaveBeenCalledWith(
+      'user-1',
+      postgresState.client,
+    );
+    expect(deckService.ensureActiveDeck).toHaveBeenCalledWith('user-1', postgresState.client);
     expect(notificationsService.createNotification).toHaveBeenCalledWith(
       'user-1',
       expect.objectContaining({
         category: 'account',
         metadataJson: {
+          defaultDeckReady: true,
           shardsGranted: 500,
           welcome: true,
         },

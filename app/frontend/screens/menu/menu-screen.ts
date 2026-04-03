@@ -1,4 +1,5 @@
 import { createExitModal } from '@frontend/components/exit-modal';
+import { createCardsScreen } from '@frontend/screens/cards/cards-screen';
 import {
   resolveAuthDisplayName,
   type AuthSessionSnapshot,
@@ -10,6 +11,7 @@ import { createProfileScreen } from '@frontend/screens/profile/profile-screen';
 import { createSocialScreen } from '@frontend/screens/social/social-screen';
 import { createSystemScreen } from '@frontend/screens/system/system-screen';
 import type { ChatStore } from '@frontend/stores/chat.store';
+import type { CardsStore } from '@frontend/stores/cards.store';
 import type { NotificationsStore } from '@frontend/stores/notifications.store';
 import type { ProfileStore } from '@frontend/stores/profile.store';
 import type { ProgressionStore } from '@frontend/stores/progression.store';
@@ -22,6 +24,7 @@ import type { DesktopBridge } from '@shared/contracts/desktop.contract';
 interface MenuScreenOptions {
   canGoBack: boolean;
   canGoForward: boolean;
+  cardsStore?: CardsStore;
   chatStore?: ChatStore;
   desktop: DesktopBridge;
   isSettingsOpen?: boolean;
@@ -38,7 +41,7 @@ interface MenuScreenOptions {
   profileTargetNickname?: string | null;
   progressionStore?: ProgressionStore;
   socialStore: SocialStore;
-  view: 'home' | 'players' | 'profile' | 'system';
+  view: 'characters' | 'home' | 'players' | 'profile' | 'system';
   session: AuthSessionSnapshot;
   user: AuthUser;
   walletStore?: WalletStore;
@@ -46,7 +49,17 @@ interface MenuScreenOptions {
 
 export function createMenuScreen(options: MenuScreenOptions): HTMLElement {
   const content =
-    options.view === 'profile'
+    options.view === 'characters'
+      ? createCardsScreen({
+          cardsStore:
+            options.cardsStore ??
+            (() => {
+              throw new Error('Cards screen requires a cards store.');
+            })(),
+          i18n: options.i18n,
+          walletStore: options.walletStore,
+        })
+      : options.view === 'profile'
       ? createProfileScreen({
           i18n: options.i18n,
           profileStore: options.profileStore,

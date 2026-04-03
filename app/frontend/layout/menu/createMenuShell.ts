@@ -12,7 +12,7 @@ import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-
 import menuShellTemplate from './menu-shell.html?raw';
 
 interface CreateMenuShellOptions {
-  activeView: 'home' | 'players' | 'profile' | 'system';
+  activeView: 'characters' | 'home' | 'players' | 'profile' | 'system';
   brandImage: string;
   canGoBack: boolean;
   canGoForward: boolean;

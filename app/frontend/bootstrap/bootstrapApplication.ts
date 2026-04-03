@@ -19,6 +19,7 @@ import { createLauncherHistory } from '@frontend/navigation/launcher-history';
 import { createAppRouter } from '@frontend/navigation/app-router';
 import type { PlayerNotification } from '@frontend/services/notifications/notifications-types';
 import { ChatStore } from '@frontend/stores/chat.store';
+import { CardsStore } from '@frontend/stores/cards.store';
 import { NotificationsStore } from '@frontend/stores/notifications.store';
 import { ProfileStore } from '@frontend/stores/profile.store';
 import { ProgressionStore } from '@frontend/stores/progression.store';
@@ -68,7 +69,7 @@ interface LoadingSequence {
   title: string;
 }
 type LoadingSequenceKey = keyof TranslationMessages['loading']['sequences'];
-type MenuView = 'home' | 'players' | 'profile' | 'system';
+type MenuView = 'characters' | 'home' | 'players' | 'profile' | 'system';
 interface MenuRouteState {
   profileTargetNickname: string | null;
   view: MenuView;
@@ -158,6 +159,9 @@ export function bootstrapApplication(host: HTMLElement): void {
     authService,
   });
   const walletStore = new WalletStore({
+    authService,
+  });
+  const cardsStore = new CardsStore({
     authService,
   });
   const notificationsStore = new NotificationsStore({
@@ -529,6 +533,10 @@ export function bootstrapApplication(host: HTMLElement): void {
   };
 
   const resolveMenuPresenceActivity = (): string => {
+    if (activeMenuView === 'characters') {
+      return i18n.t('menu.social.presence.configuringLoadout');
+    }
+
     if (activeMenuView === 'players') {
       return i18n.t('menu.social.presence.browsingPlayers');
     }
@@ -557,6 +565,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     router.showMenu({
       canGoBack: historySnapshot.canGoBack,
       canGoForward: historySnapshot.canGoForward,
+      cardsStore,
       chatStore,
       desktop,
       isSettingsOpen: settingsState.isOpen,
@@ -780,6 +789,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         profileStore.reset();
         progressionStore.reset();
         walletStore.reset();
+        cardsStore.reset();
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
@@ -813,6 +823,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         profileStore.reset();
         progressionStore.reset();
         walletStore.reset();
+        cardsStore.reset();
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
@@ -859,6 +870,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         profileStore.reset();
         progressionStore.reset();
         walletStore.reset();
+        cardsStore.reset();
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
@@ -929,6 +941,7 @@ export function bootstrapApplication(host: HTMLElement): void {
         profileStore.reset();
         progressionStore.reset();
         walletStore.reset();
+        cardsStore.reset();
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
@@ -988,6 +1001,14 @@ export function bootstrapApplication(host: HTMLElement): void {
       navigateMenu({
         profileTargetNickname: null,
         view: 'home',
+      });
+      return;
+    }
+
+    if (action === 'show-characters-page') {
+      navigateMenu({
+        profileTargetNickname: null,
+        view: 'characters',
       });
       return;
     }

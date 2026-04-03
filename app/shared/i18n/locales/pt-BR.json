@@ -213,7 +213,7 @@
       "forwardAriaLabel": "Avançar",
       "playAriaLabel": "Dead As Battle",
       "tabs": {
-        "heroes": "Heróis",
+        "heroes": "Campeoes",
         "store": "Loja",
         "watch": "Assistir",
         "codex": "Codex",
@@ -226,6 +226,70 @@
       "notificationsAriaLabel": "Notificações",
       "minimizeAriaLabel": "Minimizar launcher",
       "closeAriaLabel": "Fechar launcher"
+    },
+    "cards": {
+      "eyebrow": "Baia de Loadout",
+      "title": "Monte o roster ativo de oito cartas",
+      "summary": "Explore todos os campeoes do catalogo atual, inspecione lore e identidade de combate, desbloqueie novas entradas com fragmentos e mantenha o deck ativo sincronizado no banco.",
+      "searchPlaceholder": "Buscar personagem...",
+      "filters": {
+        "all": "Todos",
+        "strength": "Strength",
+        "agility": "Agility",
+        "intelligence": "Intelligence"
+      },
+      "sections": {
+        "unlocked": "Desbloqueadas",
+        "locked": "Bloqueadas"
+      },
+      "deck": {
+        "title": "Roster Ativo",
+        "subtitle": "Deck de comando com oito slots",
+        "count": "{{count}} / {{max}} Slots",
+        "empty": "Vazio",
+        "saving": "Sincronizando deck",
+        "saved": "Deck sincronizado"
+      },
+      "overview": {
+        "title": "Visao Tatica",
+        "subtitle": "Curva e distribuicao por classe",
+        "avgCost": "Custo medio"
+      },
+      "status": {
+        "locked": "Bloqueado",
+        "unlocked": "Seu",
+        "inDeck": "No Deck",
+        "inactive": "Indisponivel",
+        "owned": "Seu",
+        "level": "Lvl {{level}}"
+      },
+      "actions": {
+        "inspect": "Inspecionar",
+        "add": "Adicionar ao deck",
+        "addShort": "Adicionar",
+        "remove": "Remover do deck",
+        "unlock": "Desbloquear por {{shards}} fragmentos",
+        "unlockCompact": "Desbloquear {{shards}}",
+        "unlocking": "Desbloqueando...",
+        "close": "Fechar"
+      },
+      "detail": {
+        "lore": "Lore",
+        "fieldData": "Dados Taticos",
+        "rarity": "Raridade",
+        "category": "Categoria",
+        "mana": "Custo de Mana",
+        "price": "Preco de Desbloqueio",
+        "status": "Status",
+        "level": "Nivel"
+      },
+      "feedback": {
+        "unlockSuccess": "{{name}} desbloqueado."
+      },
+      "loading": "Carregando catalogo de campeoes...",
+      "loadingTitle": "Conectando o arquivo de campeoes",
+      "emptyTitle": "Nenhum campeao encontrado",
+      "empty": "Ajuste a busca ou o filtro para encontrar outra opcao de loadout."
     },
     "settings": {
       "ariaLabel": "Configurações do launcher",
@@ -484,6 +548,7 @@
         "online": "Online",
         "offline": "Offline",
         "inLauncher": "No Launcher",
+        "configuringLoadout": "Configurando loadout",
         "browsingPlayers": "Explorando players",
         "reviewingProfile": "Revisando perfil",
         "checkingSystem": "Checando sistema",

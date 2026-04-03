@@ -79,6 +79,91 @@ const platformSchemaStatements = [
       ON notifications (user_id, is_read, created_at DESC)
   `,
   `
+    CREATE TABLE IF NOT EXISTS characters (
+      id UUID PRIMARY KEY,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      short_description TEXT NOT NULL,
+      short_lore TEXT NOT NULL,
+      full_lore TEXT NOT NULL,
+      image_url TEXT,
+      rarity TEXT NOT NULL,
+      category TEXT NOT NULL,
+      cost_mana INTEGER NOT NULL,
+      unlock_price_shards INTEGER NOT NULL,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      is_default_unlocked BOOLEAN NOT NULL DEFAULT FALSE,
+      release_order INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT characters_rarity_check CHECK (rarity IN ('common', 'rare', 'epic', 'legendary')),
+      CONSTRAINT characters_cost_mana_check CHECK (cost_mana >= 0),
+      CONSTRAINT characters_unlock_price_shards_check CHECK (unlock_price_shards >= 0),
+      CONSTRAINT characters_release_order_check CHECK (release_order >= 0)
+    )
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS characters_is_active_release_order_idx
+      ON characters (is_active DESC, release_order ASC, created_at ASC)
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS user_characters (
+      id UUID PRIMARY KEY,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      character_id UUID NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+      level INTEGER NOT NULL DEFAULT 1,
+      unlocked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT user_characters_level_check CHECK (level >= 1),
+      CONSTRAINT user_characters_user_character_unique UNIQUE (user_id, character_id)
+    )
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS user_characters_user_id_idx
+      ON user_characters (user_id, created_at ASC)
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS user_characters_character_id_idx
+      ON user_characters (character_id, user_id)
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS decks (
+      id UUID PRIMARY KEY,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `,
+  `
+    CREATE UNIQUE INDEX IF NOT EXISTS decks_user_active_unique_idx
+      ON decks (user_id)
+      WHERE is_active = TRUE
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS decks_user_id_idx
+      ON decks (user_id, updated_at DESC)
+  `,
+  `
+    CREATE TABLE IF NOT EXISTS deck_cards (
+      id UUID PRIMARY KEY,
+      deck_id UUID NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
+      character_id UUID NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+      position INTEGER NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT deck_cards_position_check CHECK (position >= 1 AND position <= 8),
+      CONSTRAINT deck_cards_deck_position_unique UNIQUE (deck_id, position),
+      CONSTRAINT deck_cards_deck_character_unique UNIQUE (deck_id, character_id)
+    )
+  `,
+  `
+    CREATE INDEX IF NOT EXISTS deck_cards_deck_id_position_idx
+      ON deck_cards (deck_id, position ASC)
+  `,
+  `
     CREATE TABLE IF NOT EXISTS chat_messages (
       id UUID PRIMARY KEY,
       channel TEXT NOT NULL,

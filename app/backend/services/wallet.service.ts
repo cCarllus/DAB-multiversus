@@ -48,36 +48,44 @@ export class WalletService {
     input: ApplyWalletTransactionInput,
   ): Promise<{ transaction: WalletTransaction; wallet: PlayerWallet }> {
     return withTransaction(async (client) => {
-      const existingWallet = await this.ensureWalletRecord(userId, client);
-      const signedAmount = input.direction === 'credit' ? input.amount : input.amount * -1;
-      const nextBalance = existingWallet.shards + signedAmount;
-
-      if (nextBalance < 0) {
-        throw new AppError(
-          400,
-          'INSUFFICIENT_SHARDS',
-          'You do not have enough shards for this transaction.',
-        );
-      }
-
-      const updatedWallet = await this.walletRepository.updateShards(userId, nextBalance, client);
-      const transaction = await this.walletRepository.createTransaction(
-        {
-          amount: input.amount,
-          currencyType: 'shards',
-          direction: input.direction,
-          metadataJson: input.metadataJson,
-          reason: input.reason,
-          userId,
-        },
-        client,
-      );
-
-      return {
-        transaction: this.toWalletTransaction(transaction),
-        wallet: this.toPlayerWallet(updatedWallet),
-      };
+      return this.applyShardTransactionInTransaction(userId, input, client);
     });
+  }
+
+  async applyShardTransactionInTransaction(
+    userId: string,
+    input: ApplyWalletTransactionInput,
+    client: DatabaseClient,
+  ): Promise<{ transaction: WalletTransaction; wallet: PlayerWallet }> {
+    const existingWallet = await this.ensureWalletRecord(userId, client);
+    const signedAmount = input.direction === 'credit' ? input.amount : input.amount * -1;
+    const nextBalance = existingWallet.shards + signedAmount;
+
+    if (nextBalance < 0) {
+      throw new AppError(
+        400,
+        'INSUFFICIENT_SHARDS',
+        'You do not have enough shards for this transaction.',
+      );
+    }
+
+    const updatedWallet = await this.walletRepository.updateShards(userId, nextBalance, client);
+    const transaction = await this.walletRepository.createTransaction(
+      {
+        amount: input.amount,
+        currencyType: 'shards',
+        direction: input.direction,
+        metadataJson: input.metadataJson,
+        reason: input.reason,
+        userId,
+      },
+      client,
+    );
+
+    return {
+      transaction: this.toWalletTransaction(transaction),
+      wallet: this.toPlayerWallet(updatedWallet),
+    };
   }
 
   private async ensureWalletRecord(userId: string, client: DatabaseClient): Promise<WalletRecord> {

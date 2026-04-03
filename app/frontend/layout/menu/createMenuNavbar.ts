@@ -6,7 +6,7 @@ import type { AppI18n } from '@shared/i18n';
 import menuNavbarTemplate from './menu-navbar.html?raw';
 
 interface CreateMenuNavbarOptions {
-  activeView: 'home' | 'players' | 'profile' | 'system';
+  activeView: 'characters' | 'home' | 'players' | 'profile' | 'system';
   brandImage: string;
   canGoBack: boolean;
   canGoForward: boolean;
@@ -32,6 +32,8 @@ export function createMenuNavbar(options: CreateMenuNavbarOptions): HTMLElement 
     FORWARD_ARIA_LABEL: messages.menu.topbar.forwardAriaLabel,
     FORWARD_DISABLED_ATTR: options.canGoForward ? '' : 'disabled',
     FORWARD_STATE_CLASS: options.canGoForward ? 'is-enabled' : 'is-disabled',
+    HEROES_TAB_PRESSED: options.activeView === 'characters' ? 'true' : 'false',
+    HEROES_TAB_STATE_CLASS: options.activeView === 'characters' ? 'is-active' : '',
     MINIMIZE_ARIA_LABEL: messages.menu.topbar.minimizeAriaLabel,
     NAVIGATION_ARIA_LABEL: messages.menu.topbar.navigationAriaLabel,
     NOTIFICATIONS_BADGE_HIDDEN: unreadCount > 0 ? '' : 'hidden',

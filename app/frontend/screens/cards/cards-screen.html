@@ -1,0 +1,45 @@
+<main class="home-content cards-content-shell">
+  <section class="cards-screen">
+    <div class="cards-screen__feedback" data-cards-feedback hidden></div>
+
+    <section class="cards-stage">
+      <header class="cards-stage__hero">
+        <span class="cards-stage__hero-sigil" aria-hidden="true"></span>
+        <div class="cards-stage__hero-copy">
+          <p class="cards-stage__eyebrow">__CARDS_EYEBROW__</p>
+          <h1 class="cards-stage__title">__CARDS_TITLE__</h1>
+          <p class="cards-stage__summary">__CARDS_SUMMARY__</p>
+        </div>
+      </header>
+
+      <section class="cards-stage__top">
+        <div data-cards-deck-panel></div>
+        <div data-cards-overview-panel></div>
+      </section>
+
+      <section class="cards-stage__controls">
+        <div class="cards-filters" data-cards-filters>
+          <button type="button" class="cards-filters__button is-active" data-cards-filter="all">__FILTER_ALL__</button>
+          <button type="button" class="cards-filters__button" data-cards-filter="strength">__FILTER_STRENGTH__</button>
+          <button type="button" class="cards-filters__button" data-cards-filter="agility">__FILTER_AGILITY__</button>
+          <button type="button" class="cards-filters__button" data-cards-filter="intelligence">__FILTER_INTELLIGENCE__</button>
+        </div>
+
+        <label class="cards-search">
+          <span class="cards-search__icon" aria-hidden="true"></span>
+          <input
+            type="search"
+            class="cards-search__input"
+            data-cards-search
+            placeholder="__CARDS_SEARCH_PLACEHOLDER__"
+            autocomplete="off"
+          />
+        </label>
+      </section>
+
+      <section class="cards-stage__grid-wrap" data-cards-grid-wrap>
+        <div data-cards-grid></div>
+      </section>
+    </section>
+  </section>
+</main>

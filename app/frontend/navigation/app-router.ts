@@ -9,6 +9,7 @@ import { createBootScreen } from '@frontend/screens/boot/boot-screen';
 import { createGameScreen } from '@game/shell/game-screen';
 import { createMenuScreen } from '@frontend/screens/menu/menu-screen';
 import type { ChatStore } from '@frontend/stores/chat.store';
+import type { CardsStore } from '@frontend/stores/cards.store';
 import type { NotificationsStore } from '@frontend/stores/notifications.store';
 import type { SocialStore } from '@frontend/stores/social.store';
 import type { ProfileStore } from '@frontend/stores/profile.store';
@@ -31,6 +32,7 @@ interface CreateAppRouterOptions {
 interface MenuRouteOptions {
   canGoBack: boolean;
   canGoForward: boolean;
+  cardsStore: CardsStore;
   chatStore: ChatStore;
   desktop: DesktopBridge;
   isSettingsOpen?: boolean;
@@ -48,7 +50,7 @@ interface MenuRouteOptions {
   socialStore: SocialStore;
   session: AuthSessionSnapshot;
   user: AuthUser;
-  view: 'home' | 'players' | 'profile' | 'system';
+  view: 'characters' | 'home' | 'players' | 'profile' | 'system';
   walletStore: WalletStore;
 }
 
@@ -102,6 +104,7 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
         createMenuScreen({
           canGoBack: menuOptions.canGoBack,
           canGoForward: menuOptions.canGoForward,
+          cardsStore: menuOptions.cardsStore,
           chatStore: menuOptions.chatStore,
           desktop: menuOptions.desktop,
           i18n: options.i18n,
