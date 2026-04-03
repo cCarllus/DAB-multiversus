@@ -17,7 +17,6 @@ import type { SocialStore } from '@frontend/stores/social.store';
 
 import '@frontend/components/modal-chrome.css';
 
-import currentProfileZonesTemplate from './current-profile-zones.html?raw';
 import profileScreenTemplate from './profile-screen.html?raw';
 import { createProfileAvatarUploader } from './profile-avatar-uploader';
 import { createProfileHeader } from './profile-header';
@@ -54,108 +53,6 @@ function createFeedbackSetter(feedbackElement: HTMLElement) {
     feedbackElement.hidden = false;
     feedbackElement.textContent = feedback.message;
     feedbackElement.dataset.tone = feedback.tone;
-  };
-}
-
-function resolveDeviceMeta(snapshot: ProfileSnapshot, i18n: AppI18n): {
-  currentDeviceMeta: string;
-  currentDeviceValue: string;
-  lastActiveMeta: string;
-  lastActiveValue: string;
-} {
-  const locale = i18n.getLocale();
-  const messages = i18n.getMessages().menu.profile;
-  const currentDevice = snapshot.devices.currentDevice;
-  const lastActiveDevice = snapshot.devices.lastActiveDevice;
-  const currentDeviceValue = currentDevice?.label || messages.fallbackValue;
-  const currentDeviceMeta = currentDevice
-    ? [
-        currentDevice.osName,
-        currentDevice.osVersion,
-        currentDevice.appVersion
-          ? i18n.t('menu.profile.deviceList.appVersion', {
-              version: currentDevice.appVersion,
-            })
-          : i18n.t('menu.profile.deviceList.noVersion'),
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : messages.fallbackValue;
-  const lastActiveValue = lastActiveDevice
-    ? formatDate(lastActiveDevice.lastLoginAt, locale)
-    : messages.fallbackValue;
-  const lastActiveMeta = lastActiveDevice?.label || messages.fallbackValue;
-
-  return {
-    currentDeviceMeta,
-    currentDeviceValue,
-    lastActiveMeta,
-    lastActiveValue,
-  };
-}
-
-function createCurrentProfileZones(options: ProfileScreenOptions) {
-  const messages = options.i18n.getMessages().menu.profile;
-  const element = createElementFromTemplate(currentProfileZonesTemplate, {
-    PROFILE_ACCOUNT_DISPLAY_NAME: messages.accountFields.displayName,
-    PROFILE_ACCOUNT_EYEBROW: messages.accountEyebrow,
-    PROFILE_ACCOUNT_LANGUAGE: messages.accountFields.language,
-    PROFILE_ACCOUNT_MEMBER_SINCE: messages.accountFields.memberSince,
-    PROFILE_ACCOUNT_TITLE: messages.accountTitle,
-    PROFILE_ACCOUNT_USER_ID: messages.accountFields.userId,
-    PROFILE_CURRENT_DEVICE_LABEL: messages.deviceCards.currentDevice.label,
-    PROFILE_DEVICES_EYEBROW: messages.devicesEyebrow,
-    PROFILE_DEVICES_SUMMARY: messages.devicesSummary,
-    PROFILE_DEVICES_TITLE: messages.devicesTitle,
-    PROFILE_LAST_ACTIVE_LABEL: messages.deviceCards.lastActive.label,
-    PROFILE_OVERVIEW_ARIA_LABEL: messages.overviewAriaLabel,
-    PROFILE_SUMMARY: messages.summary,
-    PROFILE_TRUSTED_DEVICE_LABEL: messages.deviceCards.trustedDevice.label,
-    PROFILE_TRUSTED_DEVICE_META: messages.deviceCards.trustedDevice.meta,
-  });
-  const displayName = element.querySelector<HTMLElement>('[data-detail-display-name]');
-  const userId = element.querySelector<HTMLElement>('[data-detail-user-id]');
-  const memberSince = element.querySelector<HTMLElement>('[data-detail-member-since]');
-  const language = element.querySelector<HTMLElement>('[data-detail-language]');
-  const trustedDevice = element.querySelector<HTMLElement>('[data-device-trusted]');
-  const currentDevice = element.querySelector<HTMLElement>('[data-device-current]');
-  const currentDeviceMeta = element.querySelector<HTMLElement>('[data-device-current-meta]');
-  const lastActive = element.querySelector<HTMLElement>('[data-device-last-active]');
-  const lastActiveMeta = element.querySelector<HTMLElement>('[data-device-last-active-meta]');
-
-  if (
-    !displayName ||
-    !userId ||
-    !memberSince ||
-    !language ||
-    !trustedDevice ||
-    !currentDevice ||
-    !currentDeviceMeta ||
-    !lastActive ||
-    !lastActiveMeta
-  ) {
-    throw new Error('Current profile zones could not be initialized.');
-  }
-
-  return {
-    element,
-    setState(input: {
-      languageLabel: string;
-      memberSince: string;
-      snapshot: ProfileSnapshot;
-      trustedDeviceLabel: string;
-    }) {
-      const deviceMeta = resolveDeviceMeta(input.snapshot, options.i18n);
-      displayName.textContent = input.snapshot.profile.name || messages.fallbackUsername;
-      userId.textContent = `@${input.snapshot.profile.nickname}`;
-      memberSince.textContent = input.memberSince;
-      language.textContent = input.languageLabel;
-      trustedDevice.textContent = input.trustedDeviceLabel;
-      currentDevice.textContent = deviceMeta.currentDeviceValue;
-      currentDeviceMeta.textContent = deviceMeta.currentDeviceMeta;
-      lastActive.textContent = deviceMeta.lastActiveValue;
-      lastActiveMeta.textContent = deviceMeta.lastActiveMeta;
-    },
   };
 }
 
@@ -232,9 +129,8 @@ function createCurrentProfileScreen(
     i18n: options.i18n,
     nameEditor,
   });
-  const zones = createCurrentProfileZones(options);
 
-  content.append(header.element, zones.element, avatarUploader.modal);
+  content.append(header.element, avatarUploader.modal);
 
   const applySnapshot = (snapshot: ProfileSnapshot): void => {
     const locale = options.i18n.getLocale();
@@ -252,12 +148,6 @@ function createCurrentProfileScreen(
       profile: snapshot.profile,
       trustedDevice: trustedDeviceStatus,
       userId: `@${snapshot.profile.nickname}`,
-    });
-    zones.setState({
-      languageLabel,
-      memberSince,
-      snapshot,
-      trustedDeviceLabel: trustedDeviceStatus,
     });
   };
 
