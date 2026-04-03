@@ -18,12 +18,15 @@
       </section>
 
       <section class="cards-stage__controls">
-        <div class="cards-filters" data-cards-filters>
-          <button type="button" class="cards-filters__button is-active" data-cards-filter="all">__FILTER_ALL__</button>
-          <button type="button" class="cards-filters__button" data-cards-filter="strength">__FILTER_STRENGTH__</button>
-          <button type="button" class="cards-filters__button" data-cards-filter="agility">__FILTER_AGILITY__</button>
-          <button type="button" class="cards-filters__button" data-cards-filter="intelligence">__FILTER_INTELLIGENCE__</button>
-        </div>
+        <label class="cards-filter-select">
+          <select class="cards-filter-select__input" data-cards-filter-select>
+            <option value="all">__FILTER_ALL__</option>
+            <option value="strength">__FILTER_STRENGTH__</option>
+            <option value="agility">__FILTER_AGILITY__</option>
+            <option value="intelligence">__FILTER_INTELLIGENCE__</option>
+          </select>
+          <span class="cards-filter-select__chevron" aria-hidden="true"></span>
+        </label>
 
         <label class="cards-search">
           <span class="cards-search__icon" aria-hidden="true"></span>

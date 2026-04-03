@@ -37,7 +37,7 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
   const overviewPanelElement = rootElement.querySelector<HTMLElement>('[data-cards-overview-panel]');
   const gridElement = rootElement.querySelector<HTMLElement>('[data-cards-grid]');
   const searchInput = rootElement.querySelector<HTMLInputElement>('[data-cards-search]');
-  const filtersElement = rootElement.querySelector<HTMLElement>('[data-cards-filters]');
+  const filterSelect = rootElement.querySelector<HTMLSelectElement>('[data-cards-filter-select]');
 
   if (
     !feedbackElement ||
@@ -45,7 +45,7 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
     !overviewPanelElement ||
     !gridElement ||
     !searchInput ||
-    !filtersElement
+    !filterSelect
   ) {
     throw new Error('Cards screen could not be initialized.');
   }
@@ -82,11 +82,7 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
     const isDeckFull = (snapshot.deck?.cards.length ?? 0) >= snapshot.maxDeckSlots;
 
     searchInput.value = query;
-    filtersElement
-      .querySelectorAll<HTMLElement>('[data-cards-filter]')
-      .forEach((button) => {
-        button.classList.toggle('is-active', button.dataset.cardsFilter === activeFilter);
-      });
+    filterSelect.value = activeFilter;
 
     renderActiveDeckPanel({
       container: deckPanelElement,
@@ -231,11 +227,16 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
     render();
   });
 
+  filterSelect.addEventListener('change', () => {
+    activeFilter = filterSelect.value as CardsFilter;
+    render();
+  });
+
   rootElement.addEventListener('click', (event) => {
     const target =
       event.target instanceof Element
         ? event.target.closest<HTMLElement>(
-            '[data-cards-filter],[data-cards-add],[data-cards-remove],[data-cards-unlock],[data-cards-close-detail]',
+            '[data-cards-add],[data-cards-remove],[data-cards-unlock],[data-cards-close-detail]',
           )
         : null;
 
@@ -246,14 +247,6 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
     if (target.dataset.cardsCloseDetail !== undefined) {
       options.cardsStore.closeCharacterDetail();
       setFeedback(null);
-      render();
-      return;
-    }
-
-    const filter = target.dataset.cardsFilter as CardsFilter | undefined;
-
-    if (filter) {
-      activeFilter = filter;
       render();
       return;
     }
