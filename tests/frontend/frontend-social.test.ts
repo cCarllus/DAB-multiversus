@@ -2,11 +2,10 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SocialApiClient } from '../../app/frontend/services/social/social-api.service';
+import { SocialApiClient } from '../../app/frontend/services/social/social-api-client';
 import { createProfileScreen } from '../../app/frontend/screens/profile/profile-screen';
 import { createSocialScreen } from '../../app/frontend/screens/social/social-screen';
 import { SocialStore } from '../../app/frontend/stores/social.store';
-import { AppApiError } from '../../app/frontend/services/api/api-error';
 import {
   createTestI18n,
   createTestSessionSnapshot,
@@ -22,6 +21,23 @@ import type {
   SocialSnapshot,
   SocialUserSummary,
 } from '../../app/frontend/services/social/social-types';
+import type { SocialLivePresenceEntry } from '../../app/shared/contracts/social.contract';
+
+type FakeRealtimeEvent =
+  | {
+      type: 'connected';
+    }
+  | {
+      type: 'disconnected';
+    }
+  | {
+      entry: SocialLivePresenceEntry;
+      type: 'presence';
+    }
+  | {
+      entries: SocialLivePresenceEntry[];
+      type: 'snapshot';
+    };
 
 function createSocialUser(overrides: Partial<SocialUserSummary> = {}): SocialUserSummary {
   return {
@@ -98,11 +114,13 @@ class FakeRealtimeService {
 
   readonly disconnect = vi.fn(async () => undefined);
 
-  readonly updatePresence = vi.fn(async (_payload: PresencePayload) => undefined);
+  readonly updatePresence: (payload: PresencePayload) => Promise<void> = vi.fn(
+    async () => undefined,
+  );
 
-  private listeners = new Set<(event: any) => void>();
+  private listeners = new Set<(event: FakeRealtimeEvent) => void>();
 
-  subscribe(listener: (event: any) => void): () => void {
+  subscribe(listener: (event: FakeRealtimeEvent) => void): () => void {
     this.listeners.add(listener);
 
     return () => {
@@ -110,7 +128,7 @@ class FakeRealtimeService {
     };
   }
 
-  emit(event: any): void {
+  emit(event: FakeRealtimeEvent): void {
     this.listeners.forEach((listener) => {
       listener(event);
     });

@@ -17,10 +17,12 @@ import type { SocialStore } from '@frontend/stores/social.store';
 
 import '@frontend/components/modal-chrome.css';
 
+import currentProfileZonesTemplate from './current-profile-zones.html?raw';
 import profileScreenTemplate from './profile-screen.html?raw';
 import { createProfileAvatarUploader } from './profile-avatar-uploader';
 import { createProfileHeader } from './profile-header';
 import { createProfileNameEditor } from './profile-name-editor';
+import publicProfileTemplate from './public-profile-hero.html?raw';
 import './profile-screen.css';
 
 interface ProfileScreenOptions {
@@ -31,120 +33,6 @@ interface ProfileScreenOptions {
   session: AuthSessionSnapshot;
   socialStore: SocialStore;
 }
-
-const publicProfileTemplate = `
-  <section class="profile-hero profile-hero--public">
-    <div class="profile-public-hero__avatar-slot">
-      <div class="profile-public-hero__avatar-shell">
-        <img class="profile-public-hero__avatar" data-public-avatar />
-      </div>
-    </div>
-
-    <div class="profile-hero__copy">
-      <div class="profile-public-hero__heading">
-        <p class="profile-hero__eyebrow" data-public-eyebrow></p>
-
-        <span class="profile-status-badge" data-public-status-badge>
-          <span class="profile-status-badge__signal" aria-hidden="true"></span>
-          <span data-public-status></span>
-        </span>
-      </div>
-
-      <h1 class="profile-public-hero__nickname" data-public-nickname></h1>
-      <span class="profile-name-editor__value-kicker" data-public-display-label></span>
-      <p class="profile-public-hero__display-name" data-public-display-name></p>
-      <p class="profile-hero__summary" data-public-summary></p>
-
-      <div class="profile-public-hero__command">
-        <div class="profile-hero__intel profile-hero__intel--public">
-          <div class="profile-hero__intel-group">
-            <span class="profile-hero__intel-label" data-public-member-label></span>
-            <strong class="profile-hero__intel-value" data-public-member-value></strong>
-          </div>
-
-          <div class="profile-hero__intel-group">
-            <span class="profile-hero__intel-label" data-public-user-id-label></span>
-            <strong class="profile-hero__intel-value" data-public-user-id-value></strong>
-          </div>
-
-          <div class="profile-hero__intel-group">
-            <span class="profile-hero__intel-label" data-public-activity-label></span>
-            <strong class="profile-hero__intel-value" data-public-activity-value></strong>
-          </div>
-
-          <div class="profile-hero__intel-group">
-            <span class="profile-hero__intel-label" data-public-relationship-label></span>
-            <strong class="profile-hero__intel-value" data-public-relationship-value></strong>
-          </div>
-        </div>
-
-        <button type="button" class="profile-public-hero__action" data-public-action></button>
-      </div>
-    </div>
-  </section>
-`;
-
-const currentProfileZonesTemplate = `
-  <div class="profile-zones">
-    <section class="profile-zone profile-zone--identity" aria-label="__PROFILE_OVERVIEW_ARIA_LABEL__">
-      <div class="profile-zone__header">
-        <p class="profile-zone__eyebrow">__PROFILE_ACCOUNT_EYEBROW__</p>
-        <h2 class="profile-zone__title">__PROFILE_ACCOUNT_TITLE__</h2>
-        <p class="profile-zone__summary">__PROFILE_SUMMARY__</p>
-      </div>
-
-      <dl class="profile-zone__list">
-        <div class="profile-zone__row">
-          <dt>__PROFILE_ACCOUNT_DISPLAY_NAME__</dt>
-          <dd data-detail-display-name></dd>
-        </div>
-
-        <div class="profile-zone__row">
-          <dt>__PROFILE_ACCOUNT_USER_ID__</dt>
-          <dd data-detail-user-id></dd>
-        </div>
-
-        <div class="profile-zone__row">
-          <dt>__PROFILE_ACCOUNT_MEMBER_SINCE__</dt>
-          <dd data-detail-member-since></dd>
-        </div>
-
-        <div class="profile-zone__row">
-          <dt>__PROFILE_ACCOUNT_LANGUAGE__</dt>
-          <dd data-detail-language></dd>
-        </div>
-      </dl>
-    </section>
-
-    <section class="profile-zone profile-zone--launcher">
-      <div class="profile-zone__header">
-        <p class="profile-zone__eyebrow">__PROFILE_DEVICES_EYEBROW__</p>
-        <h2 class="profile-zone__title">__PROFILE_DEVICES_TITLE__</h2>
-        <p class="profile-zone__summary">__PROFILE_DEVICES_SUMMARY__</p>
-      </div>
-
-      <div class="profile-zone__rail">
-        <article class="profile-zone__rail-item">
-          <span class="profile-zone__rail-label">__PROFILE_TRUSTED_DEVICE_LABEL__</span>
-          <strong class="profile-zone__rail-value" data-device-trusted></strong>
-          <p class="profile-zone__rail-meta">__PROFILE_TRUSTED_DEVICE_META__</p>
-        </article>
-
-        <article class="profile-zone__rail-item">
-          <span class="profile-zone__rail-label">__PROFILE_CURRENT_DEVICE_LABEL__</span>
-          <strong class="profile-zone__rail-value" data-device-current></strong>
-          <p class="profile-zone__rail-meta" data-device-current-meta></p>
-        </article>
-
-        <article class="profile-zone__rail-item">
-          <span class="profile-zone__rail-label">__PROFILE_LAST_ACTIVE_LABEL__</span>
-          <strong class="profile-zone__rail-value" data-device-last-active></strong>
-          <p class="profile-zone__rail-meta" data-device-last-active-meta></p>
-        </article>
-      </div>
-    </section>
-  </div>
-`;
 
 function formatDate(value: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {

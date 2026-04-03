@@ -2,7 +2,7 @@ import { AppApiError } from '@frontend/services/api/api-error';
 import { type AuthService } from '@frontend/services/auth/auth-service';
 import { type AuthUser } from '@frontend/services/auth/auth-types';
 import { createLauncherDeviceContext } from '@frontend/services/auth/device-context';
-import { ProfileApiClient } from '@frontend/services/profile/profile-api.service';
+import { ProfileApiClient } from '@frontend/services/profile/profile-api-client';
 import type {
   ProfileDevicesPayload,
   ProfileSnapshot,

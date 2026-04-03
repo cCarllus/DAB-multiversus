@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AppApiError } from '../../app/frontend/services/api/api-error';
 import { AuthApiClient } from '../../app/frontend/services/auth/auth-api-client';
 import { AuthService } from '../../app/frontend/services/auth/auth-service';
-import { ProfileApiClient } from '../../app/frontend/services/profile/profile-api.service';
+import { ProfileApiClient } from '../../app/frontend/services/profile/profile-api-client';
 import { ProfileStore } from '../../app/frontend/stores/profile.store';
 import { SessionStore } from '../../app/frontend/stores/session.store';
 import { STORAGE_KEYS } from '../../app/shared/constants/storage-keys';

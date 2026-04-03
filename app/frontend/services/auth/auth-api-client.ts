@@ -1,5 +1,4 @@
-import { AppApiError } from '@frontend/services/api/api-error';
-import { resolveApiBaseUrl } from '@frontend/services/api/api-base-url';
+import { BackendApiClient } from '@frontend/services/api/backend-api-client';
 
 import type { AuthResponse, AuthUser } from './auth-types';
 
@@ -27,19 +26,13 @@ interface LogoutPayload {
   sessionId?: string;
 }
 
-interface ErrorEnvelope {
-  error?: {
-    code?: string;
-    message?: string;
-  };
-}
+const AUTH_REQUEST_MESSAGES = {
+  failureCode: 'UNKNOWN_AUTH_ERROR',
+  failureMessage: 'Authentication request failed.',
+  networkMessage: 'The launcher could not reach the authentication service.',
+} as const;
 
-function isJsonResponse(response: Response): boolean {
-  return response.headers.get('content-type')?.includes('application/json') ?? false;
-}
-
-export class AuthApiClient {
-  constructor(private readonly baseUrl = resolveApiBaseUrl()) {}
+export class AuthApiClient extends BackendApiClient {
 
   async register(payload: {
     email: string;
@@ -50,88 +43,37 @@ export class AuthApiClient {
     return this.request<{ user: AuthUser }>('/auth/register', {
       body: JSON.stringify(payload),
       method: 'POST',
-    });
+    }, AUTH_REQUEST_MESSAGES);
   }
 
   async login(payload: LoginPayload): Promise<AuthResponse> {
     return this.request<AuthResponse>('/auth/login', {
       body: JSON.stringify(payload),
       method: 'POST',
-    });
+    }, AUTH_REQUEST_MESSAGES);
   }
 
   async refresh(payload: RefreshPayload): Promise<AuthResponse> {
     return this.request<AuthResponse>('/auth/refresh', {
       body: JSON.stringify(payload),
       method: 'POST',
-    });
+    }, AUTH_REQUEST_MESSAGES);
   }
 
   async getCurrentUser(accessToken: string): Promise<AuthUser> {
     const response = await this.request<{ user: AuthUser }>('/auth/me', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      accessToken,
       method: 'GET',
-    });
+    }, AUTH_REQUEST_MESSAGES);
 
     return response.user;
   }
 
   async logout(payload: LogoutPayload, accessToken?: string): Promise<void> {
     await this.request<void>('/auth/logout', {
+      accessToken,
       body: JSON.stringify(payload),
-      headers: accessToken
-        ? {
-            Authorization: `Bearer ${accessToken}`,
-          }
-        : undefined,
       method: 'POST',
-    });
-  }
-
-  private async request<T>(path: string, init: RequestInit): Promise<T> {
-    try {
-      const response = await fetch(`${this.baseUrl}${path}`, {
-        ...init,
-        headers: {
-          Accept: 'application/json',
-          ...(init.body ? { 'Content-Type': 'application/json' } : {}),
-          ...(init.headers ?? {}),
-        },
-      });
-
-      const payload = isJsonResponse(response)
-        ? ((await response.json()) as unknown)
-        : undefined;
-
-      if (!response.ok) {
-        const errorEnvelope = (payload ?? {}) as ErrorEnvelope;
-        throw new AppApiError(
-          errorEnvelope.error?.code ?? 'UNKNOWN_AUTH_ERROR',
-          errorEnvelope.error?.message ?? 'Authentication request failed.',
-          response.status,
-        );
-      }
-
-      if (response.status === 204) {
-        return undefined as T;
-      }
-
-      return payload as T;
-    } catch (error) {
-      if (error instanceof AppApiError) {
-        throw error;
-      }
-
-      if (error instanceof TypeError) {
-        throw new AppApiError(
-          'BACKEND_UNAVAILABLE',
-          'The launcher could not reach the authentication service.',
-        );
-      }
-
-      throw new AppApiError('UNKNOWN_AUTH_ERROR', 'Authentication request failed.');
-    }
+    }, AUTH_REQUEST_MESSAGES);
   }
 }

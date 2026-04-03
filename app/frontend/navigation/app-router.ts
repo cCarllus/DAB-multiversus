@@ -6,7 +6,7 @@ import {
   type LoginScreenOptions,
 } from '@frontend/screens/login/login-screen';
 import { createBootScreen } from '@frontend/screens/boot/boot-screen';
-import { createGameScreen } from '@frontend/screens/game/game-screen';
+import { createGameScreen } from '@game/shell/game-screen';
 import { createMenuScreen } from '@frontend/screens/menu/menu-screen';
 import type { SocialStore } from '@frontend/stores/social.store';
 import type { ProfileStore } from '@frontend/stores/profile.store';

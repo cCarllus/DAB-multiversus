@@ -1,6 +1,6 @@
 import express from 'express';
 import request from 'supertest';
-import { ZodError, z } from 'zod';
+import { ZodError } from 'zod';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createAuthController } from '../../app/backend/controllers/auth.controller';

@@ -13,7 +13,6 @@ vi.mock('../../app/backend/lib/postgres', () => ({
   withTransaction: postgresState.withTransaction,
 }));
 
-import { AppError } from '../../app/backend/lib/app-error';
 import { createSocialController } from '../../app/backend/controllers/social.controller';
 import { createFriendsRouter } from '../../app/backend/routes/friends.routes';
 import { createUsersRouter } from '../../app/backend/routes/users.routes';

@@ -1,4 +1,5 @@
 import { createElementFromTemplate } from '@frontend/lib/html';
+import { createSvgIcon } from '@frontend/lib/svg-icon';
 import type {
   SocialDirectoryPresenceFilter,
   SocialUserSummary,
@@ -16,6 +17,7 @@ import {
   resolveQuickAction,
   resolveUserLevel,
 } from './social-formatters';
+import socialUserListTemplate from './social-user-list.html?raw';
 
 export type SocialBoardSection = 'friends' | 'pending' | 'players';
 
@@ -47,47 +49,6 @@ interface SocialUserListState {
   selectedNickname: string | null;
   total: number;
 }
-
-const template = `
-  <section class="social-board">
-    <header class="social-board__header">
-      <div class="social-board__header-copy">
-        <p class="social-board__eyebrow"></p>
-        <h2 class="social-board__title"></h2>
-        <p class="social-board__summary"></p>
-      </div>
-      <div class="social-board__signal">
-        <span class="social-board__signal-label" data-social-signal-label></span>
-        <strong class="social-board__signal-value" data-social-signal></strong>
-      </div>
-    </header>
-
-    <div class="social-board__toolbar">
-      <label class="social-board__search">
-        <svg class="home-icon home-icon--small">
-          <use href="#icon-search"></use>
-        </svg>
-        <input type="search" class="social-board__search-input" data-social-search />
-      </label>
-
-      <div class="social-board__toolbar-actions">
-        <label class="social-board__filter">
-          <span class="social-board__filter-label" data-social-presence-label></span>
-          <select class="social-board__select" data-social-presence>
-            <option value="all"></option>
-            <option value="online"></option>
-            <option value="offline"></option>
-          </select>
-        </label>
-
-        <button type="button" class="social-board__more" data-social-more></button>
-      </div>
-    </div>
-
-    <div class="social-board__rows" data-social-rows></div>
-    <div class="social-board__empty" data-social-empty hidden></div>
-  </section>
-`;
 
 function resolveBoardCopy(section: SocialBoardSection, i18n: AppI18n) {
   if (section === 'friends') {
@@ -123,7 +84,7 @@ function resolveBoardCopy(section: SocialBoardSection, i18n: AppI18n) {
 }
 
 export function createSocialUserList(options: SocialUserListOptions) {
-  const element = createElementFromTemplate(template);
+  const element = createElementFromTemplate(socialUserListTemplate);
   const title = element.querySelector<HTMLElement>('.social-board__title');
   const eyebrow = element.querySelector<HTMLElement>('.social-board__eyebrow');
   const summary = element.querySelector<HTMLElement>('.social-board__summary');
@@ -158,12 +119,14 @@ export function createSocialUserList(options: SocialUserListOptions) {
   presenceSelect.options[1].text = options.i18n.t('menu.social.directory.presenceOptions.online');
   presenceSelect.options[2].text = options.i18n.t('menu.social.directory.presenceOptions.offline');
   loadMore.setAttribute('aria-label', options.i18n.t('menu.social.directory.loadMore'));
-  loadMore.innerHTML = `
-    <svg class="home-icon home-icon--small" aria-hidden="true" focusable="false">
-      <use href="#icon-refresh"></use>
-    </svg>
-    <span>${options.i18n.t('menu.social.directory.loadMore')}</span>
-  `;
+  const loadMoreLabel = document.createElement('span');
+  loadMoreLabel.textContent = options.i18n.t('menu.social.directory.loadMore');
+  loadMore.replaceChildren(
+    createSvgIcon('icon-refresh', {
+      className: 'home-icon home-icon--small',
+    }),
+    loadMoreLabel,
+  );
 
   searchInput.addEventListener('input', () => {
     options.onSearchChange(searchInput.value);
@@ -263,10 +226,11 @@ export function createSocialUserList(options: SocialUserListOptions) {
     intel.className = 'social-board__intel';
     const memberChip = document.createElement('div');
     memberChip.className = 'social-board__intel-chip';
-    memberChip.innerHTML = `
-      <span>${options.i18n.t('menu.social.directory.columns.memberSince')}</span>
-      <strong>${formatMemberSince(item.user.createdAt, locale)}</strong>
-    `;
+    const memberLabel = document.createElement('span');
+    memberLabel.textContent = options.i18n.t('menu.social.directory.columns.memberSince');
+    const memberValue = document.createElement('strong');
+    memberValue.textContent = formatMemberSince(item.user.createdAt, locale);
+    memberChip.append(memberLabel, memberValue);
     intel.append(memberChip);
 
     const actionButton = document.createElement('button');

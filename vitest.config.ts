@@ -15,6 +15,7 @@ export default mergeConfig(
           'app/backend/**/*.ts',
           'app/desktop/**/*.ts',
           'app/frontend/**/*.ts',
+          'app/game/**/*.ts',
           'app/shared/constants/**/*.ts',
           'app/shared/i18n/**/*.ts',
           'config/env/**/*.ts',

@@ -30,8 +30,8 @@ Desktop-first foundation for a Babylon.js + Electron version of Dead As Battle. 
 ```text
 app/
   desktop/   -> Electron main and preload processes
-  frontend/  -> launcher screens, layout, services, stores, UI assets
-  game/      -> Babylon runtime, scenes, camera, world, systems
+  frontend/  -> launcher shell, navigation, screens, services, stores, UI assets
+  game/      -> game handoff shell and future Babylon runtime modules
   backend/   -> controllers, routes, services, repositories, validators
   shared/    -> shared contracts, constants, i18n, portable types
 config/      -> env, Vite, Electron build resources, ESLint

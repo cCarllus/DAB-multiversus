@@ -2,6 +2,11 @@ import { AppAudioManager } from '@frontend/services/audio/app-audio.service';
 import { resolveApiErrorMessage } from '@frontend/services/api/api-error';
 import { AuthService } from '@frontend/services/auth/auth-service';
 import { type LoginFormValues } from '@frontend/services/auth/auth-types';
+import { createDesktopBridgeFallback } from '@frontend/bootstrap/desktop-bridge-fallback';
+import {
+  rerenderActiveSurface,
+  type AppSurface,
+} from '@frontend/bootstrap/rerender-active-surface';
 import { createApplicationShell } from '@frontend/layout/create-application-shell';
 import { createAppRouter } from '@frontend/navigation/app-router';
 import { ProfileStore } from '@frontend/stores/profile.store';
@@ -11,11 +16,8 @@ import {
   type AppLocale,
   type TranslationMessages,
 } from '@shared/i18n';
-import type { DesktopBridge } from '@shared/contracts/desktop.contract';
 
 const EXIT_MODAL_TRANSITION_MS = 180;
-
-type AppSurface = 'boot' | 'game' | 'loading' | 'login' | 'menu';
 
 interface LoadingStep {
   detail?: string;
@@ -31,70 +33,7 @@ interface LoadingSequence {
 }
 type LoadingSequenceKey = keyof TranslationMessages['loading']['sequences'];
 type MenuView = 'home' | 'players' | 'profile' | 'system';
-
-export function createDesktopBridgeFallback(): DesktopBridge {
-  return {
-    authStorage: {
-      clearRememberedSession: () => Promise.resolve(),
-      getRememberedSession: () => Promise.resolve(null),
-      isPersistentStorageAvailable: () => Promise.resolve(false),
-      setRememberedSession: () =>
-        Promise.reject(
-          new Error('Secure remembered sessions are unavailable outside Electron.'),
-        ),
-    },
-    environment: import.meta.env.DEV ? 'development' : 'production',
-    isPackaged: false,
-    osVersion: 'web',
-    platform: 'browser',
-    versions: {
-      chrome: 'web',
-      electron: 'web',
-      node: 'web',
-    },
-    windowControls: {
-      close: () => {
-        globalThis.window?.close();
-        return Promise.resolve();
-      },
-      getState: () => Promise.resolve({ isMaximized: false }),
-      minimize: () => Promise.resolve(),
-      onStateChange: () => () => undefined,
-      toggleMaximize: () => Promise.resolve({ isMaximized: false }),
-    },
-  };
-}
-
-interface RerenderActiveSurfaceOptions {
-  activeSurface: AppSurface;
-  i18n: ReturnType<typeof createI18n>;
-  openProfileView: (nickname: string | null) => void;
-  renderGamePage: () => void;
-  renderLoginPage: () => void;
-  renderMenuPage: () => void;
-  router: ReturnType<typeof createAppRouter>;
-}
-
-export function rerenderActiveSurface(options: RerenderActiveSurfaceOptions): void {
-  if (options.activeSurface === 'login') {
-    options.renderLoginPage();
-    return;
-  }
-
-  if (options.activeSurface === 'menu') {
-    options.renderMenuPage();
-    return;
-  }
-
-  if (options.activeSurface === 'game') {
-    options.renderGamePage();
-    return;
-  }
-
-  if (options.activeSurface === 'boot') {
-    options.router.showBoot(options.i18n.t('boot.statuses.validatingRememberedSession'));
-  }
-}
+export { createDesktopBridgeFallback, rerenderActiveSurface };
 
 export function bootstrapApplication(host: HTMLElement): void {
   const desktop = window.desktop ?? createDesktopBridgeFallback();

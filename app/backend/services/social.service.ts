@@ -4,7 +4,6 @@ import { SocialRepository } from '../repositories/social.repository';
 import type {
   DirectoryQueryInput,
   FriendshipRecord,
-  PresenceStatus,
   RelationshipState,
   SocialUserRecord,
   UpdatePresenceInput,
@@ -311,4 +310,3 @@ export class SocialService {
     };
   }
 }
-

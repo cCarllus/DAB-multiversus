@@ -1,6 +1,5 @@
 import type { RequestHandler } from 'express';
 
-import { AppError } from '../lib/app-error';
 import { asyncHandler } from '../lib/async-handler';
 import {
   loginRequestSchema,
@@ -9,6 +8,7 @@ import {
   registerRequestSchema,
 } from '../validators/auth.validator';
 import { AuthService } from '../services/auth.service';
+import { requireAuthContext } from './controller-auth';
 
 export interface AuthController {
   register: RequestHandler;
@@ -49,11 +49,8 @@ export function createAuthController(authService: AuthService): AuthController {
     }),
 
     me: asyncHandler(async (request, response) => {
-      if (!request.authContext) {
-        throw new AppError(401, 'UNAUTHORIZED', 'Authentication is required.');
-      }
-
-      const user = await authService.getCurrentUser(request.authContext.userId);
+      const authContext = requireAuthContext(request);
+      const user = await authService.getCurrentUser(authContext.userId);
       response.status(200).json({ user });
     }),
   };

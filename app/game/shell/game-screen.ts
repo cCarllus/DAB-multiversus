@@ -4,6 +4,7 @@ import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
 import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.webp';
 import type { AppI18n } from '@shared/i18n';
 
+// Owns the current game handoff shell until the Babylon runtime is wired in.
 import gameScreenTemplate from './game-screen.html?raw';
 import './game-screen.css';
 

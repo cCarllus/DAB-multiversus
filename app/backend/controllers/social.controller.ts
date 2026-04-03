@@ -1,7 +1,5 @@
-import type { Request } from 'express-serve-static-core';
 import type { RequestHandler } from 'express';
 
-import { AppError } from '../lib/app-error';
 import { asyncHandler } from '../lib/async-handler';
 import { SocialService } from '../services/social.service';
 import {
@@ -11,6 +9,7 @@ import {
   requestIdParamsSchema,
   socialDirectoryQuerySchema,
 } from '../validators/social.validator';
+import { requireAuthUserId } from './controller-auth';
 
 export interface SocialController {
   acceptFriendRequest: RequestHandler;
@@ -26,41 +25,27 @@ export interface SocialController {
   sendFriendRequest: RequestHandler;
 }
 
-function requireAuthUserId(request: Request): string {
-  if (!request.authContext) {
-    throw new AppError(401, 'UNAUTHORIZED', 'Authentication is required.');
-  }
-
-  return request.authContext.userId;
+function createDirectoryHandler(socialService: SocialService): RequestHandler {
+  return asyncHandler(async (request, response) => {
+    const viewerUserId = requireAuthUserId(request);
+    const query = socialDirectoryQuerySchema.parse(request.query);
+    const result = await socialService.listGlobalUsers(viewerUserId, {
+      page: query.page,
+      pageSize: query.pageSize,
+      presence: query.presence,
+      query: query.q,
+      relationship: query.relationship,
+    });
+    response.status(200).json(result);
+  });
 }
 
 export function createSocialController(socialService: SocialService): SocialController {
-  return {
-    globalUsers: asyncHandler(async (request, response) => {
-      const viewerUserId = requireAuthUserId(request);
-      const query = socialDirectoryQuerySchema.parse(request.query);
-      const result = await socialService.listGlobalUsers(viewerUserId, {
-        page: query.page,
-        pageSize: query.pageSize,
-        presence: query.presence,
-        query: query.q,
-        relationship: query.relationship,
-      });
-      response.status(200).json(result);
-    }),
+  const directoryHandler = createDirectoryHandler(socialService);
 
-    searchUsers: asyncHandler(async (request, response) => {
-      const viewerUserId = requireAuthUserId(request);
-      const query = socialDirectoryQuerySchema.parse(request.query);
-      const result = await socialService.listGlobalUsers(viewerUserId, {
-        page: query.page,
-        pageSize: query.pageSize,
-        presence: query.presence,
-        query: query.q,
-        relationship: query.relationship,
-      });
-      response.status(200).json(result);
-    }),
+  return {
+    globalUsers: directoryHandler,
+    searchUsers: directoryHandler,
 
     publicProfile: asyncHandler(async (request, response) => {
       const viewerUserId = requireAuthUserId(request);

@@ -3,6 +3,7 @@ import {
   type AuthUser,
 } from '@frontend/services/auth/auth-types';
 import { createElementFromTemplate } from '@frontend/lib/html';
+import { createSvgIcon } from '@frontend/lib/svg-icon';
 import {
   createSocialAvatar,
   resolveActivityLabel,
@@ -143,8 +144,11 @@ export function createHomeScreen(options: HomeScreenOptions): HTMLElement {
           if (friend.presence.status !== 'offline') {
             const invite = document.createElement('span');
             invite.className = 'home-friend__invite';
-            invite.innerHTML =
-              '<svg class="home-icon home-icon--small"><use href="#icon-plus"></use></svg>';
+            invite.append(
+              createSvgIcon('icon-plus', {
+                className: 'home-icon home-icon--small',
+              }),
+            );
             item.append(invite);
           }
 

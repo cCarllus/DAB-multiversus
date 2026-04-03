@@ -1,0 +1,38 @@
+<section class="social-board">
+  <header class="social-board__header">
+    <div class="social-board__header-copy">
+      <p class="social-board__eyebrow"></p>
+      <h2 class="social-board__title"></h2>
+      <p class="social-board__summary"></p>
+    </div>
+    <div class="social-board__signal">
+      <span class="social-board__signal-label" data-social-signal-label></span>
+      <strong class="social-board__signal-value" data-social-signal></strong>
+    </div>
+  </header>
+
+  <div class="social-board__toolbar">
+    <label class="social-board__search">
+      <svg class="home-icon home-icon--small">
+        <use href="#icon-search"></use>
+      </svg>
+      <input type="search" class="social-board__search-input" data-social-search />
+    </label>
+
+    <div class="social-board__toolbar-actions">
+      <label class="social-board__filter">
+        <span class="social-board__filter-label" data-social-presence-label></span>
+        <select class="social-board__select" data-social-presence>
+          <option value="all"></option>
+          <option value="online"></option>
+          <option value="offline"></option>
+        </select>
+      </label>
+
+      <button type="button" class="social-board__more" data-social-more></button>
+    </div>
+  </div>
+
+  <div class="social-board__rows" data-social-rows></div>
+  <div class="social-board__empty" data-social-empty hidden></div>
+</section>

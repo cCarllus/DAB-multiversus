@@ -9,7 +9,7 @@ import { createMenuShell } from '../../app/frontend/layout/menu/createMenuShell'
 import { createAppRouter } from '../../app/frontend/navigation/app-router';
 import { createExitModal } from '../../app/frontend/components/exit-modal';
 import { createBootScreen } from '../../app/frontend/screens/boot/boot-screen';
-import { createGameScreen } from '../../app/frontend/screens/game/game-screen';
+import { createGameScreen } from '../../app/game/shell/game-screen';
 import { createHomeScreen } from '../../app/frontend/screens/home/home-screen';
 import { createLoadingScreen } from '../../app/frontend/screens/loading/loading-screen';
 import { createDesktopBridgeMock, createTestI18n, createTestSessionSnapshot, createTestUser } from '../helpers/frontend';
@@ -228,7 +228,7 @@ describe('frontend simple ui modules', () => {
     const brokenElement = document.createElement('div');
     const { createGameScreen: createBrokenGameScreen } = await importWithHtmlStub<{
       createGameScreen: typeof createGameScreen;
-    }>('../../app/frontend/screens/game/game-screen', brokenElement);
+    }>('../../app/game/shell/game-screen', brokenElement);
     const { createLoadingScreen: createBrokenLoadingScreen } = await importWithHtmlStub<{
       createLoadingScreen: typeof createLoadingScreen;
     }>('../../app/frontend/screens/loading/loading-screen', brokenElement);

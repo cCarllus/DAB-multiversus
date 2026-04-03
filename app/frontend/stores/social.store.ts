@@ -1,6 +1,6 @@
 import { AppApiError } from '@frontend/services/api/api-error';
 import { type AuthService } from '@frontend/services/auth/auth-service';
-import { SocialApiClient } from '@frontend/services/social/social-api.service';
+import { SocialApiClient } from '@frontend/services/social/social-api-client';
 import { SocialPresenceRealtimeService } from '@frontend/services/social/social-presence-realtime.service';
 import type {
   PresencePayload,
