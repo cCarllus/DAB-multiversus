@@ -6,7 +6,7 @@ import {
   createSocialAvatar,
   formatMemberSince,
   resolveActivityLabel,
-  resolvePresenceLabel,
+  resolvePresenceStatusLabel,
   resolvePresenceTone,
   resolveProfileAction,
 } from './social-formatters';
@@ -152,10 +152,8 @@ export function createPublicProfilePanel(options: PublicProfilePanelOptions) {
       avatar.alt = state.profile.nickname;
       nickname.textContent = `@${state.profile.nickname}`;
       name.textContent = state.profile.name;
-      status.className = `social-profile-panel__status ${resolvePresenceTone(
-        state.profile.presence.status,
-      )}`;
-      status.textContent = resolvePresenceLabel(state.profile.presence.status, options.i18n);
+      status.className = `social-profile-panel__status ${resolvePresenceTone(state.profile)}`;
+      status.textContent = resolvePresenceStatusLabel(state.profile, options.i18n);
       memberSince.textContent = formatMemberSince(
         state.profile.createdAt,
         options.i18n.getLocale(),
@@ -167,4 +165,3 @@ export function createPublicProfilePanel(options: PublicProfilePanelOptions) {
     },
   };
 }
-

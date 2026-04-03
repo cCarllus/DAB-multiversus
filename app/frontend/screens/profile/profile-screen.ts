@@ -6,8 +6,7 @@ import { createElementFromTemplate } from '@frontend/lib/html';
 import {
   createSocialAvatar,
   resolveActivityLabel,
-  resolvePresenceLabel,
-  resolvePresenceTone,
+  resolvePresenceStatusLabel,
   resolveProfileAction,
 } from '@frontend/screens/social/social-formatters';
 import type { SocialUserSummary } from '@frontend/services/social/social-types';
@@ -40,15 +39,28 @@ const publicProfileTemplate = `
 
     <div class="profile-hero__copy">
       <p class="profile-hero__eyebrow" data-public-eyebrow></p>
-      <h1 class="profile-public-hero__nickname" data-public-nickname></h1>
-      <p class="profile-public-hero__name" data-public-name></p>
-      <span class="profile-public-hero__status" data-public-status></span>
-      <p class="profile-public-hero__summary" data-public-summary></p>
+
+      <div class="profile-name-editor__row">
+        <h1 class="profile-name-editor__value" data-public-display-name></h1>
+        <button type="button" class="profile-public-hero__action" data-public-action></button>
+      </div>
+
+      <p class="profile-hero__summary" data-public-summary></p>
 
       <div class="profile-hero__meta">
         <span class="profile-hero__meta-pill">
           <span class="profile-hero__meta-label" data-public-member-label></span>
           <strong class="profile-hero__meta-value" data-public-member-value></strong>
+        </span>
+
+        <span class="profile-hero__meta-pill">
+          <span class="profile-hero__meta-label" data-public-user-id-label></span>
+          <strong class="profile-hero__meta-value" data-public-user-id-value></strong>
+        </span>
+
+        <span class="profile-hero__meta-pill">
+          <span class="profile-hero__meta-label" data-public-status-label></span>
+          <strong class="profile-hero__meta-value" data-public-status></strong>
         </span>
 
         <span class="profile-hero__meta-pill">
@@ -61,18 +73,6 @@ const publicProfileTemplate = `
           <strong class="profile-hero__meta-value" data-public-relationship-value></strong>
         </span>
       </div>
-
-      <div class="profile-public-hero__actions">
-        <button type="button" class="profile-public-hero__action" data-public-action></button>
-      </div>
-    </div>
-  </section>
-
-  <section class="profile-panel profile-panel--public">
-    <div class="profile-public-panel">
-      <p class="profile-panel__eyebrow" data-public-section-eyebrow></p>
-      <h2 class="profile-public-panel__title" data-public-section-title></h2>
-      <p class="profile-public-panel__summary" data-public-section-summary></p>
     </div>
   </section>
 `;
@@ -225,38 +225,40 @@ function createPublicProfileScreen(
 ): HTMLElement {
   const publicProfile = createElementFromTemplate(publicProfileTemplate);
   const avatar = publicProfile.querySelector<HTMLImageElement>('[data-public-avatar]');
-  const nickname = publicProfile.querySelector<HTMLElement>('[data-public-nickname]');
-  const name = publicProfile.querySelector<HTMLElement>('[data-public-name]');
+  const displayName = publicProfile.querySelector<HTMLElement>('[data-public-display-name]');
   const status = publicProfile.querySelector<HTMLElement>('[data-public-status]');
   const summary = publicProfile.querySelector<HTMLElement>('[data-public-summary]');
   const memberLabel = publicProfile.querySelector<HTMLElement>('[data-public-member-label]');
   const memberValue = publicProfile.querySelector<HTMLElement>('[data-public-member-value]');
+  const userIdLabel = publicProfile.querySelector<HTMLElement>('[data-public-user-id-label]');
+  const userIdValue = publicProfile.querySelector<HTMLElement>('[data-public-user-id-value]');
+  const statusLabel = publicProfile.querySelector<HTMLElement>('[data-public-status-label]');
   const activityLabel = publicProfile.querySelector<HTMLElement>('[data-public-activity-label]');
   const activityValue = publicProfile.querySelector<HTMLElement>('[data-public-activity-value]');
-  const relationshipLabel = publicProfile.querySelector<HTMLElement>('[data-public-relationship-label]');
-  const relationshipValue = publicProfile.querySelector<HTMLElement>('[data-public-relationship-value]');
+  const relationshipLabel = publicProfile.querySelector<HTMLElement>(
+    '[data-public-relationship-label]',
+  );
+  const relationshipValue = publicProfile.querySelector<HTMLElement>(
+    '[data-public-relationship-value]',
+  );
   const actionButton = publicProfile.querySelector<HTMLButtonElement>('[data-public-action]');
-  const sectionEyebrow = publicProfile.querySelector<HTMLElement>('[data-public-section-eyebrow]');
-  const sectionTitle = publicProfile.querySelector<HTMLElement>('[data-public-section-title]');
-  const sectionSummary = publicProfile.querySelector<HTMLElement>('[data-public-section-summary]');
   const eyebrow = publicProfile.querySelector<HTMLElement>('[data-public-eyebrow]');
 
   if (
     !avatar ||
-    !nickname ||
-    !name ||
+    !displayName ||
     !status ||
     !summary ||
     !memberLabel ||
     !memberValue ||
+    !userIdLabel ||
+    !userIdValue ||
+    !statusLabel ||
     !activityLabel ||
     !activityValue ||
     !relationshipLabel ||
     !relationshipValue ||
     !actionButton ||
-    !sectionEyebrow ||
-    !sectionTitle ||
-    !sectionSummary ||
     !eyebrow
   ) {
     throw new Error('Public profile screen could not be initialized.');
@@ -264,13 +266,12 @@ function createPublicProfileScreen(
 
   content.append(publicProfile);
 
-  memberLabel.textContent = options.i18n.t('menu.social.profile.memberSince');
+  memberLabel.textContent = options.i18n.t('menu.profile.hero.memberSince');
+  userIdLabel.textContent = options.i18n.t('menu.profile.hero.userId');
+  statusLabel.textContent = options.i18n.t('menu.profile.hero.launcherStatus');
   activityLabel.textContent = options.i18n.t('menu.social.profile.currentActivity');
   relationshipLabel.textContent = options.i18n.t('menu.social.directory.relationshipFilter');
-  sectionEyebrow.textContent = options.i18n.t('menu.social.profile.sectionEyebrow');
-  sectionTitle.textContent = options.i18n.t('menu.social.profile.sectionTitle');
-  sectionSummary.textContent = options.i18n.t('menu.social.profile.sectionSummary');
-  eyebrow.textContent = options.i18n.t('menu.social.profile.eyebrow');
+  eyebrow.textContent = options.i18n.t('menu.profile.nameEditor.label');
 
   let activeProfile: SocialUserSummary | null = null;
   let isBusy = false;
@@ -294,11 +295,11 @@ function createPublicProfileScreen(
       snapshot?.profile?.nickname === targetNickname ? snapshot.profile : activeProfile;
 
     if (!snapshotProfile) {
-      nickname.textContent = `@${targetNickname}`;
-      name.textContent = options.i18n.t('menu.social.profile.loading');
-      summary.textContent = options.i18n.t('menu.social.profile.loading');
-      status.textContent = options.i18n.t('menu.social.profile.loading');
+      displayName.textContent = options.i18n.t('menu.social.profile.loading');
+      summary.textContent = options.i18n.t('menu.profile.nameEditor.hint');
       memberValue.textContent = '...';
+      userIdValue.textContent = `@${targetNickname}`;
+      status.textContent = options.i18n.t('menu.social.profile.loading');
       activityValue.textContent = '...';
       relationshipValue.textContent = '...';
       actionButton.disabled = true;
@@ -310,14 +311,12 @@ function createPublicProfileScreen(
     const action = resolveProfileAction(snapshotProfile, options.i18n);
     avatar.src = createSocialAvatar(snapshotProfile);
     avatar.alt = snapshotProfile.nickname;
-    nickname.textContent = `@${snapshotProfile.nickname}`;
-    name.textContent = snapshotProfile.name;
-    status.className = `profile-public-hero__status ${resolvePresenceTone(
-      snapshotProfile.presence.status,
-    )}`;
-    status.textContent = resolvePresenceLabel(snapshotProfile.presence.status, options.i18n);
-    summary.textContent = resolveActivityLabel(snapshotProfile, options.i18n);
+    displayName.textContent = snapshotProfile.name;
+    status.className = 'profile-hero__meta-value';
+    status.textContent = resolvePresenceStatusLabel(snapshotProfile, options.i18n);
+    summary.textContent = options.i18n.t('menu.profile.nameEditor.hint');
     memberValue.textContent = formatDate(snapshotProfile.createdAt, options.i18n.getLocale());
+    userIdValue.textContent = `@${snapshotProfile.nickname}`;
     activityValue.textContent = resolveActivityLabel(snapshotProfile, options.i18n);
     relationshipValue.textContent = resolveRelationshipLabel(snapshotProfile);
     actionButton.disabled = isBusy || action.disabled;
@@ -332,7 +331,9 @@ function createPublicProfileScreen(
 
     const requestId = activeProfile.relationship.requestId;
 
-    if (activeProfile.relationship.state === 'pending_sent' || activeProfile.relationship.state === 'friends') {
+    if (
+      activeProfile.relationship.state === 'pending_sent'
+    ) {
       return;
     }
 
@@ -341,10 +342,24 @@ function createPublicProfileScreen(
     render();
 
     try {
-      if (activeProfile.relationship.state === 'pending_received' && requestId) {
+      if (activeProfile.relationship.state === 'friends' && activeProfile.relationship.friendshipId) {
+        await options.socialStore.removeFriend(activeProfile.relationship.friendshipId);
+        setFeedback({
+          message: options.i18n.t('menu.social.feedback.removed'),
+          tone: 'success',
+        });
+      } else if (activeProfile.relationship.state === 'pending_received' && requestId) {
         await options.socialStore.acceptFriendRequest(requestId);
+        setFeedback({
+          message: options.i18n.t('menu.social.feedback.accepted'),
+          tone: 'success',
+        });
       } else {
         await options.socialStore.sendFriendRequest(activeProfile.nickname);
+        setFeedback({
+          message: options.i18n.t('menu.social.feedback.requestSent'),
+          tone: 'success',
+        });
       }
 
       render();

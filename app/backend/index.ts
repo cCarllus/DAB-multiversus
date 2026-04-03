@@ -25,6 +25,7 @@ import { createFriendsRouter } from './routes/friends.routes';
 import { createPresenceRouter } from './routes/presence.routes';
 import { createUsersRouter } from './routes/users.routes';
 import { ProfileService } from './services/profile.service';
+import { SocialPresenceSessionService } from './services/social-presence-session.service';
 import { SessionAuthService } from './services/session-auth.service';
 import { SocialService } from './services/social.service';
 import { UsersRepository } from './repositories/users.repository';
@@ -40,6 +41,7 @@ async function main(): Promise<void> {
   const socialRepository = new SocialRepository();
   const profileService = new ProfileService(profileRepository, usersService);
   const socialService = new SocialService(socialRepository, usersService);
+  const presenceSessionService = new SocialPresenceSessionService();
   const passwordService = new PasswordService();
   const tokenService = new TokenService();
   const sessionAuthService = new SessionAuthService(authRepository, tokenService);
@@ -47,6 +49,7 @@ async function main(): Promise<void> {
   const authService = new AuthService({
     authRepository,
     passwordService,
+    presenceSessionService,
     profileService,
     socialService,
     tokenService,
@@ -90,6 +93,7 @@ async function main(): Promise<void> {
   });
 
   realtimeServer.define(SOCIAL_PRESENCE_ROOM_NAME, SocialPresenceRoom, {
+    presenceSessionService,
     sessionAuthService,
     socialService,
   });

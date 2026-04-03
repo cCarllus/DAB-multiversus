@@ -4,11 +4,11 @@ import type { AppI18n } from '@shared/i18n';
 
 import {
   createSocialAvatar,
+  resolveActivityLabel,
   formatMemberSince,
-  resolvePresenceLabel,
+  resolvePresenceStatusLabel,
   resolvePresenceTone,
   resolveQuickAction,
-  resolveUserLevel,
 } from './social-formatters';
 
 interface SocialHoverCardOptions {
@@ -123,9 +123,9 @@ export function createSocialHoverCard(options: SocialHoverCardOptions) {
         avatar.alt = user.nickname;
         name.textContent = user.name;
         nickname.textContent = `@${user.nickname}`;
-        status.className = `social-hover-card__status ${resolvePresenceTone(user.presence.status)}`;
-        status.textContent = resolvePresenceLabel(user.presence.status, options.i18n);
-        activity.textContent = `LVL ${resolveUserLevel(user)}`;
+        status.className = `social-hover-card__status ${resolvePresenceTone(user)}`;
+        status.textContent = resolvePresenceStatusLabel(user, options.i18n);
+        activity.textContent = resolveActivityLabel(user, options.i18n);
         memberSince.textContent = options.i18n.t('menu.social.hover.memberSince', {
           date: formatMemberSince(user.createdAt, options.i18n.getLocale()),
         });
@@ -135,7 +135,7 @@ export function createSocialHoverCard(options: SocialHoverCardOptions) {
         primary.textContent = action.label;
         view.dataset.variant = 'view';
         view.disabled = isBusy;
-        view.textContent = options.i18n.t('menu.social.actions.viewProfile');
+        view.textContent = options.i18n.t('menu.social.actions.inspect');
         element.hidden = false;
 
         const rect = anchor.getBoundingClientRect();

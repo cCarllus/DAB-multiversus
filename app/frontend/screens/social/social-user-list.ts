@@ -7,9 +7,11 @@ import type { AppI18n } from '@shared/i18n';
 
 import {
   createSocialAvatar,
+  formatShortDate,
+  resolveActivityLabel,
   formatMemberSince,
   resolveAccentColor,
-  resolvePresenceLabel,
+  resolvePresenceStatusLabel,
   resolvePresenceTone,
   resolveQuickAction,
   resolveUserLevel,
@@ -49,11 +51,15 @@ interface SocialUserListState {
 const template = `
   <section class="social-board">
     <header class="social-board__header">
-      <div>
+      <div class="social-board__header-copy">
         <p class="social-board__eyebrow"></p>
         <h2 class="social-board__title"></h2>
+        <p class="social-board__summary"></p>
       </div>
-      <p class="social-board__summary"></p>
+      <div class="social-board__signal">
+        <span class="social-board__signal-label" data-social-signal-label></span>
+        <strong class="social-board__signal-value" data-social-signal></strong>
+      </div>
     </header>
 
     <div class="social-board__toolbar">
@@ -72,14 +78,6 @@ const template = `
           <option value="offline"></option>
         </select>
       </label>
-    </div>
-
-    <div class="social-board__headings">
-      <span>__PLAYER_LABEL__</span>
-      <span>__STATUS_LABEL__</span>
-        <span>__LEVEL_LABEL__</span>
-        <span>__MEMBER_SINCE_LABEL__</span>
-        <span>__ACTION_LABEL__</span>
     </div>
 
     <div class="social-board__rows" data-social-rows></div>
@@ -126,16 +124,12 @@ function resolveBoardCopy(section: SocialBoardSection, i18n: AppI18n) {
 }
 
 export function createSocialUserList(options: SocialUserListOptions) {
-  const element = createElementFromTemplate(template, {
-    ACTION_LABEL: options.i18n.t('menu.social.directory.columns.action'),
-    LEVEL_LABEL: options.i18n.t('menu.social.directory.columns.level'),
-    MEMBER_SINCE_LABEL: options.i18n.t('menu.social.directory.columns.memberSince'),
-    PLAYER_LABEL: options.i18n.t('menu.social.directory.columns.player'),
-    STATUS_LABEL: options.i18n.t('menu.social.directory.columns.status'),
-  });
+  const element = createElementFromTemplate(template);
   const title = element.querySelector<HTMLElement>('.social-board__title');
   const eyebrow = element.querySelector<HTMLElement>('.social-board__eyebrow');
   const summary = element.querySelector<HTMLElement>('.social-board__summary');
+  const signalLabel = element.querySelector<HTMLElement>('[data-social-signal-label]');
+  const signal = element.querySelector<HTMLElement>('[data-social-signal]');
   const searchInput = element.querySelector<HTMLInputElement>('[data-social-search]');
   const presenceLabel = element.querySelector<HTMLElement>('[data-social-presence-label]');
   const presenceSelect = element.querySelector<HTMLSelectElement>('[data-social-presence]');
@@ -148,6 +142,8 @@ export function createSocialUserList(options: SocialUserListOptions) {
     !title ||
     !eyebrow ||
     !summary ||
+    !signalLabel ||
+    !signal ||
     !searchInput ||
     !presenceLabel ||
     !presenceSelect ||
@@ -169,6 +165,7 @@ export function createSocialUserList(options: SocialUserListOptions) {
     <svg class="home-icon home-icon--small" aria-hidden="true" focusable="false">
       <use href="#icon-refresh"></use>
     </svg>
+    <span>${options.i18n.t('menu.social.directory.loadMore')}</span>
   `;
 
   searchInput.addEventListener('input', () => {
@@ -187,13 +184,11 @@ export function createSocialUserList(options: SocialUserListOptions) {
     locale: string,
   ): HTMLElement => {
     const action = resolveQuickAction(item.user, options.i18n, state.activeSection);
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'social-board__row';
+    const tone = resolvePresenceTone(item.user);
+    const row = document.createElement('article');
+    row.className = `social-board__card ${tone}`;
     row.dataset.selected = String(state.selectedNickname === item.user.nickname);
-    row.addEventListener('click', () => {
-      options.onSelectUser(item.user.nickname);
-    });
+    row.style.setProperty('--social-accent', resolveAccentColor(item.user.nickname));
     row.addEventListener('mouseenter', () => {
       options.onHoverUser(item.user, row);
     });
@@ -202,37 +197,80 @@ export function createSocialUserList(options: SocialUserListOptions) {
     });
 
     const accent = document.createElement('span');
-    accent.className = 'social-board__accent';
-    accent.style.background = resolveAccentColor(item.user.nickname);
+    accent.className = 'social-board__card-crest';
 
-    const identity = document.createElement('span');
+    const openTrigger = document.createElement('button');
+    openTrigger.type = 'button';
+    openTrigger.className = 'social-board__card-hitbox';
+    openTrigger.setAttribute('aria-label', `Open profile for ${item.user.nickname}`);
+    openTrigger.addEventListener('click', () => {
+      options.onSelectUser(item.user.nickname);
+    });
+
+    const top = document.createElement('div');
+    top.className = 'social-board__card-top';
+
+    const identity = document.createElement('div');
     identity.className = 'social-board__identity';
+    const avatarShell = document.createElement('div');
+    avatarShell.className = `social-board__avatar-shell ${tone}`;
+    const avatarHalo = document.createElement('span');
+    avatarHalo.className = 'social-board__avatar-halo';
     const avatar = document.createElement('img');
     avatar.className = 'social-board__avatar';
     avatar.src = createSocialAvatar(item.user);
     avatar.alt = item.user.nickname;
-    const copy = document.createElement('span');
+    const avatarPresence = document.createElement('span');
+    avatarPresence.className = `social-board__presence-orb ${tone}`;
+    const avatarLevel = document.createElement('span');
+    avatarLevel.className = 'social-board__avatar-level';
+    avatarLevel.textContent = `LVL ${resolveUserLevel(item.user)}`;
+    avatarShell.append(avatarHalo, avatar, avatarPresence, avatarLevel);
+
+    const copy = document.createElement('div');
     copy.className = 'social-board__copy';
-    const name = document.createElement('strong');
+    const name = document.createElement('span');
     name.className = 'social-board__name';
     name.textContent = item.user.name;
-    const nickname = document.createElement('span');
+    const nickname = document.createElement('strong');
     nickname.className = 'social-board__nickname';
     nickname.textContent = `@${item.user.nickname}`;
-    copy.append(name, nickname);
-    identity.append(avatar, copy);
+    const activity = document.createElement('p');
+    activity.className = 'social-board__activity';
+    activity.textContent = resolveActivityLabel(item.user, options.i18n);
+    copy.append(name, nickname, activity);
+    identity.append(avatarShell, copy);
 
+    const statusStack = document.createElement('div');
+    statusStack.className = 'social-board__status-stack';
     const status = document.createElement('span');
-    status.className = `social-board__status ${resolvePresenceTone(item.user.presence.status)}`;
-    status.textContent = resolvePresenceLabel(item.user.presence.status, options.i18n);
+    status.className = `social-board__status ${tone}`;
+    status.textContent = resolvePresenceStatusLabel(item.user, options.i18n);
+    const statusNote = document.createElement('span');
+    statusNote.className = 'social-board__status-note';
+    statusNote.textContent =
+      item.requestDirection && item.createdAt
+        ? `${options.i18n.t(
+            item.requestDirection === 'incoming'
+              ? 'menu.social.requests.incoming'
+              : 'menu.social.requests.outgoing',
+          )} • ${formatShortDate(item.createdAt, locale)}`
+        : formatMemberSince(item.user.createdAt, locale);
+    statusStack.append(status, statusNote);
+    top.append(identity, statusStack);
 
-    const level = document.createElement('span');
-    level.className = 'social-board__level';
-    level.textContent = String(resolveUserLevel(item.user));
+    const bottom = document.createElement('div');
+    bottom.className = 'social-board__card-bottom';
 
-    const memberSince = document.createElement('span');
-    memberSince.className = 'social-board__date';
-    memberSince.textContent = formatMemberSince(item.user.createdAt, locale);
+    const intel = document.createElement('div');
+    intel.className = 'social-board__intel';
+    const memberChip = document.createElement('div');
+    memberChip.className = 'social-board__intel-chip';
+    memberChip.innerHTML = `
+      <span>${options.i18n.t('menu.social.directory.columns.memberSince')}</span>
+      <strong>${formatMemberSince(item.user.createdAt, locale)}</strong>
+    `;
+    intel.append(memberChip);
 
     const actionButton = document.createElement('button');
     actionButton.type = 'button';
@@ -245,7 +283,8 @@ export function createSocialUserList(options: SocialUserListOptions) {
       options.onUserAction(item);
     });
 
-    row.append(accent, identity, status, level, memberSince, actionButton);
+    bottom.append(intel, actionButton);
+    row.append(accent, openTrigger, top, bottom);
     return row;
   };
 
@@ -258,11 +297,14 @@ export function createSocialUserList(options: SocialUserListOptions) {
       eyebrow.textContent = copy.eyebrow;
       title.textContent = copy.title;
       summary.textContent = copy.summary;
+      signalLabel.textContent = copy.eyebrow;
+      signal.textContent = String(state.total).padStart(2, '0');
       searchInput.value = state.query;
       presenceSelect.value = state.presence;
       count.textContent = copy.count(state.total);
       loadMore.hidden = state.activeSection !== 'players' || !state.hasMore;
       loadMore.disabled = state.isBusy;
+      rows.dataset.count = String(state.items.length);
       rows.replaceChildren(...state.items.map((item) => renderRow(item, state, locale)));
       empty.hidden = state.items.length > 0;
       empty.textContent = state.isBusy ? copy.loading : copy.empty;

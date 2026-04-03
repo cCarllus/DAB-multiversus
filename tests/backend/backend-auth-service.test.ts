@@ -28,6 +28,7 @@ describe('auth service', () => {
       createSession: ReturnType<typeof vi.fn>;
       findById: ReturnType<typeof vi.fn>;
       findByRefreshTokenHash: ReturnType<typeof vi.fn>;
+      hasActiveSessionForUser: ReturnType<typeof vi.fn>;
       revokeSessionById: ReturnType<typeof vi.fn>;
       rotateSession: ReturnType<typeof vi.fn>;
     };
@@ -35,9 +36,15 @@ describe('auth service', () => {
       hashPassword: ReturnType<typeof vi.fn>;
       verifyPassword: ReturnType<typeof vi.fn>;
     };
+    presenceSessionService: {
+      disconnectSession: ReturnType<typeof vi.fn>;
+    };
     profileService: {
       ensureStorage: ReturnType<typeof vi.fn>;
       recordDeviceAccess: ReturnType<typeof vi.fn>;
+    };
+    socialService: {
+      updatePresence: ReturnType<typeof vi.fn>;
     };
     tokenService: {
       generateAccessToken: ReturnType<typeof vi.fn>;
@@ -74,6 +81,7 @@ describe('auth service', () => {
         })),
         findById: vi.fn(async () => null),
         findByRefreshTokenHash: vi.fn(async () => null),
+        hasActiveSessionForUser: vi.fn(async () => false),
         revokeSessionById: vi.fn(async () => undefined),
         rotateSession: vi.fn(async () => ({
           id: 'session-1',
@@ -92,9 +100,19 @@ describe('auth service', () => {
         hashPassword: vi.fn(async () => 'password-hash'),
         verifyPassword: vi.fn(async () => true),
       },
+      presenceSessionService: {
+        disconnectSession: vi.fn(async () => true),
+      },
       profileService: {
         ensureStorage: vi.fn(async () => undefined),
         recordDeviceAccess: vi.fn(async () => undefined),
+      },
+      socialService: {
+        updatePresence: vi.fn(async () => ({
+          currentActivity: null,
+          lastSeenAt: new Date('2024-01-01T00:00:00.000Z'),
+          status: 'offline',
+        })),
       },
       tokenService: {
         generateAccessToken: vi.fn(() => ({
@@ -447,7 +465,11 @@ describe('auth service', () => {
       updatedAt: new Date(),
     });
     await service.logout({ refreshToken: 'refresh-token', userId: 'user-1' });
-    expect(dependencies.authRepository.revokeSessionById).toHaveBeenCalledWith('session-1');
+    expect(dependencies.authRepository.revokeSessionById).toHaveBeenCalledWith(
+      'session-1',
+      transactionClient,
+    );
+    expect(dependencies.presenceSessionService.disconnectSession).toHaveBeenCalledWith('session-1');
 
     dependencies.authRepository.findByRefreshTokenHash.mockResolvedValueOnce({
       id: 'session-1',
@@ -462,6 +484,7 @@ describe('auth service', () => {
       updatedAt: new Date(),
     });
     await service.logout({ refreshToken: 'refresh-token', userId: 'user-1' });
+    expect(dependencies.presenceSessionService.disconnectSession).toHaveBeenCalledTimes(2);
 
     await expectRejectedAppError(service.logout({}), {
       code: 'LOGOUT_TARGET_REQUIRED',
@@ -504,6 +527,7 @@ describe('auth service', () => {
       updatedAt: new Date(),
     });
     await service.logout({ sessionId: 'session-1', userId: 'user-1' });
+    expect(dependencies.presenceSessionService.disconnectSession).toHaveBeenCalledTimes(3);
 
     dependencies.authRepository.findById.mockResolvedValueOnce({
       id: 'session-1',
@@ -518,6 +542,7 @@ describe('auth service', () => {
       updatedAt: new Date(),
     });
     await service.logout({ sessionId: 'session-1', userId: 'user-1' });
+    expect(dependencies.presenceSessionService.disconnectSession).toHaveBeenCalledTimes(4);
   });
 
   it('returns the current authenticated user', async () => {

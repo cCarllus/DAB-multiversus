@@ -14,6 +14,7 @@ import type {
 } from '../types/auth.types';
 import { PasswordService } from './password.service';
 import { ProfileService } from './profile.service';
+import { SocialPresenceSessionService } from './social-presence-session.service';
 import { SocialService } from './social.service';
 import { TokenService } from './token.service';
 import { UsersService } from './users.service';
@@ -21,6 +22,7 @@ import { UsersService } from './users.service';
 interface AuthServiceDependencies {
   authRepository: AuthRepository;
   passwordService: PasswordService;
+  presenceSessionService?: SocialPresenceSessionService;
   profileService: ProfileService;
   socialService: SocialService;
   tokenService: TokenService;
@@ -159,6 +161,7 @@ export class AuthService {
         if (!session.revokedAt) {
           await this.dependencies.authRepository.revokeSessionById(session.id, client);
         }
+        await this.dependencies.presenceSessionService?.disconnectSession(session.id);
 
         const hasOtherActiveSessions = await this.dependencies.authRepository.hasActiveSessionForUser(
           session.userId,
@@ -203,6 +206,7 @@ export class AuthService {
       if (!session.revokedAt) {
         await this.dependencies.authRepository.revokeSessionById(session.id, client);
       }
+      await this.dependencies.presenceSessionService?.disconnectSession(session.id);
 
       const hasOtherActiveSessions = await this.dependencies.authRepository.hasActiveSessionForUser(
         session.userId,

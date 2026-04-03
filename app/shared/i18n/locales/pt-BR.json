@@ -255,9 +255,13 @@
       "actions": {
         "accept": "Aceitar",
         "addFriend": "Adicionar amigo",
+        "alreadyFriends": "Já amigo",
         "cancel": "Cancelar",
         "friends": "Amigos",
+        "inspect": "Inspecionar",
         "reject": "Recusar",
+        "removeFriend": "Desfazer amizade",
+        "requestReceived": "Pedido recebido",
         "requestSent": "Pedido enviado",
         "viewProfile": "Ver perfil"
       },
@@ -337,6 +341,7 @@
         "memberSince": "Membro desde {{date}}"
       },
       "presence": {
+        "inMatch": "Em Partida",
         "online": "Online",
         "offline": "Offline",
         "inLauncher": "No Launcher",
@@ -349,7 +354,8 @@
         "requestSent": "Pedido de amizade enviado.",
         "accepted": "Pedido de amizade aceito.",
         "rejected": "Pedido de amizade recusado.",
-        "cancelled": "Pedido enviado cancelado."
+        "cancelled": "Pedido enviado cancelado.",
+        "removed": "Amizade desfeita."
       },
       "errors": {
         "alreadyFriends": "Você já é amigo deste player.",

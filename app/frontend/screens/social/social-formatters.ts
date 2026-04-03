@@ -3,9 +3,20 @@ import type { SocialUserSummary } from '@frontend/services/social/social-types';
 import type { SocialBoardSection } from './social-user-list';
 
 const ACCENT_COLORS = ['#64baff', '#6fe0a0', '#ff9d5c', '#e7c268', '#d278ff', '#5fe5d0'];
+const MATCH_ACTIVITY_MARKERS = [
+  'arena',
+  'casual',
+  'duel',
+  'jogando',
+  'match',
+  'partida',
+  'playing',
+  'ranked',
+  'skirmish',
+];
 
 export interface SocialActionDescriptor {
-  action: 'accept' | 'add' | 'friends' | 'pending' | 'reject' | 'view';
+  action: 'accept' | 'add' | 'friends' | 'pending' | 'reject' | 'remove' | 'view';
   disabled: boolean;
   label: string;
 }
@@ -72,8 +83,26 @@ export function resolvePresenceLabel(
   }
 }
 
+export function isSocialMatchActivity(activity: string | null | undefined): boolean {
+  const normalizedActivity = activity?.trim().toLowerCase();
+
+  if (!normalizedActivity) {
+    return false;
+  }
+
+  return MATCH_ACTIVITY_MARKERS.some((marker) => normalizedActivity.includes(marker));
+}
+
+export function resolvePresenceStatusLabel(user: SocialUserSummary, i18n: AppI18n): string {
+  if (user.presence.status !== 'offline' && isSocialMatchActivity(user.presence.currentActivity)) {
+    return i18n.t('menu.social.presence.inMatch');
+  }
+
+  return resolvePresenceLabel(user.presence.status, i18n);
+}
+
 export function resolveActivityLabel(user: SocialUserSummary, i18n: AppI18n): string {
-  return user.presence.currentActivity?.trim() || resolvePresenceLabel(user.presence.status, i18n);
+  return user.presence.currentActivity?.trim() || resolvePresenceStatusLabel(user, i18n);
 }
 
 export function resolveUserLevel(user: SocialUserSummary): number {
@@ -85,7 +114,27 @@ export function resolveUserLevel(user: SocialUserSummary): number {
   return (seed % 67) + 12;
 }
 
-export function resolvePresenceTone(status: SocialUserSummary['presence']['status']): string {
+export function resolvePresenceTone(
+  value: SocialUserSummary | SocialUserSummary['presence']['status'],
+): string {
+  if (typeof value !== 'string') {
+    if (value.presence.status === 'offline') {
+      return 'is-offline';
+    }
+
+    if (isSocialMatchActivity(value.presence.currentActivity)) {
+      return 'is-match';
+    }
+
+    if (value.presence.status === 'in_launcher') {
+      return 'is-launcher';
+    }
+
+    return 'is-online';
+  }
+
+  const status = value;
+
   if (status === 'offline') {
     return 'is-offline';
   }
@@ -102,6 +151,14 @@ export function resolveQuickAction(
   i18n: AppI18n,
   section: SocialBoardSection = 'players',
 ): SocialActionDescriptor {
+  if (section === 'players') {
+    return {
+      action: 'view',
+      disabled: false,
+      label: i18n.t('menu.social.actions.viewProfile'),
+    };
+  }
+
   switch (user.relationship.state) {
     case 'pending_received':
       return {
@@ -120,9 +177,9 @@ export function resolveQuickAction(
       };
     case 'friends':
       return {
-        action: 'view',
+        action: 'remove',
         disabled: false,
-        label: i18n.t('menu.social.actions.viewProfile'),
+        label: i18n.t('menu.social.actions.removeFriend'),
       };
     default:
       return {
@@ -133,7 +190,10 @@ export function resolveQuickAction(
   }
 }
 
-export function resolveProfileAction(user: SocialUserSummary, i18n: AppI18n): SocialActionDescriptor {
+export function resolveProfileAction(
+  user: SocialUserSummary,
+  i18n: AppI18n,
+): SocialActionDescriptor {
   switch (user.relationship.state) {
     case 'pending_received':
       return {
@@ -149,9 +209,9 @@ export function resolveProfileAction(user: SocialUserSummary, i18n: AppI18n): So
       };
     case 'friends':
       return {
-        action: 'friends',
-        disabled: true,
-        label: i18n.t('menu.social.actions.friends'),
+        action: 'remove',
+        disabled: false,
+        label: i18n.t('menu.social.actions.removeFriend'),
       };
     default:
       return {

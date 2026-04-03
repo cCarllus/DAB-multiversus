@@ -8,7 +8,6 @@ import type { AppI18n } from '@shared/i18n';
 import type { SocialStore } from '@frontend/stores/social.store';
 
 import socialScreenTemplate from './social-screen.html?raw';
-import { createSocialHoverCard } from './social-hover-card';
 import {
   createSocialUserList,
   type SocialBoardItem,
@@ -48,26 +47,10 @@ export function createSocialScreen(options: SocialScreenOptions): HTMLElement {
   let currentPresenceFilter: SocialDirectoryPresenceFilter = 'all';
   let currentQuery = '';
 
-  const hoverCard = createSocialHoverCard({
-    i18n: options.i18n,
-    onPrimaryAction: (user) => {
-      void handlePrimaryAction({
-        user,
-      });
-    },
-    onViewProfile: (nickname) => {
-      options.onOpenProfile(nickname);
-    },
-  });
-
   const userList = createSocialUserList({
     i18n: options.i18n,
-    onHoverLeave: () => {
-      hoverCard.scheduleHide();
-    },
-    onHoverUser: (user, anchor) => {
-      hoverCard.show(user, anchor, isBusy);
-    },
+    onHoverLeave: () => undefined,
+    onHoverUser: () => undefined,
     onLoadMore: () => {
       void handleLoadMore();
     },
@@ -94,7 +77,6 @@ export function createSocialScreen(options: SocialScreenOptions): HTMLElement {
   });
 
   directory.append(userList.element);
-  rootElement.append(hoverCard.element);
 
   sectionButtons.forEach((button) => {
     const section = button.dataset.socialSection as SocialSection | undefined;
@@ -206,7 +188,7 @@ export function createSocialScreen(options: SocialScreenOptions): HTMLElement {
 
   const handleMutation = async (
     operation: () => Promise<unknown>,
-    feedbackKey: 'accepted' | 'cancelled' | 'rejected' | 'requestSent',
+    feedbackKey: 'accepted' | 'cancelled' | 'rejected' | 'removed' | 'requestSent',
   ): Promise<void> => {
     isBusy = true;
     render();
@@ -233,6 +215,11 @@ export function createSocialScreen(options: SocialScreenOptions): HTMLElement {
   const handlePrimaryAction = async (item: SocialBoardItem): Promise<void> => {
     const { user } = item;
 
+    if (activeSection === 'players') {
+      options.onOpenProfile(user.nickname);
+      return;
+    }
+
     if (item.requestDirection === 'outgoing' && item.requestId) {
       await handleMutation(
         async () => options.socialStore.cancelOutgoingRequest(item.requestId!),
@@ -241,8 +228,11 @@ export function createSocialScreen(options: SocialScreenOptions): HTMLElement {
       return;
     }
 
-    if (user.relationship.state === 'friends') {
-      options.onOpenProfile(user.nickname);
+    if (user.relationship.state === 'friends' && user.relationship.friendshipId) {
+      await handleMutation(
+        async () => options.socialStore.removeFriend(user.relationship.friendshipId!),
+        'removed',
+      );
       return;
     }
 

@@ -77,7 +77,7 @@ export class SocialPresenceRealtimeService {
     this.room = null;
 
     if (room) {
-      await room.leave(true).catch(() => undefined);
+      await room.leave(false).catch(() => undefined);
     }
 
     this.emit({

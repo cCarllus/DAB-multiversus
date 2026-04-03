@@ -11,9 +11,11 @@ import type { PresenceStatus } from '../types/social.types';
 import { AppError } from '../lib/app-error';
 import { updatePresenceSchema } from '../validators/social.validator';
 import { SessionAuthService, type AuthenticatedSessionIdentity } from '../services/session-auth.service';
+import { SocialPresenceSessionService } from '../services/social-presence-session.service';
 import { SocialService } from '../services/social.service';
 
 interface SocialPresenceRoomOptions {
+  presenceSessionService: SocialPresenceSessionService;
   sessionAuthService: SessionAuthService;
   socialService: SocialService;
 }
@@ -50,6 +52,8 @@ export class SocialPresenceRoom extends Room<
 
   private sessionAuthService!: SessionAuthService;
 
+  private presenceSessionService!: SocialPresenceSessionService;
+
   private socialService!: SocialService;
 
   onCreate(options: SocialPresenceRoomOptions): void {
@@ -59,6 +63,7 @@ export class SocialPresenceRoom extends Room<
     void this.setPrivate(true);
 
     this.sessionAuthService = options.sessionAuthService;
+    this.presenceSessionService = options.presenceSessionService;
     this.socialService = options.socialService;
 
     this.onMessage(SOCIAL_PRESENCE_UPDATE_MESSAGE, async (client, payload) => {
@@ -121,6 +126,9 @@ export class SocialPresenceRoom extends Room<
       nickname: auth.nickname,
       userId: auth.userId,
     };
+    this.presenceSessionService.registerSession(auth.sessionId, () => {
+      client.leave();
+    });
 
     this.nicknameByUserId.set(auth.userId, auth.nickname);
     this.setConnection(auth.userId, client.sessionId, {
@@ -154,6 +162,7 @@ export class SocialPresenceRoom extends Room<
       return;
     }
 
+    this.presenceSessionService.unregisterSession(userData.authSessionId);
     this.deleteConnection(userData.userId, client.sessionId);
     const entry = await this.persistResolvedPresence(userData.userId);
 
