@@ -11,6 +11,8 @@ const DESKTOP_WINDOW_CHANNELS = {
   close: 'desktop-window:close',
   getState: 'desktop-window:get-state',
   minimize: 'desktop-window:minimize',
+  setFullscreen: 'desktop-window:set-fullscreen',
+  setResolution: 'desktop-window:set-resolution',
   stateChanged: 'desktop-window:state-changed',
   toggleMaximize: 'desktop-window:toggle-maximize',
 } as const;
@@ -30,8 +32,13 @@ function resolveWindow(event: IpcMainInvokeEvent): LauncherBrowserWindow {
 }
 
 function getWindowState(browserWindow: LauncherBrowserWindow): DesktopWindowState {
+  const [width, height] = browserWindow.getContentSize();
+
   return {
+    height,
+    isFullScreen: browserWindow.isFullScreen(),
     isMaximized: browserWindow.isMaximized(),
+    width,
   };
 }
 
@@ -47,6 +54,7 @@ export function bindWindowControlEvents(browserWindow: LauncherBrowserWindow): v
   browserWindow.on('unmaximize', emitState);
   browserWindow.on('enter-full-screen', emitState);
   browserWindow.on('leave-full-screen', emitState);
+  browserWindow.on('resize', emitState);
   browserWindow.webContents.once('did-finish-load', emitState);
 }
 
@@ -82,6 +90,51 @@ export function registerWindowControlHandlers(): void {
 
     return getWindowState(browserWindow);
   });
+
+  ipcMain.handle(DESKTOP_WINDOW_CHANNELS.setFullscreen, (event, enabled: unknown) => {
+    const browserWindow = resolveWindow(event);
+
+    if (typeof enabled !== 'boolean' || !browserWindow.isFullScreenable()) {
+      return getWindowState(browserWindow);
+    }
+
+    browserWindow.setFullScreen(enabled);
+    return getWindowState(browserWindow);
+  });
+
+  ipcMain.handle(
+    DESKTOP_WINDOW_CHANNELS.setResolution,
+    (event, payload: { height?: unknown; width?: unknown } | undefined) => {
+      const browserWindow = resolveWindow(event);
+      const width =
+        typeof payload?.width === 'number' && Number.isFinite(payload.width)
+          ? Math.round(payload.width)
+          : 0;
+      const height =
+        typeof payload?.height === 'number' && Number.isFinite(payload.height)
+          ? Math.round(payload.height)
+          : 0;
+
+      if (width <= 0 || height <= 0) {
+        return getWindowState(browserWindow);
+      }
+
+      const wasFullScreen = browserWindow.isFullScreen();
+
+      if (wasFullScreen) {
+        browserWindow.setFullScreen(false);
+      }
+
+      browserWindow.setContentSize(width, height);
+      browserWindow.center();
+
+      if (wasFullScreen) {
+        browserWindow.setFullScreen(true);
+      }
+
+      return getWindowState(browserWindow);
+    },
+  );
 
   ipcMain.handle(DESKTOP_WINDOW_CHANNELS.close, (event) => {
     const browserWindow = resolveWindow(event);

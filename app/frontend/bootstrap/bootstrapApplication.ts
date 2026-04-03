@@ -4,10 +4,18 @@ import { AuthService } from '@frontend/services/auth/auth-service';
 import { type LoginFormValues } from '@frontend/services/auth/auth-types';
 import { createDesktopBridgeFallback } from '@frontend/bootstrap/desktop-bridge-fallback';
 import {
+  createSettingsModal,
+  type LauncherDisplayProfile,
+  type LauncherSettingsSnapshot,
+  type SettingsActionResult,
+  type SettingsCategory,
+} from '@frontend/components/settings-modal';
+import {
   rerenderActiveSurface,
   type AppSurface,
 } from '@frontend/bootstrap/rerender-active-surface';
 import { createApplicationShell } from '@frontend/layout/create-application-shell';
+import { createLauncherHistory } from '@frontend/navigation/launcher-history';
 import { createAppRouter } from '@frontend/navigation/app-router';
 import type { PlayerNotification } from '@frontend/services/notifications/notifications-types';
 import { ChatStore } from '@frontend/stores/chat.store';
@@ -21,8 +29,31 @@ import {
   type AppLocale,
   type TranslationMessages,
 } from '@shared/i18n';
+import type { DesktopWindowState } from '@shared/contracts/desktop.contract';
 
 const EXIT_MODAL_TRANSITION_MS = 180;
+const DISPLAY_PROFILES: LauncherDisplayProfile[] = [
+  {
+    detail: 'Ultra-wide tactical HUD profile',
+    id: '3440x1440',
+    label: '3440 × 1440',
+  },
+  {
+    detail: 'Native desktop command deck',
+    id: '2560x1440',
+    label: '2560 × 1440',
+  },
+  {
+    detail: 'Tournament-standard widescreen',
+    id: '1920x1080',
+    label: '1920 × 1080',
+  },
+  {
+    detail: 'Compact client fallback',
+    id: '1600x900',
+    label: '1600 × 900',
+  },
+] as const;
 
 interface LoadingStep {
   detail?: string;
@@ -38,7 +69,74 @@ interface LoadingSequence {
 }
 type LoadingSequenceKey = keyof TranslationMessages['loading']['sequences'];
 type MenuView = 'home' | 'players' | 'profile' | 'system';
+interface MenuRouteState {
+  profileTargetNickname: string | null;
+  view: MenuView;
+}
+
+interface LauncherSettingsState {
+  activeCategory: SettingsCategory;
+  audio: LauncherSettingsSnapshot['audio'];
+  isOpen: boolean;
+  video: LauncherSettingsSnapshot['video'];
+}
+
 export { createDesktopBridgeFallback, rerenderActiveSurface };
+
+function createDefaultMenuRoute(): MenuRouteState {
+  return {
+    profileTargetNickname: null,
+    view: 'home',
+  };
+}
+
+function getInitialDisplayProfileId(): string {
+  const screenWidth = globalThis.window?.screen?.availWidth ?? globalThis.window?.screen?.width;
+  const screenHeight = globalThis.window?.screen?.availHeight ?? globalThis.window?.screen?.height;
+
+  if (screenWidth && screenHeight) {
+    const exactProfile = DISPLAY_PROFILES.find(
+      (profile) => profile.id === `${screenWidth}x${screenHeight}`,
+    );
+
+    if (exactProfile) {
+      return exactProfile.id;
+    }
+  }
+
+  return '1920x1080';
+}
+
+function parseDisplayProfileId(
+  profileId: string,
+): {
+  height: number;
+  width: number;
+} | null {
+  const [rawWidth, rawHeight] = profileId.split('x');
+  const width = Number.parseInt(rawWidth ?? '', 10);
+  const height = Number.parseInt(rawHeight ?? '', 10);
+
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return null;
+  }
+
+  return {
+    height,
+    width,
+  };
+}
+
+function resolveProfileIdFromWindowState(
+  windowState: DesktopWindowState,
+  fallbackId: string,
+): string {
+  return (
+    DISPLAY_PROFILES.find(
+      (profile) => profile.id === `${windowState.width}x${windowState.height}`,
+    )?.id ?? fallbackId
+  );
+}
 
 export function bootstrapApplication(host: HTMLElement): void {
   const desktop = window.desktop ?? createDesktopBridgeFallback();
@@ -107,6 +205,12 @@ export function bootstrapApplication(host: HTMLElement): void {
     }
   });
 
+  const areMenuRoutesEqual = (left: MenuRouteState, right: MenuRouteState): boolean =>
+    left.view === right.view && left.profileTargetNickname === right.profileTargetNickname;
+  const menuHistory = createLauncherHistory<MenuRouteState>({
+    compare: areMenuRoutesEqual,
+    initial: createDefaultMenuRoute(),
+  });
   let activeMenuView: MenuView = 'home';
   let activeProfileNickname: string | null = null;
   let loginState = {
@@ -122,8 +226,44 @@ export function bootstrapApplication(host: HTMLElement): void {
     status: 'closed' as 'closed' | 'open' | 'closing',
   };
   let exitModalCloseTimer: number | null = null;
+  let settingsState: LauncherSettingsState = {
+    activeCategory: 'video',
+    audio: {
+      musicVolume: audio.getMusicVolume(),
+      soundVolume: audio.getSoundVolume(),
+    },
+    isOpen: false,
+    video: {
+      fullscreenEnabled: false,
+      profiles: [...DISPLAY_PROFILES],
+      selectedProfileId: getInitialDisplayProfileId(),
+    },
+  };
 
   audio.bindInteractionSurface(shell.interactiveLayer);
+  const applyWindowState = (windowState: DesktopWindowState): void => {
+    settingsState = {
+      ...settingsState,
+      video: {
+        ...settingsState.video,
+        fullscreenEnabled: windowState.isFullScreen,
+        selectedProfileId: resolveProfileIdFromWindowState(
+          windowState,
+          settingsState.video.selectedProfileId,
+        ),
+      },
+    };
+  };
+  const releaseWindowStateListener =
+    desktop.windowControls?.onStateChange((windowState) => {
+      applyWindowState(windowState);
+    }) ?? null;
+  void desktop.windowControls
+    ?.getState()
+    .then((windowState) => {
+      applyWindowState(windowState);
+    })
+    .catch(() => undefined);
 
   const cancelLoadingSequence = (): void => {
     loadingSequenceId += 1;
@@ -164,6 +304,214 @@ export function bootstrapApplication(host: HTMLElement): void {
     };
   };
 
+  const syncActiveMenuRoute = (route: MenuRouteState): void => {
+    activeMenuView = route.view;
+    activeProfileNickname = route.profileTargetNickname;
+  };
+
+  const resetMenuNavigation = (): void => {
+    const defaultRoute = createDefaultMenuRoute();
+    menuHistory.reset(defaultRoute);
+    syncActiveMenuRoute(defaultRoute);
+  };
+
+  const closeSettingsOverlay = (): void => {
+    settingsState = {
+      ...settingsState,
+      isOpen: false,
+    };
+  };
+
+  const buildSettingsSnapshot = (): LauncherSettingsSnapshot => ({
+    activeCategory: settingsState.activeCategory,
+    audio: {
+      musicVolume: settingsState.audio.musicVolume,
+      soundVolume: settingsState.audio.soundVolume,
+    },
+    video: {
+      fullscreenEnabled: settingsState.video.fullscreenEnabled,
+      profiles: [...settingsState.video.profiles],
+      selectedProfileId: settingsState.video.selectedProfileId,
+    },
+  });
+
+  const renderLauncherOverlay = (): void => {
+    const session = authService.getCurrentSession();
+
+    if (activeSurface !== 'menu' || !settingsState.isOpen || !session?.user) {
+      shell.setOverlay(null);
+      return;
+    }
+
+    shell.setOverlay(
+      createSettingsModal({
+        account: {
+          email: session.user.email,
+          name: session.user.name || session.user.nickname,
+          nickname: session.user.nickname,
+        },
+        i18n,
+        onClose: () => {
+          closeSettingsOverlay();
+          renderMenuPage();
+        },
+        onDeleteAccount: () => ({
+          applied: false,
+          message: i18n.t('menu.settings.feedback.deleteUnavailable'),
+          tone: 'warning',
+        }),
+        onMusicVolumeChange: (volume) => {
+          const nextVolume = audio.setMusicVolume(volume);
+
+          settingsState = {
+            ...settingsState,
+            audio: {
+              ...settingsState.audio,
+              musicVolume: nextVolume,
+            },
+          };
+        },
+        onPersistCategory: (category) => {
+          settingsState = {
+            ...settingsState,
+            activeCategory: category,
+          };
+        },
+        onResolutionChange: (profileId) => {
+          const resolution = parseDisplayProfileId(profileId);
+
+          if (!resolution || !desktop.windowControls?.setResolution) {
+            return {
+              applied: false,
+              message: i18n.t('menu.settings.feedback.resolutionUnsupported'),
+              tone: 'warning',
+            } satisfies SettingsActionResult;
+          }
+
+          return desktop.windowControls
+            .setResolution(resolution.width, resolution.height)
+            .then((windowState) => {
+              applyWindowState(windowState);
+              settingsState = {
+                ...settingsState,
+                video: {
+                  ...settingsState.video,
+                  selectedProfileId: resolveProfileIdFromWindowState(windowState, profileId),
+                },
+              };
+
+              return {
+                applied: true,
+                message: i18n.t('menu.settings.feedback.resolutionUpdated'),
+                tone: 'success',
+              } satisfies SettingsActionResult;
+            })
+            .catch(() => ({
+              applied: false,
+              message: i18n.t('menu.settings.feedback.resolutionUnsupported'),
+              tone: 'warning',
+            }));
+        },
+        onSaveEmail: () => ({
+          applied: false,
+          message: i18n.t('menu.settings.feedback.emailUnavailable'),
+          tone: 'warning',
+        }),
+        onSaveName: async (name) => {
+          await profileStore.updateName(name);
+
+          return {
+            applied: true,
+            message: i18n.t('menu.profile.feedback.nameUpdated'),
+            tone: 'success',
+          } satisfies SettingsActionResult;
+        },
+        onSavePassword: () => ({
+          applied: false,
+          message: i18n.t('menu.settings.feedback.passwordUnavailable'),
+          tone: 'warning',
+        }),
+        onSoundVolumeChange: (volume) => {
+          const nextVolume = audio.setSoundVolume(volume);
+
+          settingsState = {
+            ...settingsState,
+            audio: {
+              ...settingsState.audio,
+              soundVolume: nextVolume,
+            },
+          };
+        },
+        onToggleFullscreen: async (enabled) => {
+          if (!desktop.windowControls?.setFullscreen) {
+            return {
+              applied: false,
+              message: i18n.t('menu.settings.feedback.fullscreenUnsupported'),
+              tone: 'warning',
+            } satisfies SettingsActionResult;
+          }
+
+          try {
+            const windowState = await desktop.windowControls.setFullscreen(enabled);
+            applyWindowState(windowState);
+          } catch {
+            return {
+              applied: false,
+              message: i18n.t('menu.settings.feedback.fullscreenUnsupported'),
+              tone: 'warning',
+            } satisfies SettingsActionResult;
+          }
+
+          settingsState = {
+            ...settingsState,
+            video: {
+              ...settingsState.video,
+              fullscreenEnabled: enabled,
+            },
+          };
+
+          return {
+            applied: true,
+            message: enabled
+              ? i18n.t('menu.settings.feedback.fullscreenEnabled')
+              : i18n.t('menu.settings.feedback.fullscreenDisabled'),
+            tone: 'info',
+          } satisfies SettingsActionResult;
+        },
+        settings: buildSettingsSnapshot(),
+      }),
+    );
+  };
+
+  const navigateMenu = (route: MenuRouteState): void => {
+    if (activeSurface !== 'menu') {
+      return;
+    }
+
+    notificationsStore.closePanel();
+    closeSettingsOverlay();
+    const snapshot = menuHistory.push(route);
+    syncActiveMenuRoute(snapshot.current);
+    renderMenuPage();
+  };
+
+  const moveThroughMenuHistory = (direction: 'back' | 'forward'): void => {
+    if (activeSurface !== 'menu') {
+      return;
+    }
+
+    notificationsStore.closePanel();
+    closeSettingsOverlay();
+    const route = direction === 'back' ? menuHistory.back() : menuHistory.forward();
+
+    if (!route) {
+      return;
+    }
+
+    syncActiveMenuRoute(route);
+    renderMenuPage();
+  };
+
   const resolveMenuPresenceActivity = (): string => {
     if (activeMenuView === 'players') {
       return i18n.t('menu.social.presence.browsingPlayers');
@@ -189,9 +537,13 @@ export function bootstrapApplication(host: HTMLElement): void {
 
     cancelLoadingSequence();
     activeSurface = 'menu';
+    const historySnapshot = menuHistory.getSnapshot();
     router.showMenu({
+      canGoBack: historySnapshot.canGoBack,
+      canGoForward: historySnapshot.canGoForward,
       chatStore,
       desktop,
+      isSettingsOpen: settingsState.isOpen,
       musicMuted: audio.isMusicMuted(),
       notificationsStore,
       exitModal:
@@ -218,6 +570,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       view: activeMenuView,
       walletStore,
     });
+    renderLauncherOverlay();
 
     void progressionStore.load().catch(() => undefined);
     void walletStore.load().catch(() => undefined);
@@ -231,13 +584,10 @@ export function bootstrapApplication(host: HTMLElement): void {
   };
 
   const openProfileView = (nickname: string | null): void => {
-    if (activeSurface !== 'menu') {
-      return;
-    }
-
-    activeProfileNickname = nickname?.trim().toLowerCase() ?? null;
-    activeMenuView = 'profile';
-    renderMenuPage();
+    navigateMenu({
+      profileTargetNickname: nickname?.trim().toLowerCase() ?? null,
+      view: 'profile',
+    });
   };
 
   const renderGamePage = (): void => {
@@ -252,6 +602,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     router.showGame({
       user: session.user,
     });
+    renderLauncherOverlay();
 
     void socialStore
       .updatePresence({
@@ -273,6 +624,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     });
 
     activeSurface = 'loading';
+    renderLauncherOverlay();
 
     for (const step of sequence.steps) {
       if (transitionId !== loadingSequenceId) {
@@ -324,6 +676,8 @@ export function bootstrapApplication(host: HTMLElement): void {
 
   const openExitModal = (): void => {
     clearExitModalCloseTimer();
+    notificationsStore.closePanel();
+    closeSettingsOverlay();
     exitModalState = {
       errorMessage: null,
       isLoggingOut: false,
@@ -375,6 +729,7 @@ export function bootstrapApplication(host: HTMLElement): void {
       rememberDeviceSupported,
       onSubmit: handleLoginSubmit,
     });
+    renderLauncherOverlay();
   };
 
   const handleLoginSubmit = (values: LoginFormValues): void => {
@@ -412,8 +767,8 @@ export function bootstrapApplication(host: HTMLElement): void {
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
-        activeMenuView = 'home';
-        activeProfileNickname = null;
+        resetMenuNavigation();
+        closeSettingsOverlay();
         audio.playTransitionCue('screen-shift');
         void transitionToMenu(getLoadingSequence('loginToMenu'));
       })
@@ -445,8 +800,8 @@ export function bootstrapApplication(host: HTMLElement): void {
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
-        activeMenuView = 'home';
-        activeProfileNickname = null;
+        resetMenuNavigation();
+        closeSettingsOverlay();
         audio.playTransitionCue('screen-shift');
         void transitionToMenu(getLoadingSequence('loginToMenu'));
       })
@@ -491,8 +846,8 @@ export function bootstrapApplication(host: HTMLElement): void {
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
-        activeMenuView = 'home';
-        activeProfileNickname = null;
+        resetMenuNavigation();
+        closeSettingsOverlay();
         exitModalState = {
           errorMessage: null,
           isLoggingOut: false,
@@ -544,6 +899,7 @@ export function bootstrapApplication(host: HTMLElement): void {
     cancelLoadingSequence();
     activeSurface = 'boot';
     router.showBoot(i18n.t('boot.statuses.validatingRememberedSession'));
+    renderLauncherOverlay();
     rememberDeviceSupported = await authService.supportsRememberedSessions();
     loginState = {
       ...loginState,
@@ -560,7 +916,8 @@ export function bootstrapApplication(host: HTMLElement): void {
         notificationsStore.reset();
         chatStore.reset();
         socialStore.reset();
-        activeProfileNickname = null;
+        resetMenuNavigation();
+        closeSettingsOverlay();
         exitModalState = {
           errorMessage: null,
           isLoggingOut: false,
@@ -612,49 +969,57 @@ export function bootstrapApplication(host: HTMLElement): void {
     }
 
     if (action === 'show-menu-home') {
-      if (activeSurface !== 'menu') {
-        return;
-      }
-
-      notificationsStore.closePanel();
-      activeMenuView = 'home';
-      activeProfileNickname = null;
-      renderMenuPage();
+      navigateMenu({
+        profileTargetNickname: null,
+        view: 'home',
+      });
       return;
     }
 
     if (action === 'show-profile-page') {
-      if (activeSurface !== 'menu') {
-        return;
-      }
-
-      notificationsStore.closePanel();
-      activeMenuView = 'profile';
-      activeProfileNickname = null;
-      renderMenuPage();
+      navigateMenu({
+        profileTargetNickname: null,
+        view: 'profile',
+      });
       return;
     }
 
     if (action === 'show-players-page') {
-      if (activeSurface !== 'menu') {
-        return;
-      }
-
-      notificationsStore.closePanel();
-      activeMenuView = 'players';
-      activeProfileNickname = null;
-      renderMenuPage();
+      navigateMenu({
+        profileTargetNickname: null,
+        view: 'players',
+      });
       return;
     }
 
     if (action === 'show-system-page') {
+      navigateMenu({
+        profileTargetNickname: null,
+        view: 'system',
+      });
+      return;
+    }
+
+    if (action === 'navigate-history-back') {
+      moveThroughMenuHistory('back');
+      return;
+    }
+
+    if (action === 'navigate-history-forward') {
+      moveThroughMenuHistory('forward');
+      return;
+    }
+
+    if (action === 'open-settings-modal') {
       if (activeSurface !== 'menu') {
         return;
       }
 
       notificationsStore.closePanel();
-      activeMenuView = 'system';
-      activeProfileNickname = null;
+      settingsState = {
+        ...settingsState,
+        isOpen: true,
+      };
       renderMenuPage();
       return;
     }
@@ -719,6 +1084,7 @@ export function bootstrapApplication(host: HTMLElement): void {
 
   window.addEventListener('beforeunload', () => {
     clearExitModalCloseTimer();
+    releaseWindowStateListener?.();
     void socialStore.disconnectRealtime().catch(() => undefined);
     void notificationsStore.disconnectRealtime().catch(() => undefined);
     void chatStore.disconnectRealtime().catch(() => undefined);

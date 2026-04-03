@@ -80,8 +80,12 @@ const bootstrapState = vi.hoisted(() => ({
   audio: {
     bindInteractionSurface: vi.fn(),
     dispose: vi.fn(),
+    getMusicVolume: vi.fn(() => 0.5),
+    getSoundVolume: vi.fn(() => 0.9),
     isMusicMuted: vi.fn(() => false),
     playTransitionCue: vi.fn(),
+    setMusicVolume: vi.fn((value: number) => value),
+    setSoundVolume: vi.fn((value: number) => value),
     toggleMusicMute: vi.fn(() => false),
     toggleSoundMute: vi.fn(() => false),
   },
@@ -162,9 +166,25 @@ const bootstrapState = vi.hoisted(() => ({
   },
   shell: {
     interactiveLayer: document.createElement('div'),
+    setOverlay: vi.fn(),
     setPage: vi.fn(),
   },
 }));
+
+function createWindowState(overrides: Partial<{
+  height: number;
+  isFullScreen: boolean;
+  isMaximized: boolean;
+  width: number;
+}> = {}) {
+  return {
+    height: 900,
+    isFullScreen: false,
+    isMaximized: false,
+    width: 1600,
+    ...overrides,
+  };
+}
 
 vi.mock('@frontend/services/audio/app-audio.service', () => ({
   AppAudioManager: function AppAudioManager() {
@@ -235,11 +255,16 @@ vi.mock('@shared/i18n', () => ({
 describe('frontend bootstrap application', () => {
   beforeEach(() => {
     bootstrapState.shell.interactiveLayer = document.createElement('div');
+    bootstrapState.shell.setOverlay.mockReset();
     bootstrapState.shell.setPage.mockReset();
     bootstrapState.audio.bindInteractionSurface.mockReset();
     bootstrapState.audio.dispose.mockReset();
+    bootstrapState.audio.getMusicVolume.mockReset().mockReturnValue(0.5);
+    bootstrapState.audio.getSoundVolume.mockReset().mockReturnValue(0.9);
     bootstrapState.audio.isMusicMuted.mockReset().mockReturnValue(false);
     bootstrapState.audio.playTransitionCue.mockReset();
+    bootstrapState.audio.setMusicVolume.mockReset().mockImplementation((value: number) => value);
+    bootstrapState.audio.setSoundVolume.mockReset().mockImplementation((value: number) => value);
     bootstrapState.audio.toggleMusicMute.mockReset().mockReturnValue(false);
     bootstrapState.audio.toggleSoundMute.mockReset().mockReturnValue(false);
     bootstrapState.currentSession = null;
@@ -395,10 +420,14 @@ describe('frontend bootstrap application', () => {
     const desktop = createDesktopBridgeMock({
       windowControls: {
         close: vi.fn(async () => undefined),
-        getState: vi.fn(async () => ({ isMaximized: false })),
+        getState: vi.fn(async () => createWindowState()),
         minimize: vi.fn(async () => undefined),
         onStateChange: vi.fn(() => () => undefined),
-        toggleMaximize: vi.fn(async () => ({ isMaximized: false })),
+        setFullscreen: vi.fn(async () => createWindowState()),
+        setResolution: vi.fn(async (width: number, height: number) =>
+          createWindowState({ height, width }),
+        ),
+        toggleMaximize: vi.fn(async () => createWindowState()),
       },
     });
     (window as typeof window & { desktop?: unknown }).desktop = desktop;
@@ -604,10 +633,14 @@ describe('frontend bootstrap application', () => {
         close: vi.fn(async () => {
           throw new Error('close failed');
         }),
-        getState: vi.fn(async () => ({ isMaximized: false })),
+        getState: vi.fn(async () => createWindowState()),
         minimize: vi.fn(async () => undefined),
         onStateChange: vi.fn(() => () => undefined),
-        toggleMaximize: vi.fn(async () => ({ isMaximized: false })),
+        setFullscreen: vi.fn(async () => createWindowState()),
+        setResolution: vi.fn(async (width: number, height: number) =>
+          createWindowState({ height, width }),
+        ),
+        toggleMaximize: vi.fn(async () => createWindowState()),
       },
     });
     (window as typeof window & { desktop?: unknown }).desktop = desktop;
@@ -736,6 +769,12 @@ describe('frontend bootstrap application', () => {
       rerenderActiveSurface,
     } = await import('../../app/frontend/bootstrap/bootstrapApplication');
     const fallback = createDesktopBridgeFallback();
+    const fallbackState = {
+      height: window.innerHeight,
+      isFullScreen: false,
+      isMaximized: false,
+      width: window.innerWidth,
+    };
 
     expect(await fallback.authStorage.getRememberedSession()).toBeNull();
     expect(await fallback.authStorage.isPersistentStorageAvailable()).toBe(false);
@@ -749,10 +788,22 @@ describe('frontend bootstrap application', () => {
       }),
     ).rejects.toThrow('Secure remembered sessions are unavailable outside Electron.');
     await fallback.windowControls?.close();
-    await expect(fallback.windowControls?.getState()).resolves.toEqual({ isMaximized: false });
-    await expect(fallback.windowControls?.toggleMaximize()).resolves.toEqual({
-      isMaximized: false,
-    });
+    await expect(fallback.windowControls?.getState()).resolves.toEqual(fallbackState);
+    await expect(fallback.windowControls?.toggleMaximize()).resolves.toEqual(fallbackState);
+    await expect(fallback.windowControls?.setFullscreen(true)).resolves.toEqual(
+      {
+        ...fallbackState,
+        isFullScreen: true,
+      },
+    );
+    await expect(fallback.windowControls?.setResolution(1280, 720)).resolves.toEqual(
+      {
+        height: 720,
+        isFullScreen: true,
+        isMaximized: false,
+        width: 1280,
+      },
+    );
     await fallback.windowControls?.minimize();
     expect(fallback.windowControls?.onStateChange(() => undefined)).toBeTypeOf('function');
     expect(closeSpy).toHaveBeenCalled();

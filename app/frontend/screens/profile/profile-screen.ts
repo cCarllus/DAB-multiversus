@@ -96,33 +96,6 @@ function createCurrentProfileScreen(
   });
   const nameEditor = createProfileNameEditor({
     i18n: options.i18n,
-    onInvalid: (message) => {
-      setFeedback({
-        message,
-        tone: 'error',
-      });
-    },
-    onSave: async (name) => {
-      nameEditor.setBusy(true);
-      setFeedback(null);
-
-      try {
-        const snapshot = await options.profileStore.updateName(name);
-        applySnapshot(snapshot);
-        setFeedback({
-          message: messages.feedback.nameUpdated,
-          tone: 'success',
-        });
-      } catch (error) {
-        setFeedback({
-          message: resolveApiErrorMessage(error, options.i18n),
-          tone: 'error',
-        });
-        throw error;
-      } finally {
-        nameEditor.setBusy(false);
-      }
-    },
   });
   const header = createProfileHeader({
     avatarUploader,

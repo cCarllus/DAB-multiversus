@@ -209,6 +209,8 @@
       "primaryNavigationAriaLabel": "Primary navigation",
       "settingsAriaLabel": "Settings",
       "navigationAriaLabel": "Navigation",
+      "backAriaLabel": "Go back",
+      "forwardAriaLabel": "Go forward",
       "playAriaLabel": "Dead As Battle",
       "tabs": {
         "heroes": "Heroes",
@@ -224,6 +226,116 @@
       "notificationsAriaLabel": "Notifications",
       "minimizeAriaLabel": "Minimize launcher",
       "closeAriaLabel": "Close launcher"
+    },
+    "settings": {
+      "ariaLabel": "Launcher settings",
+      "eyebrow": "Command Deck",
+      "title": "Launcher settings",
+      "summary": "Tune the display stack, audio mix, and account access from one control board.",
+      "closeAriaLabel": "Close settings",
+      "sidebar": {
+        "accountLabel": "Signed in as"
+      },
+      "categories": {
+        "video": {
+          "label": "Video",
+          "summary": "Display mode and resolution profiles"
+        },
+        "audio": {
+          "label": "Audio",
+          "summary": "Music and UI cue balance"
+        },
+        "account": {
+          "label": "Account",
+          "summary": "Identity and secure access changes"
+        }
+      },
+      "video": {
+        "eyebrow": "Display Control",
+        "title": "Video settings",
+        "summary": "Arm fullscreen and resolution profiles for the launcher viewport.",
+        "headerStatusLabel": "Mode",
+        "headerProfileLabel": "Profile",
+        "statusModeLabel": "Fullscreen",
+        "statusProfileLabel": "Resolution",
+        "fullscreen": {
+          "label": "Fullscreen",
+          "description": "Push the launcher into an immersive presentation layer.",
+          "enabled": "Engaged",
+          "disabled": "Windowed"
+        },
+        "resolution": {
+          "label": "Resolution",
+          "description": "Choose the display profile the launcher should target."
+        }
+      },
+      "audio": {
+        "eyebrow": "Audio Mix",
+        "title": "Audio settings",
+        "summary": "Balance the soundtrack and interface impact without leaving the launcher.",
+        "headerMusicLabel": "Music",
+        "headerSfxLabel": "SFX",
+        "musicVolume": {
+          "label": "Music volume",
+          "description": "Controls the ambient menu score."
+        },
+        "sfxVolume": {
+          "label": "SFX volume",
+          "description": "Controls hover, confirm, and notification cues."
+        }
+      },
+      "account": {
+        "eyebrow": "Security Console",
+        "title": "Account settings",
+        "summary": "Stage identity updates and secure credential changes.",
+        "headerIdentityLabel": "Display name",
+        "headerEmailLabel": "Email",
+        "empty": "Not set",
+        "name": {
+          "label": "Change name",
+          "description": "Update the display name shown across the launcher.",
+          "placeholder": "Enter a display name",
+          "action": "Save name",
+          "busy": "Saving..."
+        },
+        "email": {
+          "label": "Change email",
+          "description": "Queue a new address for secure account access.",
+          "placeholder": "Enter a new email",
+          "action": "Update email",
+          "busy": "Updating..."
+        },
+        "password": {
+          "label": "Change password",
+          "description": "Stage a new password for future sign-ins.",
+          "placeholder": "Enter a new password",
+          "action": "Update password",
+          "busy": "Updating..."
+        },
+        "dangerEyebrow": "Danger zone",
+        "dangerSummary": "Deleting the account is permanent and signs every linked device out immediately.",
+        "deleteAction": "Delete account",
+        "deleteBusy": "Deleting...",
+        "confirmTitle": "Confirm account deletion",
+        "confirmSummary": "This permanently removes launcher access, profile identity, and saved session bindings for this account.",
+        "confirmWarning": "This action cannot be undone.",
+        "confirmCancel": "Keep account",
+        "confirmAction": "Delete account"
+      },
+      "feedback": {
+        "fullscreenEnabled": "Fullscreen mode engaged.",
+        "fullscreenDisabled": "Fullscreen mode disengaged.",
+        "fullscreenUnsupported": "Fullscreen switching is unavailable in this build of the launcher.",
+        "resolutionUpdated": "Resolution applied instantly.",
+        "resolutionUnsupported": "Resolution switching is unavailable in this build of the launcher.",
+        "emailUnavailable": "Secure email changes are not wired into this build yet.",
+        "passwordUnavailable": "Secure password changes are not wired into this build yet.",
+        "deleteUnavailable": "Account deletion is not connected to the backend yet.",
+        "nameInvalid": "Enter a display name with at least 2 characters.",
+        "emailInvalid": "Enter a valid email address.",
+        "passwordInvalid": "Enter a password with at least 8 characters.",
+        "genericFailure": "The requested settings action could not be completed."
+      }
     },
     "home": {
       "seasonObjective": "Season Objective",

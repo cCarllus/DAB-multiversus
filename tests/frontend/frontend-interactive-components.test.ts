@@ -2,6 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createSettingsModal } from '../../app/frontend/components/settings-modal';
 import { createLoginScreen } from '../../app/frontend/screens/login/login-screen';
 import { createProfileAvatarUploader } from '../../app/frontend/screens/profile/profile-avatar-uploader';
 import { createProfileHeader } from '../../app/frontend/screens/profile/profile-header';
@@ -179,69 +180,34 @@ describe('frontend interactive components', () => {
     ).toThrow('Login screen could not be initialized.');
   });
 
-  it('edits profile names with validation, busy state, and error handling', async () => {
-    const onInvalid = vi.fn();
-    const onSave = vi.fn(async () => undefined);
+  it('renders the profile identity panel as read-only launcher data', async () => {
     const editor = createProfileNameEditor({
       i18n: createTestI18n('en'),
-      onInvalid,
-      onSave,
     });
 
     document.body.append(editor.element);
     editor.setProfile(createTestUser());
 
-    const edit = editor.element.querySelector<HTMLButtonElement>('[data-name-edit]')!;
-    const cancel = editor.element.querySelector<HTMLButtonElement>('[data-name-cancel]')!;
-    const input = editor.element.querySelector<HTMLInputElement>('[data-name-input]')!;
-    const form = editor.element.querySelector<HTMLFormElement>('[data-name-form]')!;
     const view = editor.element.querySelector<HTMLElement>('[data-name-view]')!;
-    const save = editor.element.querySelector<HTMLButtonElement>('[data-name-save]')!;
+    const nickname = editor.element.querySelector<HTMLElement>('[data-name-nickname]')!;
+    const displayName = editor.element.querySelector<HTMLElement>('[data-name-value]')!;
 
     expect(view.hidden).toBe(false);
-    edit.click();
-    expect(view.hidden).toBe(true);
-    expect(document.activeElement).toBe(input);
-
-    input.value = 'a';
-    form.dispatchEvent(new Event('submit'));
-    expect(onInvalid).toHaveBeenCalled();
-
-    input.value = '  Updated   Player ';
-    form.dispatchEvent(new Event('submit'));
-    await flushPromises();
-    expect(onSave).toHaveBeenCalledWith('Updated Player');
-    expect(view.hidden).toBe(false);
-
-    edit.click();
-    input.value = 'Another Name';
-    cancel.click();
-    expect(input.value).toBe('Player One');
+    expect(nickname.textContent).toBe('player.one');
+    expect(displayName.textContent).toBe('Player One');
+    expect(editor.element.querySelector('[data-name-edit]')).toBeNull();
+    expect(editor.element.querySelector('[data-name-form]')).toBeNull();
 
     editor.setBusy(true);
-    expect(input.disabled).toBe(true);
-    expect(save.textContent).toContain('Saving');
     editor.setBusy(false);
-    expect(save.textContent).toContain('Save');
-
-    const failingEditor = createProfileNameEditor({
-      i18n: createTestI18n('en'),
-      onInvalid: vi.fn(),
-      onSave: vi.fn(async () => {
-        throw new Error('failed');
+    editor.setProfile(
+      createTestUser({
+        name: '',
+        nickname: 'teste',
       }),
-    });
-    failingEditor.setProfile(createTestUser());
-    const failingEdit = failingEditor.element.querySelector<HTMLButtonElement>('[data-name-edit]')!;
-    const failingInput = failingEditor.element.querySelector<HTMLInputElement>('[data-name-input]')!;
-    const failingForm = failingEditor.element.querySelector<HTMLFormElement>('[data-name-form]')!;
-    failingEdit.click();
-    failingInput.value = 'Updated';
-    failingForm.dispatchEvent(new Event('submit'));
-    await flushPromises();
-    expect(failingEditor.element.querySelector<HTMLElement>('[data-name-view]')?.hidden).toBe(
-      true,
     );
+    expect(displayName.textContent).toBe('Not set');
+    expect(nickname.textContent).toBe('teste');
   });
 
   it('throws when the profile name editor or profile header structure is incomplete', async () => {
@@ -253,8 +219,6 @@ describe('frontend interactive components', () => {
     expect(() =>
       createBrokenNameEditor({
         i18n: createTestI18n('en'),
-        onInvalid: vi.fn(),
-        onSave: vi.fn(),
       }),
     ).toThrow('Profile name editor could not be initialized.');
 
@@ -419,5 +383,145 @@ describe('frontend interactive components', () => {
     expect(nameEditor.setProfile).toHaveBeenCalled();
     expect(header.element.textContent).toContain('Ready');
     expect(header.element.textContent).toContain('@player.one');
+  });
+
+  it('handles launcher settings modal tab changes, sliders, saves, and delete confirmation', async () => {
+    const onClose = vi.fn();
+    const onDeleteAccount = vi.fn(() => ({
+      applied: false,
+      message: 'Delete unavailable',
+      tone: 'warning' as const,
+    }));
+    const onMusicVolumeChange = vi.fn();
+    const onPersistCategory = vi.fn();
+    const onResolutionChange = vi.fn(() => ({
+      applied: true,
+      message: 'Resolution applied',
+      tone: 'success' as const,
+    }));
+    const onSaveEmail = vi.fn();
+    const onSaveName = vi.fn(async () => ({
+      applied: true,
+      message: 'Name saved',
+      tone: 'success' as const,
+    }));
+    const onSavePassword = vi.fn(() => ({
+      applied: false,
+      message: 'Password unavailable',
+      tone: 'warning' as const,
+    }));
+    const onSoundVolumeChange = vi.fn();
+    const onToggleFullscreen = vi.fn(async () => ({
+      applied: true,
+      message: 'Fullscreen enabled',
+      tone: 'info' as const,
+    }));
+
+    const modal = createSettingsModal({
+      account: {
+        email: 'player@example.com',
+        name: 'Player One',
+        nickname: 'player.one',
+      },
+      i18n: createTestI18n('en'),
+      onClose,
+      onDeleteAccount,
+      onMusicVolumeChange,
+      onPersistCategory,
+      onResolutionChange,
+      onSaveEmail,
+      onSaveName,
+      onSavePassword,
+      onSoundVolumeChange,
+      onToggleFullscreen,
+      settings: {
+        activeCategory: 'video',
+        audio: {
+          musicVolume: 0.5,
+          soundVolume: 0.8,
+        },
+        video: {
+          fullscreenEnabled: false,
+          profiles: [
+            {
+              detail: 'Native deck',
+              id: '2560x1440',
+              label: '2560 × 1440',
+            },
+            {
+              detail: 'Tournament widescreen',
+              id: '1920x1080',
+              label: '1920 × 1080',
+            },
+          ],
+          selectedProfileId: '2560x1440',
+        },
+      },
+    });
+
+    document.body.append(modal);
+    expect(modal.textContent).toContain('player.one');
+    expect(modal.textContent).not.toContain('player@example.com');
+
+    const fullscreenToggle = modal.querySelector<HTMLButtonElement>('.settings-modal__toggle')!;
+    fullscreenToggle.click();
+    await flushPromises();
+    expect(onToggleFullscreen).toHaveBeenCalledWith(true);
+    expect(modal.textContent).toContain('Fullscreen enabled');
+
+    const resolutionTrigger = modal.querySelector<HTMLButtonElement>(
+      '.settings-modal__dropdown-trigger',
+    )!;
+    resolutionTrigger.click();
+    const resolutionOptions = modal.querySelectorAll<HTMLButtonElement>(
+      '.settings-modal__dropdown-option',
+    );
+    resolutionOptions[1]?.click();
+    await flushPromises();
+    expect(onResolutionChange).toHaveBeenCalledWith('1920x1080');
+    expect(modal.textContent).toContain('Resolution applied');
+
+    const audioTab = Array.from(modal.querySelectorAll<HTMLButtonElement>('.settings-modal__sidebar-button')).find(
+      (button) => button.textContent?.includes('Audio'),
+    )!;
+    audioTab.click();
+    expect(onPersistCategory).toHaveBeenCalledWith('audio');
+    const sliders = modal.querySelectorAll<HTMLInputElement>('.settings-modal__slider');
+    sliders[0]!.value = '64';
+    sliders[0]!.dispatchEvent(new Event('input'));
+    sliders[1]!.value = '42';
+    sliders[1]!.dispatchEvent(new Event('input'));
+    expect(onMusicVolumeChange).toHaveBeenCalledWith(0.64);
+    expect(onSoundVolumeChange).toHaveBeenCalledWith(0.42);
+
+    const accountTab = Array.from(
+      modal.querySelectorAll<HTMLButtonElement>('.settings-modal__sidebar-button'),
+    ).find((button) => button.textContent?.includes('Account'))!;
+    accountTab.click();
+    expect(onPersistCategory).toHaveBeenCalledWith('account');
+    const nameInput = modal.querySelector<HTMLInputElement>('input[name="name"]')!;
+    const nameForm = nameInput.closest('form')!;
+    nameInput.value = '  Updated   Player ';
+    nameInput.dispatchEvent(new Event('input'));
+    nameForm.dispatchEvent(new Event('submit'));
+    await flushPromises();
+    expect(onSaveName).toHaveBeenCalledWith('Updated Player');
+    expect(modal.textContent).toContain('Name saved');
+
+    const deleteAction = modal.querySelector<HTMLButtonElement>(
+      '.settings-modal__danger-zone .settings-modal__action-button--danger',
+    )!;
+    deleteAction.click();
+    expect(modal.textContent).toContain('Confirm account deletion');
+    const confirmDelete = modal.querySelector<HTMLButtonElement>(
+      '.settings-modal__danger-card .settings-modal__action-button--danger',
+    )!;
+    confirmDelete.click();
+    await flushPromises();
+    expect(onDeleteAccount).toHaveBeenCalled();
+    expect(modal.textContent).toContain('Delete unavailable');
+
+    modal.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(onClose).toHaveBeenCalled();
   });
 });

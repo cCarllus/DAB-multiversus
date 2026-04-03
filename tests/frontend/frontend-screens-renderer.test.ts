@@ -37,7 +37,6 @@ describe('frontend composed screens and renderer', () => {
   it('renders profile screen with cached and loaded snapshots plus feedback updates', async () => {
     const snapshot = createTestProfileSnapshot();
     const load = vi.fn(async () => snapshot);
-    const updateName = vi.fn(async () => snapshot);
     const uploadAvatar = vi.fn(async () => snapshot);
     URL.createObjectURL = vi.fn(() => 'blob:avatar-preview');
     URL.revokeObjectURL = vi.fn();
@@ -47,7 +46,6 @@ describe('frontend composed screens and renderer', () => {
       profileStore: {
         getSnapshot: vi.fn(() => snapshot),
         load,
-        updateName,
         uploadAvatar,
       } as never,
       session: createTestSessionSnapshot(),
@@ -58,16 +56,7 @@ describe('frontend composed screens and renderer', () => {
     expect(load).toHaveBeenCalledWith(false);
     expect(screen.textContent).toContain(snapshot.profile.nickname);
     expect(screen.textContent).toContain('Trusted');
-
-    const editButton = screen.querySelector<HTMLButtonElement>('[data-name-edit]')!;
-    const nameInput = screen.querySelector<HTMLInputElement>('[data-name-input]')!;
-    const nameForm = screen.querySelector<HTMLFormElement>('[data-name-form]')!;
-    editButton.click();
-    nameInput.value = 'Name';
-    nameForm.dispatchEvent(new Event('submit'));
-    await flushPromises();
-    expect(updateName).toHaveBeenCalledWith('Name');
-    expect(screen.textContent).toContain('Display name updated.');
+    expect(screen.querySelector('[data-name-edit]')).toBeNull();
 
     const avatarInput = screen.querySelector<HTMLInputElement>('[data-avatar-input]')!;
     const confirmAvatar = screen.querySelector<HTMLButtonElement>('[data-avatar-confirm]')!;
@@ -81,13 +70,6 @@ describe('frontend composed screens and renderer', () => {
     expect(uploadAvatar).toHaveBeenCalled();
     expect(screen.textContent).toContain('Profile photo updated');
 
-    updateName.mockRejectedValueOnce(new Error('save failed'));
-    editButton.click();
-    nameInput.value = 'Name';
-    nameForm.dispatchEvent(new Event('submit'));
-    await flushPromises();
-    expect(screen.textContent).toContain('save failed');
-
     uploadAvatar.mockRejectedValueOnce(new Error('upload failed'));
     avatarInput.dispatchEvent(new Event('change'));
     confirmAvatar.click();
@@ -99,7 +81,6 @@ describe('frontend composed screens and renderer', () => {
       profileStore: {
         getSnapshot: vi.fn(() => snapshot),
         load: vi.fn(async () => snapshot),
-        updateName: vi.fn(async () => snapshot),
         uploadAvatar: vi.fn(async () => snapshot),
       } as never,
       session: createTestSessionSnapshot({
@@ -155,9 +136,8 @@ describe('frontend composed screens and renderer', () => {
     expect(screen.textContent).toContain('load failed');
   });
 
-  it('surfaces invalid profile edits from nested uploader and name editor callbacks', async () => {
+  it('surfaces invalid profile feedback from nested uploader callbacks', async () => {
     let avatarInvalid: ((message: string) => void) | null = null;
-    let nameInvalid: ((message: string) => void) | null = null;
 
     vi.doMock('../../app/frontend/screens/profile/profile-avatar-uploader', () => ({
       createProfileAvatarUploader: vi.fn((options: { onInvalid: (message: string) => void }) => {
@@ -177,14 +157,11 @@ describe('frontend composed screens and renderer', () => {
       })),
     }));
     vi.doMock('../../app/frontend/screens/profile/profile-name-editor', () => ({
-      createProfileNameEditor: vi.fn((options: { onInvalid: (message: string) => void }) => {
-        nameInvalid = options.onInvalid;
-        return {
-          element: document.createElement('div'),
-          setBusy: vi.fn(),
-          setProfile: vi.fn(),
-        };
-      }),
+      createProfileNameEditor: vi.fn(() => ({
+        element: document.createElement('div'),
+        setBusy: vi.fn(),
+        setProfile: vi.fn(),
+      })),
     }));
 
     const { createProfileScreen: createScreen } = await import(
@@ -203,8 +180,6 @@ describe('frontend composed screens and renderer', () => {
 
     avatarInvalid?.('invalid avatar');
     expect(screen.textContent).toContain('invalid avatar');
-    nameInvalid?.('invalid name');
-    expect(screen.textContent).toContain('invalid name');
   });
 
   it('throws when the profile screen structure is incomplete', async () => {

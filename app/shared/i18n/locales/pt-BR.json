@@ -209,6 +209,8 @@
       "primaryNavigationAriaLabel": "Navegação principal",
       "settingsAriaLabel": "Configurações",
       "navigationAriaLabel": "Navegação",
+      "backAriaLabel": "Voltar",
+      "forwardAriaLabel": "Avançar",
       "playAriaLabel": "Dead As Battle",
       "tabs": {
         "heroes": "Heróis",
@@ -224,6 +226,116 @@
       "notificationsAriaLabel": "Notificações",
       "minimizeAriaLabel": "Minimizar launcher",
       "closeAriaLabel": "Fechar launcher"
+    },
+    "settings": {
+      "ariaLabel": "Configurações do launcher",
+      "eyebrow": "Deck de Comando",
+      "title": "Configurações do launcher",
+      "summary": "Ajuste a pilha de vídeo, a mixagem de áudio e o acesso da conta em um único painel.",
+      "closeAriaLabel": "Fechar configurações",
+      "sidebar": {
+        "accountLabel": "Sessão iniciada como"
+      },
+      "categories": {
+        "video": {
+          "label": "Vídeo",
+          "summary": "Modo de exibição e perfis de resolução"
+        },
+        "audio": {
+          "label": "Áudio",
+          "summary": "Equilíbrio entre música e efeitos"
+        },
+        "account": {
+          "label": "Conta",
+          "summary": "Identidade e alterações seguras de acesso"
+        }
+      },
+      "video": {
+        "eyebrow": "Controle de Exibição",
+        "title": "Configurações de vídeo",
+        "summary": "Arme o fullscreen e os perfis de resolução para a viewport do launcher.",
+        "headerStatusLabel": "Modo",
+        "headerProfileLabel": "Perfil",
+        "statusModeLabel": "Fullscreen",
+        "statusProfileLabel": "Resolução",
+        "fullscreen": {
+          "label": "Fullscreen",
+          "description": "Leva o launcher para uma camada de apresentação imersiva.",
+          "enabled": "Ativo",
+          "disabled": "Janela"
+        },
+        "resolution": {
+          "label": "Resolução",
+          "description": "Escolha o perfil de exibição que o launcher deve mirar."
+        }
+      },
+      "audio": {
+        "eyebrow": "Mixagem de Áudio",
+        "title": "Configurações de áudio",
+        "summary": "Equilibre a trilha do menu e o impacto da interface sem sair do launcher.",
+        "headerMusicLabel": "Música",
+        "headerSfxLabel": "Efeitos",
+        "musicVolume": {
+          "label": "Volume da música",
+          "description": "Controla a trilha ambiente do menu."
+        },
+        "sfxVolume": {
+          "label": "Volume dos efeitos",
+          "description": "Controla os sons de hover, confirmação e notificações."
+        }
+      },
+      "account": {
+        "eyebrow": "Console de Segurança",
+        "title": "Configurações da conta",
+        "summary": "Prepare atualizações de identidade e mudanças seguras de credenciais.",
+        "headerIdentityLabel": "Nome de exibição",
+        "headerEmailLabel": "E-mail",
+        "empty": "Não definido",
+        "name": {
+          "label": "Alterar nome",
+          "description": "Atualiza o nome de exibição mostrado em todo o launcher.",
+          "placeholder": "Informe um nome de exibição",
+          "action": "Salvar nome",
+          "busy": "Salvando..."
+        },
+        "email": {
+          "label": "Alterar e-mail",
+          "description": "Prepare um novo endereço para o acesso seguro da conta.",
+          "placeholder": "Informe um novo e-mail",
+          "action": "Atualizar e-mail",
+          "busy": "Atualizando..."
+        },
+        "password": {
+          "label": "Alterar senha",
+          "description": "Prepare uma nova senha para os próximos logins.",
+          "placeholder": "Informe uma nova senha",
+          "action": "Atualizar senha",
+          "busy": "Atualizando..."
+        },
+        "dangerEyebrow": "Zona de risco",
+        "dangerSummary": "Excluir a conta é permanente e desconecta imediatamente todos os dispositivos vinculados.",
+        "deleteAction": "Excluir conta",
+        "deleteBusy": "Excluindo...",
+        "confirmTitle": "Confirmar exclusão da conta",
+        "confirmSummary": "Isso remove permanentemente o acesso ao launcher, a identidade do perfil e os vínculos de sessão salvos desta conta.",
+        "confirmWarning": "Essa ação não pode ser desfeita.",
+        "confirmCancel": "Manter conta",
+        "confirmAction": "Excluir conta"
+      },
+      "feedback": {
+        "fullscreenEnabled": "Modo fullscreen ativado.",
+        "fullscreenDisabled": "Modo fullscreen desativado.",
+        "fullscreenUnsupported": "A troca para fullscreen não está disponível nesta build do launcher.",
+        "resolutionUpdated": "Resolução aplicada na hora.",
+        "resolutionUnsupported": "A troca de resolução não está disponível nesta build do launcher.",
+        "emailUnavailable": "A alteração segura de e-mail ainda não está ligada nesta build.",
+        "passwordUnavailable": "A alteração segura de senha ainda não está ligada nesta build.",
+        "deleteUnavailable": "A exclusão da conta ainda não está conectada ao backend.",
+        "nameInvalid": "Informe um nome de exibição com pelo menos 2 caracteres.",
+        "emailInvalid": "Informe um endereço de e-mail válido.",
+        "passwordInvalid": "Informe uma senha com pelo menos 8 caracteres.",
+        "genericFailure": "Não foi possível concluir a ação solicitada nas configurações."
+      }
     },
     "home": {
       "seasonObjective": "Objetivo da temporada",

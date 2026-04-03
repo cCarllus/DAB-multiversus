@@ -20,8 +20,11 @@ import type { AppI18n } from '@shared/i18n';
 import type { DesktopBridge } from '@shared/contracts/desktop.contract';
 
 interface MenuScreenOptions {
+  canGoBack: boolean;
+  canGoForward: boolean;
   chatStore?: ChatStore;
   desktop: DesktopBridge;
+  isSettingsOpen?: boolean;
   musicMuted: boolean;
   i18n: AppI18n;
   notificationsStore?: NotificationsStore;
@@ -75,13 +78,15 @@ export function createMenuScreen(options: MenuScreenOptions): HTMLElement {
   const rootElement = createMenuShell({
     activeView: options.view,
     brandImage: titleGameNameImage,
+    canGoBack: options.canGoBack,
+    canGoForward: options.canGoForward,
     chatStore: options.chatStore,
     content,
     currentUserNickname: options.user.nickname,
     i18n: options.i18n,
+    isSettingsOpen: options.isSettingsOpen,
     musicMuted: options.musicMuted,
     notificationsStore: options.notificationsStore,
-    progressionStore: options.progressionStore,
     walletStore: options.walletStore,
   });
 

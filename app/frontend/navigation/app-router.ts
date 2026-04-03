@@ -29,8 +29,11 @@ interface CreateAppRouterOptions {
 }
 
 interface MenuRouteOptions {
+  canGoBack: boolean;
+  canGoForward: boolean;
   chatStore: ChatStore;
   desktop: DesktopBridge;
+  isSettingsOpen?: boolean;
   musicMuted: boolean;
   notificationsStore: NotificationsStore;
   exitModal?: {
@@ -97,9 +100,12 @@ export function createAppRouter(options: CreateAppRouterOptions): AppRouter {
     showMenu(menuOptions) {
       options.shell.setPage(
         createMenuScreen({
+          canGoBack: menuOptions.canGoBack,
+          canGoForward: menuOptions.canGoForward,
           chatStore: menuOptions.chatStore,
           desktop: menuOptions.desktop,
           i18n: options.i18n,
+          isSettingsOpen: menuOptions.isSettingsOpen,
           musicMuted: menuOptions.musicMuted,
           notificationsStore: menuOptions.notificationsStore,
           exitModal: menuOptions.exitModal,

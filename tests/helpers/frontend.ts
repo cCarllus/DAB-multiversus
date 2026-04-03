@@ -116,10 +116,36 @@ export function createDesktopBridgeMock(
     },
     windowControls: {
       close: async () => undefined,
-      getState: async () => ({ isMaximized: false } as DesktopWindowState),
+      getState: async () =>
+        ({
+          height: 900,
+          isFullScreen: false,
+          isMaximized: false,
+          width: 1600,
+        }) as DesktopWindowState,
       minimize: async () => undefined,
       onStateChange: () => () => undefined,
-      toggleMaximize: async () => ({ isMaximized: false } as DesktopWindowState),
+      setFullscreen: async () =>
+        ({
+          height: 900,
+          isFullScreen: false,
+          isMaximized: false,
+          width: 1600,
+        }) as DesktopWindowState,
+      setResolution: async (width: number, height: number) =>
+        ({
+          height,
+          isFullScreen: false,
+          isMaximized: false,
+          width,
+        }) as DesktopWindowState,
+      toggleMaximize: async () =>
+        ({
+          height: 900,
+          isFullScreen: false,
+          isMaximized: false,
+          width: 1600,
+        }) as DesktopWindowState,
       ...(overrides.windowControls ?? {}),
     },
     ...overrides,

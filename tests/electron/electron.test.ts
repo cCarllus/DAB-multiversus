@@ -21,6 +21,16 @@ const electronState = vi.hoisted(() => {
       this.maximized = true;
     });
 
+    center = vi.fn();
+
+    contentHeight: number;
+
+    contentWidth: number;
+
+    fullscreen = false;
+
+    fullscreenable = true;
+
     maximizable = true;
 
     minimized = false;
@@ -42,6 +52,15 @@ const electronState = vi.hoisted(() => {
     destroy = vi.fn();
 
     show = vi.fn();
+
+    setContentSize = vi.fn((width: number, height: number) => {
+      this.contentWidth = width;
+      this.contentHeight = height;
+    });
+
+    setFullScreen = vi.fn((enabled: boolean) => {
+      this.fullscreen = enabled;
+    });
 
     unmaximize = vi.fn(() => {
       this.maximized = false;
@@ -70,7 +89,21 @@ const electronState = vi.hoisted(() => {
     windowOpenHandler: ((payload: { url: string }) => { action: string }) | null = null;
 
     constructor(public readonly options: Record<string, unknown>) {
+      this.contentWidth = typeof options.width === 'number' ? options.width : 1680;
+      this.contentHeight = typeof options.height === 'number' ? options.height : 1020;
       MockBrowserWindow.allWindows.push(this);
+    }
+
+    getContentSize(): [number, number] {
+      return [this.contentWidth, this.contentHeight];
+    }
+
+    isFullScreen(): boolean {
+      return this.fullscreen;
+    }
+
+    isFullScreenable(): boolean {
+      return this.fullscreenable;
     }
 
     isMaximized(): boolean {
@@ -327,7 +360,10 @@ describe('electron modules', () => {
     bindWindowControlEvents(mainWindow);
     mainWindow.didFinishLoadHandler?.();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith('desktop-window:state-changed', {
+      height: 1020,
+      isFullScreen: false,
       isMaximized: false,
+      width: 1680,
     });
 
     registerWindowControlHandlers();
@@ -344,25 +380,69 @@ describe('electron modules', () => {
     expect(
       electronState.ipcHandlers.get('desktop-window:toggle-maximize')?.(senderEvent),
     ).toEqual({
+      height: 1020,
+      isFullScreen: false,
       isMaximized: true,
+      width: 1680,
     });
     expect(
       electronState.ipcHandlers.get('desktop-window:toggle-maximize')?.(senderEvent),
     ).toEqual({
+      height: 1020,
+      isFullScreen: false,
       isMaximized: false,
+      width: 1680,
     });
     mainWindow.maximizable = false;
     expect(
       electronState.ipcHandlers.get('desktop-window:toggle-maximize')?.(senderEvent),
     ).toEqual({
+      height: 1020,
+      isFullScreen: false,
       isMaximized: false,
+      width: 1680,
     });
+
+    expect(
+      electronState.ipcHandlers.get('desktop-window:set-fullscreen')?.(senderEvent, true),
+    ).toEqual({
+      height: 1020,
+      isFullScreen: true,
+      isMaximized: false,
+      width: 1680,
+    });
+    mainWindow.fullscreenable = false;
+    expect(
+      electronState.ipcHandlers.get('desktop-window:set-fullscreen')?.(senderEvent, false),
+    ).toEqual({
+      height: 1020,
+      isFullScreen: true,
+      isMaximized: false,
+      width: 1680,
+    });
+    mainWindow.fullscreenable = true;
+    expect(
+      electronState.ipcHandlers.get('desktop-window:set-resolution')?.(senderEvent, {
+        height: 900,
+        width: 1600,
+      }),
+    ).toEqual({
+      height: 900,
+      isFullScreen: true,
+      isMaximized: false,
+      width: 1600,
+    });
+    expect(mainWindow.setContentSize).toHaveBeenCalledWith(1600, 900);
+    expect(mainWindow.center).toHaveBeenCalled();
 
     await electronState.ipcHandlers.get('desktop-window:close')?.(senderEvent);
     expect(mainWindow.destroy).toHaveBeenCalled();
     expect(electronState.app.exit).toHaveBeenCalledWith(0);
     expect(electronState.ipcHandlers.get('desktop-window:get-state')?.(senderEvent)).toEqual({
+      height: 900,
+      isFullScreen: true,
       isMaximized: false,
+      width: 1600,
     });
 
     electronState.MockBrowserWindow.fromWebContents.mockReturnValueOnce(null);
@@ -412,9 +492,16 @@ describe('electron modules', () => {
     const unsubscribe = exposedBridge.windowControls.onStateChange(stateListener);
     electronState.ipcRendererListeners
       .get('desktop-window:state-changed')
-      ?.({} as never, { isMaximized: true });
-    expect(stateListener).toHaveBeenCalledWith({ isMaximized: true });
+      ?.({} as never, { height: 900, isFullScreen: false, isMaximized: true, width: 1600 });
+    expect(stateListener).toHaveBeenCalledWith({
+      height: 900,
+      isFullScreen: false,
+      isMaximized: true,
+      width: 1600,
+    });
     unsubscribe();
+    await exposedBridge.windowControls.setFullscreen(true);
+    await exposedBridge.windowControls.setResolution(1600, 900);
     await exposedBridge.windowControls.toggleMaximize();
     expect(exposedBridge.environment).toBe('development');
     expect(exposedBridge.isPackaged).toBe(false);

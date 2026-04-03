@@ -10,6 +10,8 @@ const DESKTOP_WINDOW_CHANNELS = {
   close: 'desktop-window:close',
   getState: 'desktop-window:get-state',
   minimize: 'desktop-window:minimize',
+  setFullscreen: 'desktop-window:set-fullscreen',
+  setResolution: 'desktop-window:set-resolution',
   stateChanged: 'desktop-window:state-changed',
   toggleMaximize: 'desktop-window:toggle-maximize',
 } as const;
@@ -58,6 +60,13 @@ const desktopBridge: DesktopBridge = {
         ipcRenderer.removeListener(DESKTOP_WINDOW_CHANNELS.stateChanged, handler);
       };
     },
+    setFullscreen: (enabled) =>
+      ipcRenderer.invoke(DESKTOP_WINDOW_CHANNELS.setFullscreen, enabled),
+    setResolution: (width, height) =>
+      ipcRenderer.invoke(DESKTOP_WINDOW_CHANNELS.setResolution, {
+        height,
+        width,
+      }),
     toggleMaximize: () => ipcRenderer.invoke(DESKTOP_WINDOW_CHANNELS.toggleMaximize),
   },
 };

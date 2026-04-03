@@ -400,6 +400,7 @@
   background: linear-gradient(135deg, #212a34 0%, #161d25 100%);
 }
 
+.home-topbar__wedge.is-active,
 .home-topbar__tab.is-active {
   color: var(--home-text-main);
   background: linear-gradient(180deg, rgba(30, 41, 51, 0.94), rgba(12, 18, 24, 0.96));
@@ -419,8 +420,9 @@
   padding: 0 22px 0 32px;
 }
 
-.home-topbar__wedge--arrows {
-  padding: 0 28px 0 24px;
+.home-topbar__wedge--history {
+  cursor: default;
+  padding: 0 20px 0 18px;
 }
 
 .home-topbar__wedge-content {
@@ -446,9 +448,50 @@
   gap: 0;
 }
 
-.home-topbar__wedge-content--arrows {
-  gap: 14px;
+.home-topbar__wedge-content--history {
+  gap: 10px;
   color: rgba(105, 169, 207, 0.72);
+}
+
+.home-topbar__history-button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: rgba(138, 181, 210, 0.62);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(105, 169, 207, 0.12), rgba(5, 10, 16, 0) 68%);
+  border: 0;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    color 180ms ease,
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+
+.home-topbar__history-button.is-enabled:hover,
+.home-topbar__history-button.is-enabled:focus-visible {
+  color: rgba(176, 226, 255, 0.96);
+  filter:
+    drop-shadow(0 0 12px rgba(105, 169, 207, 0.36))
+    drop-shadow(0 0 20px rgba(var(--launcher-color-gold-rgb), 0.16));
+  transform: scale(1.06);
+}
+
+.home-topbar__history-button.is-enabled:active {
+  transform: scale(0.96);
+}
+
+.home-topbar__history-button.is-disabled {
+  color: rgba(115, 132, 150, 0.28);
+  cursor: default;
+  opacity: 0.48;
+}
+
+.home-topbar__history-button:disabled {
+  pointer-events: none;
 }
 
 .home-topbar__play-block {
@@ -671,12 +714,6 @@
   transform: skewX(20deg);
 }
 
-.home-topbar__mini-badge--level {
-  border-color: rgba(var(--launcher-color-gold-rgb), 0.24);
-  background: rgba(var(--launcher-color-gold-rgb), 0.14);
-  color: #ffe7a0;
-}
-
 .home-topbar__mini-badge--notifications {
   border-color: rgba(105, 169, 207, 0.28);
   background: rgba(105, 169, 207, 0.16);
@@ -741,6 +778,7 @@
   gap: 16px;
   padding: 16px;
   margin-top: 8px;
+  animation: launcher-screen-enter 260ms cubic-bezier(0.18, 0.84, 0.24, 1);
 }
 
 .home-panel-column {
@@ -1960,6 +1998,18 @@
 
   50% {
     opacity: 0.45;
+  }
+}
+
+@keyframes launcher-screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.992);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 

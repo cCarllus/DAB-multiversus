@@ -1,5 +1,8 @@
 export interface DesktopWindowState {
+  height: number;
+  isFullScreen: boolean;
   isMaximized: boolean;
+  width: number;
 }
 
 export interface DesktopRememberedAuthSession {
@@ -21,6 +24,8 @@ export interface DesktopWindowControls {
   getState: () => Promise<DesktopWindowState>;
   minimize: () => Promise<void>;
   onStateChange: (listener: (state: DesktopWindowState) => void) => () => void;
+  setFullscreen: (enabled: boolean) => Promise<DesktopWindowState>;
+  setResolution: (width: number, height: number) => Promise<DesktopWindowState>;
   toggleMaximize: () => Promise<DesktopWindowState>;
 }
 

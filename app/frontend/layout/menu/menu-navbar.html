@@ -1,6 +1,6 @@
     <nav class="home-topbar" aria-label="__PRIMARY_NAVIGATION_ARIA_LABEL__">
       <div class="home-topbar__left">
-        <button type="button" class="home-topbar__wedge home-topbar__wedge--settings" aria-label="__SETTINGS_ARIA_LABEL__">
+        <button type="button" class="home-topbar__wedge home-topbar__wedge--settings __SETTINGS_STATE_CLASS__" data-action="open-settings-modal" aria-label="__SETTINGS_ARIA_LABEL__" aria-pressed="__SETTINGS_BUTTON_PRESSED__">
           <span class="home-topbar__wedge-content home-topbar__wedge-content--single">
             <svg class="home-icon home-icon--medium">
               <use href="#icon-settings"></use>
@@ -8,16 +8,20 @@
           </span>
         </button>
 
-        <button type="button" class="home-topbar__wedge home-topbar__wedge--arrows" aria-label="__NAVIGATION_ARIA_LABEL__">
-          <span class="home-topbar__wedge-content home-topbar__wedge-content--arrows">
-            <svg class="home-icon home-icon--small home-icon--filled is-flipped">
-              <use href="#icon-play"></use>
-            </svg>
-            <svg class="home-icon home-icon--small home-icon--filled">
-              <use href="#icon-play"></use>
-            </svg>
+        <div class="home-topbar__wedge home-topbar__wedge--history" aria-label="__NAVIGATION_ARIA_LABEL__">
+          <span class="home-topbar__wedge-content home-topbar__wedge-content--history">
+            <button type="button" class="home-topbar__history-button __BACK_STATE_CLASS__" data-action="navigate-history-back" aria-label="__BACK_ARIA_LABEL__" __BACK_DISABLED_ATTR__>
+              <svg class="home-icon home-icon--small home-icon--filled is-flipped">
+                <use href="#icon-play"></use>
+              </svg>
+            </button>
+            <button type="button" class="home-topbar__history-button __FORWARD_STATE_CLASS__" data-action="navigate-history-forward" aria-label="__FORWARD_ARIA_LABEL__" __FORWARD_DISABLED_ATTR__>
+              <svg class="home-icon home-icon--small home-icon--filled">
+                <use href="#icon-play"></use>
+              </svg>
+            </button>
           </span>
-        </button>
+        </div>
 
         <button type="button" class="home-topbar__play-block" data-action="show-menu-home" aria-label="__PLAY_ARIA_LABEL__">
           <span class="home-topbar__play-content">
@@ -62,7 +66,6 @@
 
         <button type="button" class="home-topbar__mini-block home-topbar__mini-block--mail __PROFILE_BUTTON_STATE_CLASS__"
           data-action="show-profile-page" aria-label="__PROFILE_ARIA_LABEL__" aria-pressed="__PROFILE_BUTTON_PRESSED__">
-          <span class="home-topbar__mini-badge home-topbar__mini-badge--level" data-topbar-level>__PLAYER_LEVEL_LABEL__</span>
           <span class="home-topbar__mini-content">
             <svg class="home-icon home-icon--medium">
               <use href="#icon-user"></use>

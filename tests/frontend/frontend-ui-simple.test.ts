@@ -7,6 +7,7 @@ import { createMenuFooterBar } from '../../app/frontend/layout/menu/createMenuFo
 import { createMenuNavbar } from '../../app/frontend/layout/menu/createMenuNavbar';
 import { createMenuShell } from '../../app/frontend/layout/menu/createMenuShell';
 import { createAppRouter } from '../../app/frontend/navigation/app-router';
+import { createLauncherHistory } from '../../app/frontend/navigation/launcher-history';
 import { createExitModal } from '../../app/frontend/components/exit-modal';
 import { createBootScreen } from '../../app/frontend/screens/boot/boot-screen';
 import { createGameScreen } from '../../app/game/shell/game-screen';
@@ -38,11 +39,18 @@ describe('frontend simple ui modules', () => {
     const shell = createApplicationShell(host);
     const page = document.createElement('div');
     page.textContent = 'page';
+    const overlay = document.createElement('div');
+    overlay.textContent = 'overlay';
 
     shell.setPage(page);
+    shell.setOverlay(overlay);
 
     expect(shell.interactiveLayer).toBeInstanceOf(HTMLElement);
     expect(host.textContent).toContain('page');
+    expect(host.textContent).toContain('overlay');
+
+    shell.setOverlay(null);
+    expect(host.textContent).not.toContain('overlay');
   });
 
   it('throws when the application shell structure is incomplete', async () => {
@@ -63,12 +71,25 @@ describe('frontend simple ui modules', () => {
     const navbar = createMenuNavbar({
       activeView: 'profile',
       brandImage: '/brand.png',
+      canGoBack: true,
+      canGoForward: false,
       i18n,
+      isSettingsOpen: true,
     });
     expect(navbar.textContent).toContain(i18n.getMessages().menu.topbar.tabs.system);
     expect(navbar.querySelector('[data-action="show-profile-page"]')?.getAttribute('aria-pressed')).toBe(
       'true',
     );
+    expect(
+      navbar.querySelector('[data-action="navigate-history-back"]')?.hasAttribute('disabled'),
+    ).toBe(false);
+    expect(
+      navbar.querySelector('[data-action="navigate-history-forward"]')?.hasAttribute('disabled'),
+    ).toBe(true);
+    expect(navbar.querySelector('[data-action="open-settings-modal"]')?.getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+    expect(navbar.querySelector('[data-topbar-level]')).toBeNull();
 
     const footer = createMenuFooterBar({
       i18n,
@@ -80,8 +101,11 @@ describe('frontend simple ui modules', () => {
     const shell = createMenuShell({
       activeView: 'home',
       brandImage: '/brand.png',
+      canGoBack: false,
+      canGoForward: true,
       content,
       i18n,
+      isSettingsOpen: false,
       musicMuted: false,
     });
     expect(shell.textContent).toContain('content');
@@ -90,8 +114,11 @@ describe('frontend simple ui modules', () => {
     const profileShell = createMenuShell({
       activeView: 'profile',
       brandImage: '/brand.png',
+      canGoBack: true,
+      canGoForward: false,
       content: document.createElement('div'),
       i18n,
+      isSettingsOpen: false,
       musicMuted: false,
     });
     expect(profileShell.querySelector('[data-action="toggle-music-mute"]')).toBeNull();
@@ -126,8 +153,11 @@ describe('frontend simple ui modules', () => {
       createBrokenMenuShell({
         activeView: 'home',
         brandImage: '/brand.png',
+        canGoBack: false,
+        canGoForward: false,
         content: document.createElement('div'),
         i18n: createTestI18n('en'),
+        isSettingsOpen: false,
         musicMuted: false,
       }),
     ).toThrow('Menu shell frame could not be initialized.');
@@ -290,8 +320,11 @@ describe('frontend simple ui modules', () => {
     expect(host.querySelector('[data-login-form]')).not.toBeNull();
 
     router.showMenu({
+      canGoBack: false,
+      canGoForward: false,
       desktop: createDesktopBridgeMock(),
       i18n,
+      isSettingsOpen: false,
       musicMuted: false,
       profileStore: {
         getSnapshot: vi.fn(() => null),
@@ -307,5 +340,59 @@ describe('frontend simple ui modules', () => {
       user: createTestUser(),
     });
     expect(host.textContent).toContain(createTestUser().email);
+  });
+
+  it('tracks launcher navigation history like a browser stack', () => {
+    const history = createLauncherHistory({
+      compare: (left, right) => left.view === right.view && left.target === right.target,
+      initial: {
+        target: null as string | null,
+        view: 'home',
+      },
+    });
+
+    history.push({
+      target: null,
+      view: 'players',
+    });
+    history.push({
+      target: 'player.one',
+      view: 'profile',
+    });
+
+    expect(history.getSnapshot()).toMatchObject({
+      canGoBack: true,
+      canGoForward: false,
+      index: 2,
+    });
+    expect(history.back()).toMatchObject({
+      target: null,
+      view: 'players',
+    });
+    expect(history.getSnapshot()).toMatchObject({
+      canGoBack: true,
+      canGoForward: true,
+      index: 1,
+    });
+    expect(history.forward()).toMatchObject({
+      target: 'player.one',
+      view: 'profile',
+    });
+
+    history.back();
+    history.push({
+      target: null,
+      view: 'system',
+    });
+
+    expect(history.getSnapshot()).toMatchObject({
+      canGoBack: true,
+      canGoForward: false,
+      current: {
+        target: null,
+        view: 'system',
+      },
+      index: 2,
+    });
   });
 });
