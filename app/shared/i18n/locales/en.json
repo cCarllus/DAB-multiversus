@@ -275,6 +275,12 @@
         "summary": "Balance the soundtrack and interface impact without leaving the launcher.",
         "headerMusicLabel": "Music",
         "headerSfxLabel": "SFX",
+        "musicToggle": {
+          "label": "Launcher music",
+          "description": "Mute or restore the menu soundtrack without leaving settings.",
+          "enabled": "Live",
+          "disabled": "Muted"
+        },
         "musicVolume": {
           "label": "Music volume",
           "description": "Controls the ambient menu score."
@@ -586,7 +592,7 @@
       "nameEditor": {
         "label": "Player Identity",
         "edit": "Edit profile",
-        "hint": "Display name shown beneath your battle alias across the launcher.",
+        "hint": "Your nickname appears beneath your display name across the launcher interface.",
         "inputLabel": "Display name",
         "save": "Save name",
         "saving": "Saving...",

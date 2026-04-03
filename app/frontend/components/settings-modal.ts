@@ -17,6 +17,7 @@ export interface LauncherDisplayProfile {
 export interface LauncherSettingsSnapshot {
   activeCategory: SettingsCategory;
   audio: {
+    musicMuted: boolean;
     musicVolume: number;
     soundVolume: number;
   };
@@ -42,6 +43,7 @@ export interface CreateSettingsModalOptions {
   i18n: AppI18n;
   onClose: () => void;
   onDeleteAccount: () => Promise<SettingsActionResult | void> | SettingsActionResult | void;
+  onToggleMusicMute: () => boolean;
   onMusicVolumeChange: (volume: number) => void;
   onPersistCategory: (category: SettingsCategory) => void;
   onResolutionChange: (
@@ -122,6 +124,7 @@ function updateSliderVisual(input: HTMLInputElement, valueElement: HTMLElement):
 export function createSettingsModal(options: CreateSettingsModalOptions): HTMLElement {
   const messages = options.i18n.getMessages().menu.settings;
   let activeCategory = options.settings.activeCategory;
+  let musicMuted = options.settings.audio.musicMuted;
   let musicVolume = clampVolume(options.settings.audio.musicVolume);
   let soundVolume = clampVolume(options.settings.audio.soundVolume);
   let fullscreenEnabled = options.settings.video.fullscreenEnabled;
@@ -481,8 +484,33 @@ export function createSettingsModal(options: CreateSettingsModalOptions): HTMLEl
 
   const buildAudioPanel = (): HTMLElement => {
     const section = createElement('section', 'settings-modal__panel-section');
+    const musicToggleCard = buildSettingCard(
+      messages.audio.musicToggle.label,
+      messages.audio.musicToggle.description,
+    );
+    const musicToggleWrap = createElement('div', 'settings-modal__toggle-wrap');
+    const musicToggleState = createElement('span', 'settings-modal__toggle-state');
+    musicToggleState.dataset.state = musicMuted ? 'off' : 'on';
+    musicToggleState.textContent = musicMuted
+      ? messages.audio.musicToggle.disabled
+      : messages.audio.musicToggle.enabled;
+
+    const musicToggleButton = createElement('button', 'settings-modal__toggle');
+    musicToggleButton.type = 'button';
+    musicToggleButton.dataset.state = musicMuted ? 'off' : 'on';
+    musicToggleButton.setAttribute('aria-pressed', String(!musicMuted));
+    const musicToggleKnob = createElement('span', 'settings-modal__toggle-knob');
+    musicToggleButton.append(musicToggleKnob);
+    musicToggleButton.addEventListener('click', () => {
+      musicMuted = options.onToggleMusicMute();
+      renderActivePanel();
+    });
+
+    musicToggleWrap.append(musicToggleState, musicToggleButton);
+    musicToggleCard.append(musicToggleWrap);
 
     section.append(
+      musicToggleCard,
       buildAudioSlider(
         messages.audio.musicVolume.label,
         messages.audio.musicVolume.description,

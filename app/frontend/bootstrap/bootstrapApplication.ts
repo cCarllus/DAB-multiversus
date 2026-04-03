@@ -229,6 +229,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   let settingsState: LauncherSettingsState = {
     activeCategory: 'video',
     audio: {
+      musicMuted: audio.isMusicMuted(),
       musicVolume: audio.getMusicVolume(),
       soundVolume: audio.getSoundVolume(),
     },
@@ -325,6 +326,7 @@ export function bootstrapApplication(host: HTMLElement): void {
   const buildSettingsSnapshot = (): LauncherSettingsSnapshot => ({
     activeCategory: settingsState.activeCategory,
     audio: {
+      musicMuted: settingsState.audio.musicMuted,
       musicVolume: settingsState.audio.musicVolume,
       soundVolume: settingsState.audio.soundVolume,
     },
@@ -360,6 +362,19 @@ export function bootstrapApplication(host: HTMLElement): void {
           message: i18n.t('menu.settings.feedback.deleteUnavailable'),
           tone: 'warning',
         }),
+        onToggleMusicMute: () => {
+          const nextMuted = audio.toggleMusicMute();
+
+          settingsState = {
+            ...settingsState,
+            audio: {
+              ...settingsState.audio,
+              musicMuted: nextMuted,
+            },
+          };
+
+          return nextMuted;
+        },
         onMusicVolumeChange: (volume) => {
           const nextVolume = audio.setMusicVolume(volume);
 
@@ -367,6 +382,7 @@ export function bootstrapApplication(host: HTMLElement): void {
             ...settingsState,
             audio: {
               ...settingsState.audio,
+              musicMuted: audio.isMusicMuted(),
               musicVolume: nextVolume,
             },
           };

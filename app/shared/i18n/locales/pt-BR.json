@@ -275,6 +275,12 @@
         "summary": "Equilibre a trilha do menu e o impacto da interface sem sair do launcher.",
         "headerMusicLabel": "Música",
         "headerSfxLabel": "Efeitos",
+        "musicToggle": {
+          "label": "Música do launcher",
+          "description": "Mute ou reative a trilha do menu sem sair das configurações.",
+          "enabled": "Ativada",
+          "disabled": "Mutada"
+        },
         "musicVolume": {
           "label": "Volume da música",
           "description": "Controla a trilha ambiente do menu."
@@ -586,7 +592,7 @@
       "nameEditor": {
         "label": "Identidade do Jogador",
         "edit": "Editar perfil",
-        "hint": "Nome de exibição mostrado abaixo do seu alias de batalha em todo o launcher.",
+        "hint": "O nickname aparece abaixo do seu nome de exibição em toda a interface do launcher.",
         "inputLabel": "Nome de exibição",
         "save": "Salvar nome",
         "saving": "Salvando...",

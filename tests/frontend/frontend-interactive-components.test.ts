@@ -193,7 +193,7 @@ describe('frontend interactive components', () => {
     const displayName = editor.element.querySelector<HTMLElement>('[data-name-value]')!;
 
     expect(view.hidden).toBe(false);
-    expect(nickname.textContent).toBe('player.one');
+    expect(nickname.textContent).toBe('@player.one');
     expect(displayName.textContent).toBe('Player One');
     expect(editor.element.querySelector('[data-name-edit]')).toBeNull();
     expect(editor.element.querySelector('[data-name-form]')).toBeNull();
@@ -207,7 +207,7 @@ describe('frontend interactive components', () => {
       }),
     );
     expect(displayName.textContent).toBe('Not set');
-    expect(nickname.textContent).toBe('teste');
+    expect(nickname.textContent).toBe('@teste');
   });
 
   it('throws when the profile name editor or profile header structure is incomplete', async () => {
@@ -392,6 +392,7 @@ describe('frontend interactive components', () => {
       message: 'Delete unavailable',
       tone: 'warning' as const,
     }));
+    const onToggleMusicMute = vi.fn(() => true);
     const onMusicVolumeChange = vi.fn();
     const onPersistCategory = vi.fn();
     const onResolutionChange = vi.fn(() => ({
@@ -426,6 +427,7 @@ describe('frontend interactive components', () => {
       i18n: createTestI18n('en'),
       onClose,
       onDeleteAccount,
+      onToggleMusicMute,
       onMusicVolumeChange,
       onPersistCategory,
       onResolutionChange,
@@ -437,6 +439,7 @@ describe('frontend interactive components', () => {
       settings: {
         activeCategory: 'video',
         audio: {
+          musicMuted: false,
           musicVolume: 0.5,
           soundVolume: 0.8,
         },
@@ -486,6 +489,10 @@ describe('frontend interactive components', () => {
     )!;
     audioTab.click();
     expect(onPersistCategory).toHaveBeenCalledWith('audio');
+    const audioToggle = modal.querySelector<HTMLButtonElement>('.settings-modal__toggle')!;
+    audioToggle.click();
+    expect(onToggleMusicMute).toHaveBeenCalled();
+    expect(modal.textContent).toContain('Muted');
     const sliders = modal.querySelectorAll<HTMLInputElement>('.settings-modal__slider');
     sliders[0]!.value = '64';
     sliders[0]!.dispatchEvent(new Event('input'));

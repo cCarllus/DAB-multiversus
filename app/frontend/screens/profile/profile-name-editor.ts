@@ -42,7 +42,7 @@ export function createProfileNameEditor(
       view.hidden = false;
       view.style.display = '';
       value.textContent = profile.name || messages.fallbackUsername;
-      nickname.textContent = profile.nickname;
+      nickname.textContent = profile.nickname ? `@${profile.nickname}` : '';
     },
   };
 }

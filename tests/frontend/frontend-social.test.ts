@@ -776,7 +776,6 @@ describe('frontend social ui', () => {
     await flushPromises();
 
     expect(selectProfile).toHaveBeenCalledWith('kael');
-    expect(screen.textContent).toContain('Display Name');
     expect(screen.textContent).toContain('Kael');
     expect(screen.textContent).toContain('@kael');
     expect(screen.textContent).toContain('In Match');

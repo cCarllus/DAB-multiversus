@@ -155,7 +155,6 @@ function createPublicProfileScreen(
   const publicProfile = createElementFromTemplate(publicProfileTemplate);
   const avatar = publicProfile.querySelector<HTMLImageElement>('[data-public-avatar]');
   const nickname = publicProfile.querySelector<HTMLElement>('[data-public-nickname]');
-  const displayLabel = publicProfile.querySelector<HTMLElement>('[data-public-display-label]');
   const displayName = publicProfile.querySelector<HTMLElement>('[data-public-display-name]');
   const status = publicProfile.querySelector<HTMLElement>('[data-public-status]');
   const statusBadge = publicProfile.querySelector<HTMLElement>('[data-public-status-badge]');
@@ -178,7 +177,6 @@ function createPublicProfileScreen(
   if (
     !avatar ||
     !nickname ||
-    !displayLabel ||
     !displayName ||
     !status ||
     !statusBadge ||
@@ -201,7 +199,6 @@ function createPublicProfileScreen(
 
   memberLabel.textContent = options.i18n.t('menu.profile.hero.memberSince');
   userIdLabel.textContent = options.i18n.t('menu.profile.hero.userId');
-  displayLabel.textContent = options.i18n.t('menu.profile.publicDisplayNameLabel');
   activityLabel.textContent = options.i18n.t('menu.social.profile.currentActivity');
   relationshipLabel.textContent = options.i18n.t('menu.social.directory.relationshipFilter');
   eyebrow.textContent = options.i18n.t('menu.social.profile.eyebrow');
@@ -246,8 +243,8 @@ function createPublicProfileScreen(
     const action = resolveProfileAction(snapshotProfile, options.i18n);
     avatar.src = createSocialAvatar(snapshotProfile);
     avatar.alt = snapshotProfile.nickname;
-    nickname.textContent = snapshotProfile.nickname;
     displayName.textContent = snapshotProfile.name || options.i18n.t('menu.profile.fallbackUsername');
+    nickname.textContent = `@${snapshotProfile.nickname}`;
     status.textContent = resolvePresenceStatusLabel(snapshotProfile, options.i18n);
     statusBadge.dataset.tone = resolvePresenceTone(snapshotProfile).replace('is-', '');
     summary.textContent = snapshotProfile.presence.currentActivity?.trim()

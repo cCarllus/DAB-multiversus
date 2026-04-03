@@ -96,7 +96,7 @@ describe('frontend simple ui modules', () => {
       musicMuted: true,
     });
     expect(footer.textContent).toContain(i18n.getMessages().menu.footer.play);
-    expect(footer.innerHTML).toContain('icon-mic-off');
+    expect(footer.querySelector('[data-action="toggle-music-mute"]')).toBeNull();
 
     const shell = createMenuShell({
       activeView: 'home',
@@ -109,7 +109,8 @@ describe('frontend simple ui modules', () => {
       musicMuted: false,
     });
     expect(shell.textContent).toContain('content');
-    expect(shell.querySelector('[data-action="toggle-music-mute"]')).not.toBeNull();
+    expect(shell.querySelector('[data-action="toggle-music-mute"]')).toBeNull();
+    expect(shell.querySelector('[data-action="play-now"]')).not.toBeNull();
 
     const profileShell = createMenuShell({
       activeView: 'profile',
