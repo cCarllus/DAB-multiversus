@@ -44,7 +44,7 @@ describe('backend catalog sync service', () => {
         category: 'strength',
         costMana: 4,
         fullLore: 'Lore',
-        imageUrl: '/uploads/characters/strength-portrait.svg',
+        imageUrl: '/assets/game/characters/strength-portrait.svg',
         isActive: true,
         isDefaultUnlocked: false,
         name: 'New Hero',
@@ -93,7 +93,7 @@ describe('backend catalog sync service', () => {
         category: 'strength',
         costMana: 6,
         fullLore: 'Updated lore',
-        imageUrl: '/uploads/characters/strength-portrait.svg',
+        imageUrl: '/assets/game/characters/strength-portrait.svg',
         isActive: true,
         isDefaultUnlocked: false,
         name: 'Existing Hero',
@@ -130,7 +130,7 @@ describe('backend catalog sync service', () => {
         category: 'strength',
         costMana: 4,
         fullLore: 'Lore',
-        imageUrl: '/uploads/characters/strength-portrait.svg',
+        imageUrl: '/assets/game/characters/strength-portrait.svg',
         isActive: true,
         isDefaultUnlocked: false,
         name: 'Existing Hero',
@@ -171,7 +171,7 @@ describe('backend catalog sync service', () => {
         category: 'strength',
         costMana: 4,
         fullLore: 'Lore',
-        imageUrl: '/uploads/characters/strength-portrait.svg',
+        imageUrl: '/assets/game/characters/strength-portrait.svg',
         isActive: true,
         isDefaultUnlocked: false,
         name: 'Existing Hero',
@@ -209,7 +209,7 @@ describe('backend catalog sync service', () => {
         category: 'invalid-category',
         costMana: 4,
         fullLore: 'Lore',
-        imageUrl: '/uploads/characters/strength-portrait.svg',
+        imageUrl: '/assets/game/characters/strength-portrait.svg',
         isActive: true,
         isDefaultUnlocked: false,
         name: 'Broken Hero',
@@ -243,7 +243,7 @@ describe('backend catalog sync service', () => {
         category: 'strength',
         costMana: 4,
         fullLore: 'Lore',
-        imageUrl: '/uploads/characters/strength-portrait.svg',
+        imageUrl: '/assets/game/characters/strength-portrait.svg',
         isActive: true,
         isDefaultUnlocked: false,
         name: 'Hero One',
@@ -258,7 +258,7 @@ describe('backend catalog sync service', () => {
         category: 'agility',
         costMana: 3,
         fullLore: 'Lore',
-        imageUrl: '/uploads/characters/agility-portrait.svg',
+        imageUrl: '/assets/game/characters/agility-portrait.svg',
         isActive: true,
         isDefaultUnlocked: false,
         name: 'Hero Two',
@@ -295,6 +295,28 @@ describe('backend catalog sync service', () => {
     });
 
     await expect(invalidImageService.syncCatalog()).rejects.toThrow(/imageUrl/);
+
+    const deprecatedPathService = new CatalogSyncService(charactersRepository as never, {
+      seedEntries: [
+      {
+        category: 'strength',
+        costMana: 4,
+        fullLore: 'Lore',
+        imageUrl: '/uploads/characters/strength-portrait.svg',
+        isActive: true,
+        isDefaultUnlocked: false,
+        name: 'Hero Four',
+        rarity: 'rare',
+        releaseOrder: 1,
+        shortDescription: 'Desc',
+        shortLore: 'Lore',
+        slug: 'hero-four',
+        unlockPriceShards: 100,
+      },
+      ],
+    });
+
+    await expect(deprecatedPathService.syncCatalog()).rejects.toThrow(/imageUrl/);
   });
 
   it('ensures default unlocked ownerships for existing users during sync', async () => {
@@ -324,7 +346,7 @@ describe('backend catalog sync service', () => {
           category: 'strength',
           costMana: 4,
           fullLore: 'Lore',
-          imageUrl: '/uploads/characters/strength-portrait.svg',
+          imageUrl: '/assets/game/characters/strength-portrait.svg',
           isActive: true,
           isDefaultUnlocked: true,
           name: 'Default Hero',

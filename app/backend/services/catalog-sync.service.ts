@@ -14,7 +14,7 @@ import {
 } from '../../shared/contracts/cards.contract';
 import type { UpsertCharacterCatalogInput } from '../types/cards.types';
 
-const IMAGE_URL_PATTERN = /^\/uploads\/[a-z0-9/_-]+\.(png|jpg|jpeg|webp|svg)$/i;
+const IMAGE_URL_PATTERN = /^\/assets\/game\/[a-z0-9/_-]+\.(png|jpg|jpeg|webp|svg)$/i;
 
 const catalogSeedEntrySchema = z.object({
   category: z.enum(CHARACTER_CATEGORIES),
@@ -24,7 +24,7 @@ const catalogSeedEntrySchema = z.object({
     .string()
     .trim()
     .min(1)
-    .regex(IMAGE_URL_PATTERN, 'imageUrl must point to /uploads/... with a valid image extension.')
+    .regex(IMAGE_URL_PATTERN, 'imageUrl must point to /assets/game/... with a valid image extension.')
     .nullable(),
   isActive: z.boolean(),
   isDefaultUnlocked: z.boolean(),
@@ -197,7 +197,7 @@ export class CatalogSyncService {
     entries: UpsertCharacterCatalogInput[],
     options: Pick<CatalogSyncOptions, 'assetRootDir'>,
   ): string[] {
-    const assetRootDir = options.assetRootDir ?? path.resolve(process.cwd(), 'storage');
+    const assetRootDir = options.assetRootDir ?? path.resolve(process.cwd());
     const warnings: string[] = [];
 
     for (const entry of entries) {

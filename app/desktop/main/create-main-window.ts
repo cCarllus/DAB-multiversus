@@ -8,7 +8,7 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 function resolveRuntimeIconPath(): string {
   if (VITE_DEV_SERVER_URL) {
-    return join(process.cwd(), 'app/frontend/assets/images/ui/icons/icon-desktop-game.png');
+    return join(process.cwd(), 'assets/desktop/icons/icon-desktop-game.png');
   }
 
   return join(process.resourcesPath, 'icons/icon-desktop-game.png');

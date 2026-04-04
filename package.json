@@ -41,7 +41,7 @@
     "asar": true,
     "extraResources": [
       {
-        "from": "app/frontend/assets/images/ui/icons/icon-desktop-game.png",
+        "from": "assets/desktop/icons/icon-desktop-game.png",
         "to": "icons/icon-desktop-game.png"
       }
     ],
@@ -51,20 +51,20 @@
       "package.json"
     ],
     "directories": {
-      "buildResources": "config/electron/build-resources",
+      "buildResources": "assets/desktop/build-resources",
       "output": "release"
     },
     "mac": {
       "category": "public.app-category.games",
-      "icon": "config/electron/build-resources/icon-desktop-game.icns",
+      "icon": "assets/desktop/build-resources/icon-desktop-game.icns",
       "target": "dmg"
     },
     "win": {
-      "icon": "config/electron/build-resources/icon-desktop-game.ico",
+      "icon": "assets/desktop/build-resources/icon-desktop-game.ico",
       "target": "nsis"
     },
     "linux": {
-      "icon": "config/electron/build-resources/icon-desktop-game.png",
+      "icon": "assets/desktop/build-resources/icon-desktop-game.png",
       "target": "AppImage"
     }
   },

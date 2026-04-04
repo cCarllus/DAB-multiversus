@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 1024" fill="none">
+  <defs>
+    <linearGradient id="agility-bg" x1="92" y1="68" x2="684" y2="954" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B3C2E" />
+      <stop offset="0.52" stop-color="#082019" />
+      <stop offset="1" stop-color="#040607" />
+    </linearGradient>
+    <radialGradient id="agility-core" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(384 334) rotate(90) scale(312 248)">
+      <stop stop-color="#78E2AF" stop-opacity="0.7" />
+      <stop offset="1" stop-color="#78E2AF" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="768" height="1024" rx="40" fill="url(#agility-bg)" />
+  <rect x="28" y="28" width="712" height="968" rx="28" stroke="rgba(255,255,255,0.14)" />
+  <circle cx="384" cy="334" r="312" fill="url(#agility-core)" />
+  <path d="M250 700L452 278H530L344 700H250ZM226 746H542V814H226V746Z" fill="#F3E9D7" fill-opacity="0.92"/>
+  <path d="M210 820C254 768 312 742 384 742C456 742 514 768 558 820" stroke="#2F7FA8" stroke-opacity="0.88" stroke-width="14" stroke-linecap="round"/>
+  <text x="384" y="888" fill="#F3E9D7" font-family="Rajdhani, sans-serif" font-size="44" font-weight="700" letter-spacing="12" text-anchor="middle">AGILITY</text>
+</svg>
