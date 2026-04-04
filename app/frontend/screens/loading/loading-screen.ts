@@ -1,5 +1,5 @@
 import { createElementFromTemplate } from '@frontend/lib/html';
-import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
+import titleGameNameImage from '@assets/shared/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
 
 import loadingScreenTemplate from './loading-screen.html?raw';

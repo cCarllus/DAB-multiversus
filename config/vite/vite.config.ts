@@ -25,7 +25,7 @@ export default defineConfig({
       '@game': path.resolve(projectRoot, 'app/game'),
       '@shared': path.resolve(projectRoot, 'app/shared'),
       '@desktop': path.resolve(projectRoot, 'app/desktop'),
-      '@assets': path.resolve(projectRoot, 'app/frontend/assets'),
+      '@assets': path.resolve(projectRoot, 'assets'),
     },
   },
   build: {

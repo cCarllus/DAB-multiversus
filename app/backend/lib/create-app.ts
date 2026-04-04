@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express, { type Router } from 'express';
+import path from 'node:path';
 
 import { env } from '../../../config/env/backend-env';
 import { AppError } from './app-error';
@@ -50,6 +51,7 @@ export function createApp(options: CreateAppOptions) {
   );
 
   app.use(express.json({ limit: '6mb' }));
+  app.use('/assets', express.static(path.resolve(process.cwd(), 'assets')));
   app.use('/uploads', express.static(PROFILE_UPLOADS_ROOT));
 
   app.get('/health', (_request, response) => {

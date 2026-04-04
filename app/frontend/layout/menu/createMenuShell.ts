@@ -7,7 +7,7 @@ import type { AppI18n } from '@shared/i18n';
 
 import { createMenuFooterBar } from './createMenuFooterBar';
 import { createMenuNavbar } from './createMenuNavbar';
-import menuBackgroundImage from '@assets/images/ui/backgrounds/background-image-menu.webp';
+import menuBackgroundImage from '@assets/shared/images/backgrounds/background-image-menu.webp';
 
 import menuShellTemplate from './menu-shell.html?raw';
 

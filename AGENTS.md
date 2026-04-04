@@ -30,9 +30,15 @@ app/
   backend/      → Node.js API
   shared/       → shared types/contracts
 
+assets/         → official project assets (versioned in Git)
+  shared/       → branding, icons, fonts used by multiple layers
+  frontend/     → launcher-only images, audio, video
+  game/         → character art, card images, HUD, game audio
+  desktop/      → Electron build resources, app icons
+
 config/         → project configuration
 db/             → database schema/migrations
-storage/        → uploads/files
+storage/        → local runtime files only (git-ignored)
 tests/          → automated tests
 scripts/        → automation scripts
 
@@ -106,14 +112,19 @@ RULES:
 
 5. STORAGE
 → MUST live in: storage/
+→ Local runtime only — NEVER committed to Git
 
 Includes:
-- uploads (images, avatars, assets)
+- uploads/avatars (user-uploaded avatars)
 - cache
 - logs
 
 DO NOT:
 - store binary data inside database
+- store official project assets here (they will be git-ignored)
+
+NOTE: storage/uploads/characters/ is intentionally empty.
+Character portraits live in assets/game/characters/ (versioned).
 
 ----------------------------------------------------
 
@@ -172,6 +183,37 @@ If NOT:
 → MOVE IT
 
 Never leave code in the wrong place "temporarily".
+
+====================================================
+9. ASSETS (OFFICIAL / VERSIONED)
+====================================================
+
+→ MUST live in: assets/
+→ ALWAYS committed to Git
+
+Structure:
+  assets/shared/    → branding, icons, fonts used by 2+ layers
+  assets/frontend/  → launcher-only images, audio, video
+  assets/game/      → character portraits, card art, HUD, game audio
+  assets/desktop/   → Electron build resources, app icons
+
+RULES:
+- Fixed official content MUST live in assets/ (versioned in Git)
+- User uploads MUST go to storage/ (dev) or Cloudinary (production)
+- NEVER put official assets in storage/ — they will be git-ignored
+- NEVER put user uploads in assets/
+- Character/card images → assets/game/characters/
+- Shared branding, logo, fonts → assets/shared/
+- Future Cloudinary uploads → NOT assets/, NOT storage/
+
+Vite alias: @assets → root assets/ directory
+Backend: official assets served at /assets (Express static)
+Avatars: user uploads served at /uploads (Express static, from storage/)
+
+DO NOT:
+- create assets/backend/ (no backend-only assets exist)
+- mix upload logic with official asset logic
+- leave official game art in git-ignored folders
 
 ====================================================
 FILE CREATION RULE

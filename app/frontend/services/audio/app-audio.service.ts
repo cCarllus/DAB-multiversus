@@ -1,9 +1,9 @@
 import { STORAGE_KEYS } from '@shared/constants/storage-keys';
 import type { AudioChannel, TransitionCueId, UiCueId } from '@shared/types/audio.types';
-import menuBackgroundSoundUrl from '@assets/audio/menu/default_background_sound.ogg';
-import confirmButtonsSoundUrl from '@assets/audio/ui/confirm-buttons-sound.ogg';
-import mouseClickSoundUrl from '@assets/audio/ui/mouse-click-sound.ogg';
-import mouseHoverSoundUrl from '@assets/audio/ui/mouse-hover-sound.ogg';
+import menuBackgroundSoundUrl from '@assets/frontend/audio/menu/default_background_sound.ogg';
+import confirmButtonsSoundUrl from '@assets/frontend/audio/ui/confirm-buttons-sound.ogg';
+import mouseClickSoundUrl from '@assets/frontend/audio/ui/mouse-click-sound.ogg';
+import mouseHoverSoundUrl from '@assets/frontend/audio/ui/mouse-hover-sound.ogg';
 
 const INTERACTIVE_SELECTOR = 'button, [data-action], a[href]';
 const DEFAULT_MUSIC_VOLUME = 0.5;
