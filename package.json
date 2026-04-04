@@ -21,6 +21,7 @@
     "build:electron": "tsc -p tsconfig.electron.json",
     "build:backend": "tsc -p tsconfig.backend.json",
     "start:backend": "node dist-backend/app/backend/index.js",
+    "catalog:sync": "tsx --tsconfig tsconfig.backend.json app/backend/scripts/catalog-sync.ts",
     "seed:social-demo": "tsx --tsconfig tsconfig.backend.json app/backend/scripts/seed-social-demo.ts",
     "preview": "vite preview",
     "lint": "eslint .",

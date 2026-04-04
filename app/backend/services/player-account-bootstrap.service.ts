@@ -17,7 +17,6 @@ export class PlayerAccountBootstrapService {
   async initializeNewAccount(userId: string, client: DatabaseClient): Promise<void> {
     await this.progressionService.ensureProgression(userId, client);
     await this.walletService.ensureWallet(userId, client);
-    await this.charactersService?.ensureCatalogSeeded(client);
     await this.charactersService?.ensureDefaultUnlockedCharacters(userId, client);
     await this.deckService?.ensureActiveDeck(userId, client);
     await this.notificationsService.createNotification(

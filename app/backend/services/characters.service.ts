@@ -1,7 +1,5 @@
-import characterCatalogSeed from '../content/character-catalog.seed.json';
 import {
   ACTIVE_DECK_MAX_SLOTS,
-  type CharacterCatalogEntry,
   type CharacterCatalogResponse,
   type CharacterDetailResponse,
   type UnlockCharacterResponse,
@@ -11,38 +9,20 @@ import { AppError } from '../lib/app-error';
 import { DeckRepository } from '../repositories/deck.repository';
 import { CharactersRepository } from '../repositories/characters.repository';
 import { UserCharactersRepository } from '../repositories/user-characters.repository';
-import { WalletService } from './wallet.service';
 import { mapCharacterCatalogEntry } from './characters-mapper';
-import type { UpsertCharacterCatalogInput } from '../types/cards.types';
+import { WalletService } from './wallet.service';
 
-const CHARACTER_CATALOG_SEED = characterCatalogSeed as UpsertCharacterCatalogInput[];
+interface CharacterLookupOptions {
+  includeInactive?: boolean;
+}
 
 export class CharactersService {
-  private catalogSeeded = false;
-
   constructor(
     private readonly charactersRepository: CharactersRepository,
     private readonly userCharactersRepository: UserCharactersRepository,
     private readonly deckRepository: DeckRepository,
     private readonly walletService: WalletService,
   ) {}
-
-  async ensureCatalogSeeded(client?: DatabaseClient): Promise<void> {
-    if (this.catalogSeeded) {
-      return;
-    }
-
-    if (client) {
-      await this.seedCatalog(client);
-      this.catalogSeeded = true;
-      return;
-    }
-
-    await withTransaction(async (transactionClient) => {
-      await this.seedCatalog(transactionClient);
-    });
-    this.catalogSeeded = true;
-  }
 
   async ensureDefaultUnlockedCharacters(userId: string, client: DatabaseClient): Promise<void> {
     const defaultCharacters = await this.charactersRepository.listDefaultUnlocked(client);
@@ -53,13 +33,14 @@ export class CharactersService {
     );
   }
 
-  async getCatalog(userId: string): Promise<CharacterCatalogResponse> {
+  async getCatalog(
+    userId: string,
+    options: CharacterLookupOptions = {},
+  ): Promise<CharacterCatalogResponse> {
     return withTransaction(async (client) => {
-      await this.ensureCatalogSeeded(client);
-      await this.ensureDefaultUnlockedCharacters(userId, client);
-
+      const includeInactive = options.includeInactive ?? false;
       const [characters, ownedCharacters, activeDeck] = await Promise.all([
-        this.charactersRepository.listAll(client),
+        this.charactersRepository.listAll(client, { includeInactive }),
         this.userCharactersRepository.listByUserId(userId, client),
         this.deckRepository.findActiveByUserId(userId, client),
       ]);
@@ -83,12 +64,15 @@ export class CharactersService {
     });
   }
 
-  async getCharacterBySlug(userId: string, slug: string): Promise<CharacterDetailResponse> {
+  async getCharacterBySlug(
+    userId: string,
+    slug: string,
+    options: CharacterLookupOptions = {},
+  ): Promise<CharacterDetailResponse> {
     return withTransaction(async (client) => {
-      await this.ensureCatalogSeeded(client);
-      await this.ensureDefaultUnlockedCharacters(userId, client);
-
-      const character = await this.charactersRepository.findBySlug(slug, client);
+      const character = await this.charactersRepository.findBySlug(slug, client, {
+        includeInactive: options.includeInactive ?? false,
+      });
 
       if (!character) {
         throw new AppError(404, 'CHARACTER_NOT_FOUND', 'Character could not be found.');
@@ -112,11 +96,9 @@ export class CharactersService {
 
   async unlockCharacter(userId: string, characterId: string): Promise<UnlockCharacterResponse> {
     return withTransaction(async (client) => {
-      await this.ensureCatalogSeeded(client);
-      await this.ensureDefaultUnlockedCharacters(userId, client);
-
       const character = await this.charactersRepository.findById(characterId, client, {
         forUpdate: true,
+        includeInactive: true,
       });
 
       if (!character) {
@@ -148,8 +130,8 @@ export class CharactersService {
           reason: 'character_unlock',
           metadataJson: {
             characterId: character.id,
-            characterSlug: character.slug,
             characterName: character.name,
+            characterSlug: character.slug,
           },
         },
         client,
@@ -169,11 +151,5 @@ export class CharactersService {
         wallet: walletResult.wallet,
       };
     });
-  }
-
-  private async seedCatalog(client: DatabaseClient): Promise<void> {
-    for (const character of CHARACTER_CATALOG_SEED) {
-      await this.charactersRepository.upsertCatalogEntry(character, client);
-    }
   }
 }

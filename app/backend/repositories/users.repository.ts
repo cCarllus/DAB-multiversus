@@ -30,6 +30,17 @@ function mapUserRow(row: UserRow): UserRecord {
 export class UsersRepository {
   constructor(private readonly database: DatabaseClient = dbPool) {}
 
+  async listIds(client?: DatabaseClient): Promise<string[]> {
+    const executor = client ?? this.database;
+    const result = await executor.query<{ id: string }>(
+      `SELECT id
+       FROM users
+       ORDER BY created_at ASC`,
+    );
+
+    return result.rows.map((row) => row.id);
+  }
+
   async findById(userId: string, client?: DatabaseClient): Promise<UserRecord | null> {
     const executor = client ?? this.database;
     const result = await executor.query<UserRow>(

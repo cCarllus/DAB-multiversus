@@ -447,9 +447,7 @@ describe('backend entrypoint', () => {
     }));
     vi.doMock('../../app/backend/services/characters.service', () => ({
       CharactersService: vi.fn(function MockCharactersService() {
-        return {
-          ensureCatalogSeeded: vi.fn(async () => undefined),
-        };
+        return {};
       }),
     }));
     vi.doMock('../../app/backend/services/deck.service', () => ({

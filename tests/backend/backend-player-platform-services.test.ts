@@ -461,7 +461,6 @@ describe('backend player platform services', () => {
       ensureWallet: vi.fn(async () => createWalletRecord()),
     };
     const charactersService = {
-      ensureCatalogSeeded: vi.fn(async () => undefined),
       ensureDefaultUnlockedCharacters: vi.fn(async () => undefined),
     };
     const deckService = {
@@ -485,7 +484,6 @@ describe('backend player platform services', () => {
       postgresState.client,
     );
     expect(walletService.ensureWallet).toHaveBeenCalledWith('user-1', postgresState.client);
-    expect(charactersService.ensureCatalogSeeded).toHaveBeenCalledWith(postgresState.client);
     expect(charactersService.ensureDefaultUnlockedCharacters).toHaveBeenCalledWith(
       'user-1',
       postgresState.client,

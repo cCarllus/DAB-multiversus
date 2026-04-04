@@ -133,8 +133,12 @@ export class CharactersRepository {
     return mapCharacterRow(result.rows[0]);
   }
 
-  async listAll(client?: DatabaseClient): Promise<CharacterRecord[]> {
+  async listAll(
+    client?: DatabaseClient,
+    options: { includeInactive?: boolean } = {},
+  ): Promise<CharacterRecord[]> {
     const executor = client ?? this.database;
+    const includeInactive = options.includeInactive ?? true;
     const result = await executor.query<CharacterRow>(
       `SELECT
          id,
@@ -154,6 +158,7 @@ export class CharactersRepository {
          created_at,
          updated_at
        FROM characters
+       ${includeInactive ? '' : 'WHERE is_active = TRUE'}
        ORDER BY is_active DESC, release_order ASC, created_at ASC`,
     );
 
@@ -224,9 +229,10 @@ export class CharactersRepository {
   async findById(
     characterId: string,
     client?: DatabaseClient,
-    options: { forUpdate?: boolean } = {},
+    options: { forUpdate?: boolean; includeInactive?: boolean } = {},
   ): Promise<CharacterRecord | null> {
     const executor = client ?? this.database;
+    const includeInactive = options.includeInactive ?? true;
     const result = await executor.query<CharacterRow>(
       `SELECT
          id,
@@ -247,6 +253,7 @@ export class CharactersRepository {
          updated_at
        FROM characters
        WHERE id = $1
+         ${includeInactive ? '' : 'AND is_active = TRUE'}
        LIMIT 1
        ${options.forUpdate ? 'FOR UPDATE' : ''}`,
       [characterId],
@@ -255,8 +262,13 @@ export class CharactersRepository {
     return result.rows[0] ? mapCharacterRow(result.rows[0]) : null;
   }
 
-  async findBySlug(slug: string, client?: DatabaseClient): Promise<CharacterRecord | null> {
+  async findBySlug(
+    slug: string,
+    client?: DatabaseClient,
+    options: { includeInactive?: boolean } = {},
+  ): Promise<CharacterRecord | null> {
     const executor = client ?? this.database;
+    const includeInactive = options.includeInactive ?? true;
     const result = await executor.query<CharacterRow>(
       `SELECT
          id,
@@ -277,10 +289,38 @@ export class CharactersRepository {
          updated_at
        FROM characters
        WHERE slug = $1
+         ${includeInactive ? '' : 'AND is_active = TRUE'}
        LIMIT 1`,
       [slug],
     );
 
     return result.rows[0] ? mapCharacterRow(result.rows[0]) : null;
+  }
+
+  async markMissingEntriesInactive(seedSlugs: string[], client?: DatabaseClient): Promise<number> {
+    const executor = client ?? this.database;
+    const result = await executor.query<{ id: string }>(
+      `UPDATE characters
+       SET is_active = FALSE,
+           updated_at = NOW()
+       WHERE NOT (slug = ANY($1::text[]))
+         AND is_active = TRUE
+       RETURNING id`,
+      [seedSlugs],
+    );
+
+    return result.rowCount ?? result.rows.length;
+  }
+
+  async hardDeleteMissingEntries(seedSlugs: string[], client?: DatabaseClient): Promise<number> {
+    const executor = client ?? this.database;
+    const result = await executor.query<{ id: string }>(
+      `DELETE FROM characters
+       WHERE NOT (slug = ANY($1::text[]))
+       RETURNING id`,
+      [seedSlugs],
+    );
+
+    return result.rowCount ?? result.rows.length;
   }
 }

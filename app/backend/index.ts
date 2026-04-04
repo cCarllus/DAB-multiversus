@@ -101,7 +101,6 @@ async function main(): Promise<void> {
     deckRepository,
     walletService,
   );
-  await charactersService.ensureCatalogSeeded();
   const playerAccountBootstrapService = new PlayerAccountBootstrapService(
     progressionService,
     walletService,

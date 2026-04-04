@@ -53,10 +53,8 @@ describe('backend cards services', () => {
     });
     const charactersRepository = {
       listAll: vi.fn(async () => [ownedCharacter, lockedCharacter]),
-      listDefaultUnlocked: vi.fn(async () => [ownedCharacter]),
     };
     const userCharactersRepository = {
-      ensureOwnerships: vi.fn(async () => undefined),
       listByUserId: vi.fn(async () => [
         createUserCharacterRecord({
           characterId: ownedCharacter.id,
@@ -81,15 +79,12 @@ describe('backend cards services', () => {
       deckRepository as never,
       walletService as never,
     );
-    (service as unknown as { catalogSeeded: boolean }).catalogSeeded = true;
 
     const result = await service.getCatalog('user-1');
 
-    expect(userCharactersRepository.ensureOwnerships).toHaveBeenCalledWith(
-      'user-1',
-      [ownedCharacter.id],
-      postgresState.client,
-    );
+    expect(charactersRepository.listAll).toHaveBeenCalledWith(postgresState.client, {
+      includeInactive: false,
+    });
     expect(result.maxDeckSlots).toBe(8);
     expect(result.characters).toEqual([
       expect.objectContaining({
@@ -119,10 +114,8 @@ describe('backend cards services', () => {
     });
     const charactersRepository = {
       findBySlug: vi.fn(async () => character),
-      listDefaultUnlocked: vi.fn(async () => []),
     };
     const userCharactersRepository = {
-      ensureOwnerships: vi.fn(async () => undefined),
       findByUserAndCharacter: vi.fn(async () =>
         createUserCharacterRecord({
           characterId: character.id,
@@ -146,10 +139,12 @@ describe('backend cards services', () => {
       deckRepository as never,
       walletService as never,
     );
-    (service as unknown as { catalogSeeded: boolean }).catalogSeeded = true;
 
     const result = await service.getCharacterBySlug('user-1', 'void-weaver');
 
+    expect(charactersRepository.findBySlug).toHaveBeenCalledWith('void-weaver', postgresState.client, {
+      includeInactive: false,
+    });
     expect(result.character).toMatchObject({
       fullLore: character.fullLore,
       id: character.id,
@@ -170,14 +165,12 @@ describe('backend cards services', () => {
     });
     const charactersRepository = {
       findById: vi.fn(async () => character),
-      listDefaultUnlocked: vi.fn(async () => []),
     };
     const userCharactersRepository = {
       createOwnership: vi.fn(async () =>
         createUserCharacterRecord({
           characterId: character.id,
         })),
-      ensureOwnerships: vi.fn(async () => undefined),
       findByUserAndCharacter: vi.fn(async () => null),
     };
     const deckRepository = {};
@@ -206,7 +199,6 @@ describe('backend cards services', () => {
       deckRepository as never,
       walletService as never,
     );
-    (service as unknown as { catalogSeeded: boolean }).catalogSeeded = true;
 
     const result = await service.unlockCharacter('user-1', character.id);
 
@@ -244,7 +236,7 @@ describe('backend cards services', () => {
     });
   });
 
-  it('prevents duplicate unlocks and propagates insufficient shards', async () => {
+  it('prevents duplicate unlocks, blocks inactive unlocks, and propagates insufficient shards', async () => {
     const character = createCharacterRecord({
       id: 'character-dup',
       name: 'Shadow Assassin',
@@ -253,10 +245,8 @@ describe('backend cards services', () => {
     });
     const baseCharactersRepository = {
       findById: vi.fn(async () => character),
-      listDefaultUnlocked: vi.fn(async () => []),
     };
     const duplicateOwnershipRepository = {
-      ensureOwnerships: vi.fn(async () => undefined),
       findByUserAndCharacter: vi.fn(async () =>
         createUserCharacterRecord({
           characterId: character.id,
@@ -272,7 +262,6 @@ describe('backend cards services', () => {
       {} as never,
       walletService as never,
     );
-    (duplicateService as unknown as { catalogSeeded: boolean }).catalogSeeded = true;
 
     await expect(duplicateService.unlockCharacter('user-1', character.id)).rejects.toMatchObject({
       code: 'CHARACTER_ALREADY_UNLOCKED',
@@ -280,9 +269,27 @@ describe('backend cards services', () => {
     });
     expect(walletService.applyShardTransactionInTransaction).not.toHaveBeenCalled();
 
+    baseCharactersRepository.findById.mockResolvedValue({
+      ...character,
+      isActive: false,
+    });
+
+    const inactiveService = new CharactersService(
+      baseCharactersRepository as never,
+      {
+        findByUserAndCharacter: vi.fn(async () => null),
+      } as never,
+      {} as never,
+      walletService as never,
+    );
+
+    await expect(inactiveService.unlockCharacter('user-1', character.id)).rejects.toMatchObject({
+      code: 'CHARACTER_INACTIVE',
+      statusCode: 409,
+    });
+
     const missingShardsRepository = {
       createOwnership: vi.fn(),
-      ensureOwnerships: vi.fn(async () => undefined),
       findByUserAndCharacter: vi.fn(async () => null),
     };
     const insufficientWalletService = {
@@ -290,18 +297,67 @@ describe('backend cards services', () => {
         throw new Error('You do not have enough shards for this transaction.');
       }),
     };
+    baseCharactersRepository.findById.mockResolvedValue({
+      ...character,
+      isActive: true,
+    });
     const insufficientService = new CharactersService(
       baseCharactersRepository as never,
       missingShardsRepository as never,
       {} as never,
       insufficientWalletService as never,
     );
-    (insufficientService as unknown as { catalogSeeded: boolean }).catalogSeeded = true;
 
     await expect(insufficientService.unlockCharacter('user-1', character.id)).rejects.toThrow(
       'You do not have enough shards for this transaction.',
     );
     expect(missingShardsRepository.createOwnership).not.toHaveBeenCalled();
+  });
+
+  it('supports inactive filtering and avoids default-unlock side effects in read endpoints', async () => {
+    const activeCharacter = createCharacterRecord({
+      id: 'character-active',
+      slug: 'active-character',
+    });
+    const inactiveCharacter = createCharacterRecord({
+      id: 'character-inactive',
+      isActive: false,
+      slug: 'inactive-character',
+    });
+    const charactersRepository = {
+      findBySlug: vi.fn(async (_slug: string, _client: unknown, options?: { includeInactive?: boolean }) =>
+        options?.includeInactive ? inactiveCharacter : null),
+      listAll: vi.fn(async (_client: unknown, options?: { includeInactive?: boolean }) =>
+        options?.includeInactive ? [activeCharacter, inactiveCharacter] : [activeCharacter]),
+    };
+    const userCharactersRepository = {
+      ensureOwnerships: vi.fn(async () => undefined),
+      findByUserAndCharacter: vi.fn(async () => null),
+      listByUserId: vi.fn(async () => []),
+    };
+    const deckRepository = {
+      findActiveByUserId: vi.fn(async () => null),
+    };
+    const service = new CharactersService(
+      charactersRepository as never,
+      userCharactersRepository as never,
+      deckRepository as never,
+      { applyShardTransactionInTransaction: vi.fn() } as never,
+    );
+
+    const catalog = await service.getCatalog('user-1', { includeInactive: true });
+    expect(catalog.characters).toHaveLength(2);
+    expect(userCharactersRepository.ensureOwnerships).not.toHaveBeenCalled();
+
+    await expect(service.getCharacterBySlug('user-1', 'inactive-character')).rejects.toMatchObject({
+      code: 'CHARACTER_NOT_FOUND',
+      statusCode: 404,
+    });
+
+    const detail = await service.getCharacterBySlug('user-1', 'inactive-character', {
+      includeInactive: true,
+    });
+    expect(detail.character.status).toBe('inactive');
   });
 
   it('rejects oversized and locked decks, then persists deck order and positions', async () => {

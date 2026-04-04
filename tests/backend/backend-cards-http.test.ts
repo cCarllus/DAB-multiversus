@@ -194,12 +194,17 @@ describe('backend cards http routes', () => {
       inDeck: true,
       slug: 'grommash',
     });
-    expect(charactersService.getCatalog).toHaveBeenCalledWith('user-1');
+    expect(charactersService.getCatalog).toHaveBeenCalledWith('user-1', {
+      includeInactive: false,
+    });
 
     const detailResponse = await request(app).get('/characters/void-weaver').expect(200);
     expect(detailResponse.body.character).toMatchObject({
       slug: 'void-weaver',
       status: 'locked',
+    });
+    expect(charactersService.getCharacterBySlug).toHaveBeenCalledWith('user-1', 'void-weaver', {
+      includeInactive: false,
     });
 
     const unlockResponse = await request(app)
@@ -238,6 +243,62 @@ describe('backend cards http routes', () => {
         position: 2,
       }),
     ]);
+  });
+
+  it('passes includeInactive through to catalog and detail endpoints', async () => {
+    const charactersService = {
+      getCatalog: vi.fn(async () => ({ characters: [], maxDeckSlots: 8 })),
+      getCharacterBySlug: vi.fn(async () => ({
+        character: {
+          category: 'strength',
+          costMana: 1,
+          createdAt: '2026-04-01T00:00:00.000Z',
+          fullLore: 'Inactive entry.',
+          id: '11111111-1111-1111-1111-111111111111',
+          imageUrl: '/uploads/characters/strength-portrait.svg',
+          inDeck: false,
+          isActive: false,
+          isDefaultUnlocked: false,
+          isUnlocked: false,
+          level: null,
+          name: 'Inactive',
+          rarity: 'common',
+          releaseOrder: 99,
+          shortDescription: 'Inactive',
+          shortLore: 'Inactive',
+          slug: 'inactive',
+          status: 'inactive',
+          unlockPriceShards: 0,
+          unlockedAt: null,
+          updatedAt: '2026-04-02T00:00:00.000Z',
+        },
+      })),
+      unlockCharacter: vi.fn(),
+    };
+    const app = createApp({
+      authRouter: express.Router(),
+      charactersRouter: createCharactersRouter({
+        authMiddleware: createAuthenticatedMiddleware(),
+        charactersController: createCharactersController(charactersService as never),
+      }),
+      chatRouter: express.Router(),
+      deckRouter: express.Router(),
+      friendsRouter: express.Router(),
+      meRouter: express.Router(),
+      presenceRouter: express.Router(),
+      profileRouter: express.Router(),
+      usersRouter: express.Router(),
+    });
+
+    await request(app).get('/characters?includeInactive=true').expect(200);
+    await request(app).get('/characters/inactive?includeInactive=true').expect(200);
+
+    expect(charactersService.getCatalog).toHaveBeenCalledWith('user-1', {
+      includeInactive: true,
+    });
+    expect(charactersService.getCharacterBySlug).toHaveBeenCalledWith('user-1', 'inactive', {
+      includeInactive: true,
+    });
   });
 
   it('validates deck payload size before hitting the service', async () => {
