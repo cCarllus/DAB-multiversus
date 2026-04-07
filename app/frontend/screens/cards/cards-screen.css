@@ -2266,37 +2266,37 @@
 
 .cards-card__image {
   inset: 0;
-  filter: saturate(0.06) brightness(0.92) contrast(1.06);
+  filter: saturate(0.14) brightness(1.02) contrast(1.04);
 }
 
 .cards-card__backplate {
   inset: 0;
-  opacity: 0.88;
+  opacity: 0.58;
 }
 
 .cards-card[data-category='strength'] .cards-card__backplate {
   background:
-    radial-gradient(circle at 50% 24%, rgba(255, 200, 94, 0.28), transparent 28%),
+    radial-gradient(circle at 50% 24%, rgba(255, 200, 94, 0.16), transparent 22%),
     linear-gradient(135deg, rgba(75, 15, 20, 0.96), rgba(27, 8, 11, 0.96) 68%, rgba(3, 7, 12, 0.98));
 }
 
 .cards-card[data-category='agility'] .cards-card__backplate {
   background:
-    radial-gradient(circle at 50% 24%, rgba(70, 205, 150, 0.26), transparent 28%),
+    radial-gradient(circle at 50% 24%, rgba(70, 205, 150, 0.15), transparent 22%),
     linear-gradient(135deg, rgba(5, 63, 48, 0.96), rgba(4, 31, 31, 0.96) 68%, rgba(3, 7, 12, 0.98));
 }
 
 .cards-card[data-category='intelligence'] .cards-card__backplate {
   background:
-    radial-gradient(circle at 50% 24%, rgba(110, 155, 255, 0.3), transparent 28%),
+    radial-gradient(circle at 50% 24%, rgba(110, 155, 255, 0.18), transparent 22%),
     linear-gradient(135deg, rgba(17, 33, 88, 0.96), rgba(8, 17, 42, 0.96) 68%, rgba(3, 7, 12, 0.98));
 }
 
 .cards-card__gradient {
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.16) 44%, rgba(0, 0, 0, 0.88)),
-    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42));
+    linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.1) 44%, rgba(0, 0, 0, 0.72)),
+    linear-gradient(180deg, transparent 28%, rgba(0, 0, 0, 0.24));
 }
 
 .cards-card:hover .cards-card__image,
