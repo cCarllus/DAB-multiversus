@@ -2,6 +2,7 @@ import type { AppI18n } from '@shared/i18n';
 
 import type { CharacterCatalogEntry } from '@frontend/services/cards/cards-types';
 import { groupCatalogCharactersByOwnership } from '@frontend/services/cards/cards-selectors';
+import { renderCardActionPanel } from './card-action-panel';
 
 interface RenderCardsCatalogGridOptions {
   container: HTMLElement;
@@ -10,6 +11,7 @@ interface RenderCardsCatalogGridOptions {
   isSavingDeck: boolean;
   isUnlockingCharacterId: string | null;
   isDeckFull: boolean;
+  selectedCardSlug: string | null;
 }
 
 function escapeAttribute(value: string): string {
@@ -96,9 +98,11 @@ export function renderCardsCatalogGrid(options: RenderCardsCatalogGridOptions): 
               `
               : '';
 
+          const isSelected = character.slug === options.selectedCardSlug;
+
           return `
             <article
-              class="cards-card"
+              class="cards-card${isSelected ? ' is-selected' : ''}"
               data-rarity="${character.rarity}"
               data-category="${character.category}"
               data-status="${character.status}"
@@ -106,6 +110,7 @@ export function renderCardsCatalogGrid(options: RenderCardsCatalogGridOptions): 
               <div
                 class="cards-card__inspect"
                 data-cards-inspect="${escapeAttribute(character.slug)}"
+                data-cards-select="${escapeAttribute(character.slug)}"
                 data-cards-drag-character-id="${isDraggable ? character.id : ''}"
                 data-cards-draggable="${isDraggable ? 'true' : 'false'}"
                 draggable="${isDraggable ? 'true' : 'false'}"
@@ -131,6 +136,15 @@ export function renderCardsCatalogGrid(options: RenderCardsCatalogGridOptions): 
                   </span>
                 </span>
                 ${renderSelectedOverlay(character, options)}
+                ${isSelected
+                  ? renderCardActionPanel({
+                      character,
+                      i18n: options.i18n,
+                      isDeckFull: options.isDeckFull,
+                      isSavingDeck: options.isSavingDeck,
+                      isUnlockingCharacterId: options.isUnlockingCharacterId,
+                    })
+                  : ''}
               </div>
             </article>
           `;

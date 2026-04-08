@@ -3241,3 +3241,149 @@
     padding: 0;
   }
 }
+
+/* ─── Card selection ─────────────────────────────────────────────────────── */
+
+.cards-card.is-selected .cards-card__inspect {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 2px var(--launcher-color-gold),
+    0 0 22px 4px rgba(var(--launcher-color-gold-rgb), 0.35),
+    0 14px 40px rgba(0, 0, 0, 0.55);
+  z-index: 10;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+/* ─── Card action panel ──────────────────────────────────────────────────── */
+
+.cards-card__action-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 12px;
+  background: linear-gradient(
+    170deg,
+    rgba(6, 17, 27, 0.86) 0%,
+    rgba(11, 24, 36, 0.94) 100%
+  );
+  border-radius: inherit;
+  border: 1px solid rgba(var(--launcher-color-gold-rgb), 0.28);
+  animation: cards-action-panel-in 180ms cubic-bezier(0.2, 0, 0.2, 1) both;
+  backdrop-filter: blur(3px);
+}
+
+@keyframes cards-action-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ─── Action panel buttons ───────────────────────────────────────────────── */
+
+.cards-card__action-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 100ms ease,
+    opacity 140ms ease;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cards-card__action-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.cards-card__action-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* Details — azure/neutral */
+.cards-card__action-btn--details {
+  background: rgba(47, 127, 168, 0.18);
+  border-color: rgba(47, 127, 168, 0.42);
+  color: var(--launcher-color-azure-bright);
+}
+
+.cards-card__action-btn--details:hover:not(:disabled) {
+  background: rgba(47, 127, 168, 0.32);
+  border-color: rgba(47, 127, 168, 0.7);
+  box-shadow: 0 0 12px rgba(47, 127, 168, 0.3);
+}
+
+/* Add — gold/positive */
+.cards-card__action-btn--add {
+  background: rgba(var(--launcher-color-gold-rgb), 0.16);
+  border-color: rgba(var(--launcher-color-gold-rgb), 0.44);
+  color: var(--launcher-color-gold-bright);
+}
+
+.cards-card__action-btn--add:hover:not(:disabled) {
+  background: rgba(var(--launcher-color-gold-rgb), 0.28);
+  border-color: rgba(var(--launcher-color-gold-rgb), 0.72);
+  box-shadow: 0 0 12px rgba(var(--launcher-color-gold-rgb), 0.3);
+}
+
+/* Remove — danger/red */
+.cards-card__action-btn--remove {
+  background: rgba(197, 90, 90, 0.16);
+  border-color: rgba(197, 90, 90, 0.42);
+  color: #e88b8b;
+}
+
+.cards-card__action-btn--remove:hover:not(:disabled) {
+  background: rgba(197, 90, 90, 0.28);
+  border-color: rgba(197, 90, 90, 0.68);
+  box-shadow: 0 0 12px rgba(197, 90, 90, 0.28);
+}
+
+/* Unlock — shard gold */
+.cards-card__action-btn--unlock {
+  background: linear-gradient(
+    135deg,
+    rgba(154, 97, 19, 0.28) 0%,
+    rgba(212, 166, 58, 0.2) 100%
+  );
+  border-color: rgba(var(--launcher-color-gold-rgb), 0.52);
+  color: var(--launcher-color-gold);
+}
+
+.cards-card__action-btn--unlock:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    rgba(154, 97, 19, 0.4) 0%,
+    rgba(212, 166, 58, 0.32) 100%
+  );
+  border-color: var(--launcher-color-gold);
+  box-shadow: 0 0 14px rgba(var(--launcher-color-gold-rgb), 0.34);
+  color: var(--launcher-color-gold-bright);
+}

@@ -8,6 +8,7 @@ import type { AppI18n } from '@shared/i18n';
 
 import { renderActiveDeckPanel } from './active-deck-panel';
 import { renderCardDetailModal } from './card-detail-modal';
+import { CardInteractionController } from './card-interaction-controller';
 import { renderCardsCatalogGrid } from './cards-catalog-grid';
 import cardsScreenTemplate from './cards-screen.html?raw';
 import './cards-screen.css';
@@ -60,6 +61,7 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
   let dragSourceElement: HTMLElement | null = null;
   let dragGhostElement: HTMLElement | null = null;
   let currentDropTarget: HTMLElement | null = null;
+  let selectedCardSlug: string | null = null;
 
   const setFeedback = (nextFeedback: typeof feedback): void => {
     feedback = nextFeedback;
@@ -104,6 +106,7 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
       isDeckFull,
       isSavingDeck: snapshot.isSavingDeck,
       isUnlockingCharacterId: snapshot.unlockingCharacterId,
+      selectedCardSlug,
     });
     renderCardDetailModal({
       character: snapshot.selectedCharacter,
@@ -180,6 +183,7 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
   };
 
   const openCharacterDetail = (slug: string): void => {
+    selectedCardSlug = null;
     void options.cardsStore
       .openCharacterDetail(slug)
       .then(() => {
@@ -209,6 +213,11 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
     }
   };
 
+  const interactionController = new CardInteractionController(
+    { longPressThreshold: 400, dragMoveThreshold: 8 },
+    (slug) => { openCharacterDetail(slug); },
+  );
+
   const cachedSnapshot = options.cardsStore.getSnapshot();
   setFeedback(null);
   render();
@@ -216,6 +225,7 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
   const unsubscribe = options.cardsStore.subscribe(() => {
     if (!rootElement.isConnected) {
       unsubscribe();
+      interactionController.dispose();
       return;
     }
 
@@ -232,59 +242,79 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
     render();
   });
 
-  rootElement.addEventListener('click', (event) => {
+  // Long press detection via pointer events
+  rootElement.addEventListener('pointerdown', (event) => {
     const target =
       event.target instanceof Element
-        ? event.target.closest<HTMLElement>(
-            '[data-cards-add],[data-cards-remove],[data-cards-unlock],[data-cards-close-detail]',
-          )
+        ? event.target.closest<HTMLElement>('[data-cards-inspect]')
         : null;
+    const slug = target?.dataset.cardsInspect;
 
-    if (!target) {
+    if (slug) {
+      interactionController.handlePointerDown(slug, event.clientX, event.clientY);
+    }
+  });
+
+  rootElement.addEventListener('pointermove', (event) => {
+    interactionController.handlePointerMove(event.clientX, event.clientY);
+  });
+
+  rootElement.addEventListener('pointerup', () => {
+    interactionController.handlePointerUp();
+  });
+
+  // Unified click handler — priority order:
+  // 1. close-detail  2. unlock  3. add  4. remove  5. open-detail (panel)  6. card select  7. outside close
+  rootElement.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) {
       return;
     }
 
-    if (target.dataset.cardsCloseDetail !== undefined) {
+    const closeDetail = event.target.closest<HTMLElement>('[data-cards-close-detail]');
+    if (closeDetail) {
       options.cardsStore.closeCharacterDetail();
       setFeedback(null);
       render();
       return;
     }
 
-    const unlockCharacterId = target.dataset.cardsUnlock;
-
-    if (unlockCharacterId) {
-      void handleUnlock(unlockCharacterId);
+    const unlockTarget = event.target.closest<HTMLElement>('[data-cards-unlock]');
+    if (unlockTarget?.dataset.cardsUnlock) {
+      void handleUnlock(unlockTarget.dataset.cardsUnlock);
       return;
     }
 
-    const addCharacterId = target.dataset.cardsAdd;
-
-    if (addCharacterId) {
-      void handleAdd(addCharacterId);
+    const addTarget = event.target.closest<HTMLElement>('[data-cards-add]');
+    if (addTarget?.dataset.cardsAdd) {
+      void handleAdd(addTarget.dataset.cardsAdd);
       return;
     }
 
-    const removeCharacterId = target.dataset.cardsRemove;
-
-    if (removeCharacterId) {
-      void handleRemove(removeCharacterId);
-    }
-  });
-
-  rootElement.addEventListener('contextmenu', (event) => {
-    const target =
-      event.target instanceof Element
-        ? event.target.closest<HTMLElement>('[data-cards-inspect]')
-        : null;
-    const inspectSlug = target?.dataset.cardsInspect;
-
-    if (!inspectSlug) {
+    const removeTarget = event.target.closest<HTMLElement>('[data-cards-remove]');
+    if (removeTarget?.dataset.cardsRemove) {
+      void handleRemove(removeTarget.dataset.cardsRemove);
       return;
     }
 
-    event.preventDefault();
-    openCharacterDetail(inspectSlug);
+    const openDetailTarget = event.target.closest<HTMLElement>('[data-cards-open-detail]');
+    if (openDetailTarget?.dataset.cardsOpenDetail) {
+      openCharacterDetail(openDetailTarget.dataset.cardsOpenDetail);
+      return;
+    }
+
+    const selectTarget = event.target.closest<HTMLElement>('[data-cards-select]');
+    const selectSlug = selectTarget?.dataset.cardsSelect;
+    if (selectSlug) {
+      selectedCardSlug = selectedCardSlug === selectSlug ? null : selectSlug;
+      render();
+      return;
+    }
+
+    // Click outside any card — close the action panel
+    if (selectedCardSlug !== null) {
+      selectedCardSlug = null;
+      render();
+    }
   });
 
   rootElement.addEventListener('dragstart', (event) => {
@@ -298,6 +328,9 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
       event.preventDefault();
       return;
     }
+
+    interactionController.handleDragStart();
+    selectedCardSlug = null;
 
     draggingCharacterId = characterId;
     dragSourceElement = target;
@@ -385,6 +418,12 @@ export function createCardsScreen(options: CardsScreenOptions): HTMLElement {
 
   rootElement.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      if (selectedCardSlug !== null) {
+        selectedCardSlug = null;
+        render();
+        return;
+      }
+
       options.cardsStore.closeCharacterDetail();
       render();
     }
