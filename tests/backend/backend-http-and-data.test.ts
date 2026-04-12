@@ -648,6 +648,9 @@ describe('backend controllers, routes, and app', () => {
           email: 'player@example.com',
           nickname: 'player.one',
         },
+        query: {
+          currentDeviceId: ' device-1 ',
+        },
         header: () => ' device-1 ',
       }),
       response,
@@ -763,7 +766,7 @@ describe('backend controllers, routes, and app', () => {
         contentType: 'image/png',
       })
       .expect(200);
-    await request(app).get('/profile/me/devices').expect(200);
+    await request(app).get('/profile/me/devices').query({ currentDeviceId: 'device-1' }).expect(200);
 
     expect(authHandler).toHaveBeenCalled();
     expect(profileHandler).toHaveBeenCalled();
@@ -800,6 +803,15 @@ describe('backend controllers, routes, and app', () => {
     await request(app).get('/health').expect(200, {
       status: 'ok',
     });
+    const corsResponse = await request(app)
+      .options('/profile/me/devices')
+      .set('Origin', 'http://127.0.0.1:5173')
+      .set('Access-Control-Request-Method', 'GET')
+      .set('Access-Control-Request-Headers', 'authorization,x-launcher-device-id');
+    expect(corsResponse.status).toBe(204);
+    expect(corsResponse.headers['access-control-allow-headers']).toContain(
+      'X-Launcher-Device-Id',
+    );
     await request(app).get('/auth/explode').expect(418);
     await request(app).get('/profile/db').expect(503);
     await request(app).get('/missing').expect(404, {

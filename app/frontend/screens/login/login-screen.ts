@@ -1,6 +1,6 @@
 import { createElementFromTemplate } from '@frontend/lib/html';
-import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
-import loginBackgroundVideo from '@assets/images/ui/videos/background_video.webm';
+import titleGameNameImage from '@assets/shared/icons/title-game-name.png';
+import loginBackgroundVideo from '@assets/frontend/videos/background_video.webm';
 import {
   getLocaleOptionCopy,
   type AppI18n,

@@ -1,4 +1,4 @@
-import { Client as ColyseusClient, type Room as ColyseusRoom } from 'colyseus.js';
+import { Client as ColyseusClient, type Room as ColyseusRoom } from '@colyseus/sdk';
 
 import { resolveApiBaseUrl } from '@frontend/services/api/api-base-url';
 import {

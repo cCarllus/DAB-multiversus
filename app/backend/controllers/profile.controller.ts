@@ -52,7 +52,12 @@ export function createProfileController(profileService: ProfileService): Profile
 
     devices: asyncHandler(async (request, response) => {
       const authContext = requireAuthContext(request);
-      const currentDeviceId = request.header('X-Launcher-Device-Id')?.trim();
+      const currentDeviceIdFromQuery =
+        typeof request.query?.currentDeviceId === 'string'
+          ? request.query.currentDeviceId.trim()
+          : undefined;
+      const currentDeviceId =
+        currentDeviceIdFromQuery || request.header('X-Launcher-Device-Id')?.trim();
       const devices = await profileService.getProfileDevices(
         authContext.userId,
         currentDeviceId || undefined,

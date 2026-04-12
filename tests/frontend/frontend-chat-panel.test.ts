@@ -357,6 +357,43 @@ describe('frontend global chat panel', () => {
     expect(feedback.textContent).toContain('Global chat is unavailable right now');
   });
 
+  it('clears stale local send feedback after the chat store reconnects cleanly', async () => {
+    const chatStore = createChatStoreMock({
+      isConnected: false,
+      messages: [createMessage('1')],
+    });
+    chatStore.sendMessage.mockImplementationOnce(async () => {
+      throw new Error('chat failed');
+    });
+
+    const panel = createGlobalChatPanel({
+      chatStore: chatStore as never,
+      i18n: createTestI18n('en'),
+    });
+
+    document.body.append(panel);
+
+    const input = panel.querySelector<HTMLInputElement>('.global-chat-panel__input')!;
+    const form = panel.querySelector<HTMLFormElement>('form')!;
+    const feedback = panel.querySelector<HTMLElement>('.global-chat-panel__feedback')!;
+
+    input.dispatchEvent(new Event('focus'));
+    input.value = 'fail';
+    form.dispatchEvent(new Event('submit'));
+    await flushPromises();
+
+    expect(feedback.hidden).toBe(false);
+    expect(feedback.textContent).toContain('chat failed');
+
+    chatStore.setSnapshot({
+      isConnected: true,
+      lastError: null,
+    });
+
+    expect(feedback.hidden).toBe(true);
+    expect(feedback.textContent).toBe('');
+  });
+
   it('mounts the chat panel into the footer and forwards the current nickname', async () => {
     const chatStore = createChatStoreMock({
       messages: [

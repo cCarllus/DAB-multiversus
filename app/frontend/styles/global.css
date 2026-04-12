@@ -5,7 +5,7 @@
 
 @font-face {
   font-family: 'No Continue';
-  src: url('../assets/fonts/no-continue.regular.ttf') format('truetype');
+  src: url('@assets/shared/fonts/no-continue.regular.ttf') format('truetype');
   font-style: normal;
   font-weight: 400;
   font-display: swap;

@@ -41,7 +41,7 @@
     "asar": true,
     "extraResources": [
       {
-        "from": "app/frontend/assets/images/ui/icons/icon-desktop-game.png",
+        "from": "assets/desktop/icons/icon-desktop-game.png",
         "to": "icons/icon-desktop-game.png"
       }
     ],
@@ -51,20 +51,20 @@
       "package.json"
     ],
     "directories": {
-      "buildResources": "config/electron/build-resources",
+      "buildResources": "assets/desktop/build-resources",
       "output": "release"
     },
     "mac": {
       "category": "public.app-category.games",
-      "icon": "config/electron/build-resources/icon-desktop-game.icns",
+      "icon": "assets/desktop/build-resources/icon-desktop-game.icns",
       "target": "dmg"
     },
     "win": {
-      "icon": "config/electron/build-resources/icon-desktop-game.ico",
+      "icon": "assets/desktop/build-resources/icon-desktop-game.ico",
       "target": "nsis"
     },
     "linux": {
-      "icon": "config/electron/build-resources/icon-desktop-game.png",
+      "icon": "assets/desktop/build-resources/icon-desktop-game.png",
       "target": "AppImage"
     }
   },
@@ -73,20 +73,20 @@
     "@babylonjs/gui": "^9.0.0",
     "@babylonjs/loaders": "^9.0.0",
     "@babylonjs/materials": "^9.0.0",
-    "@colyseus/core": "^0.16.24",
-    "@colyseus/schema": "^3.0.71",
-    "@colyseus/ws-transport": "^0.16.5",
+    "@colyseus/core": "^0.17.41",
+    "@colyseus/schema": "^4.0.19",
+    "@colyseus/sdk": "^0.17.39",
+    "@colyseus/ws-transport": "^0.17.13",
     "@fontsource/cinzel": "^5.2.8",
     "@fontsource/rajdhani": "^5.2.7",
     "bcryptjs": "^3.0.2",
-    "colyseus.js": "^0.16.22",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.1.1",
     "pg": "^8.16.3",
-    "zod": "^3.25.76"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@babylonjs/inspector": "^9.0.0",

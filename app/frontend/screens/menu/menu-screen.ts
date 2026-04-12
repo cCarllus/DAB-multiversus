@@ -17,7 +17,7 @@ import type { ProfileStore } from '@frontend/stores/profile.store';
 import type { ProgressionStore } from '@frontend/stores/progression.store';
 import type { SocialStore } from '@frontend/stores/social.store';
 import type { WalletStore } from '@frontend/stores/wallet.store';
-import titleGameNameImage from '@assets/images/ui/icons/title-game-name.png';
+import titleGameNameImage from '@assets/shared/icons/title-game-name.png';
 import type { AppI18n } from '@shared/i18n';
 import type { DesktopBridge } from '@shared/contracts/desktop.contract';
 

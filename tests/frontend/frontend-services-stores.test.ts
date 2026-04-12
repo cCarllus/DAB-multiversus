@@ -236,10 +236,13 @@ describe('frontend api clients', () => {
     expect(fetchSpy.mock.calls[2]?.[1]?.body).toBeInstanceOf(FormData);
 
     await expect(client.getDevices('access-token', 'device-1')).resolves.toEqual(devices);
+    expect(fetchSpy.mock.calls[3]?.[0]).toBe(
+      'http://localhost:4000/profile/me/devices?currentDeviceId=device-1',
+    );
     expect(fetchSpy.mock.calls[3]?.[1]).toMatchObject({
       method: 'GET',
       headers: expect.objectContaining({
-        'X-Launcher-Device-Id': 'device-1',
+        Authorization: 'Bearer access-token',
       }),
     });
 
@@ -573,6 +576,24 @@ describe('frontend stores and auth service', () => {
         },
       },
     });
+    const sessionOnlyService = new AuthService(unsupportedDesktop, '0.1.0', {
+      ...apiClient,
+      login: vi.fn(async () => ({
+        ...session,
+        rememberDevice: false,
+      })),
+    } as never);
+    await expect(
+      sessionOnlyService.login({
+        identifier: 'player@example.com',
+        password: '12345678',
+        rememberDevice: false,
+      }),
+    ).resolves.toEqual({
+      ...session,
+      rememberDevice: false,
+    });
+
     await expectRejectedAppApiError(
       unsupportedService.login({
         identifier: 'player@example.com',
@@ -656,6 +677,21 @@ describe('frontend stores and auth service', () => {
       }),
     );
     await expect(invalidatingService.initialize()).resolves.toBeNull();
+
+    const runtimeInvalidatingService = new AuthService(desktop, '0.1.0', {
+      ...apiClient,
+      refresh: vi.fn(async () => {
+        throw new AppApiError('SESSION_REVOKED', 'expired');
+      }),
+    } as never);
+    sessionStorage.setItem(STORAGE_KEYS.authSession, JSON.stringify(session));
+    (runtimeInvalidatingService as unknown as { currentSession: typeof session }).currentSession = {
+      ...session,
+      accessTokenExpiresAt: new Date(Date.now() - 1_000).toISOString(),
+    };
+    await expect(runtimeInvalidatingService.ensureAccessToken()).resolves.toBeNull();
+    expect(runtimeInvalidatingService.getCurrentSession()).toBeNull();
+    expect(sessionStorage.getItem(STORAGE_KEYS.authSession)).toBeNull();
 
     const unknownInitService = new AuthService(desktop, '0.1.0', {
       ...apiClient,

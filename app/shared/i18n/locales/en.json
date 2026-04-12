@@ -265,6 +265,7 @@
       },
       "actions": {
         "inspect": "Inspect",
+        "details": "Details",
         "add": "Add to deck",
         "addShort": "Add",
         "remove": "Remove from deck",

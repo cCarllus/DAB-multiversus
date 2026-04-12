@@ -1,11 +1,11 @@
 [
   {
-    "name": "Grommash",
-    "slug": "grommash",
-    "shortDescription": "Frontline warlord that breaks lanes through brute pressure and impact swings.",
-    "shortLore": "A conqueror pulled from a dead empire that still answers only to the drumbeat of war.",
-    "fullLore": "Grommash once carried a shattered empire on his back until the last citadel burned around him. Dragged into the Multiverse by a collapsing battle rite, he now treats every arena as a siege that must end in obedience or ruin.",
-    "imageUrl": "/uploads/characters/strength-portrait.svg",
+    "name": "Albert Wesker",
+    "slug": "albert-wesker",
+    "shortDescription": "Frontline warlord that dominates lanes through overwhelming speed, strength, and lethal precision.",
+    "shortLore": "A bio-engineered tyrant from a fallen world, Wesker seeks to reshape reality through evolution and absolute dominance.",
+    "fullLore": "Albert Wesker was once a brilliant strategist and scientist, engineered as part of a secret experiment to create the perfect human. After exposing himself to advanced viral mutations, he transcended humanity and became something far more dangerous. Possessing superhuman speed, strength, and near-immortality, Wesker now travels across dimensions seeking to impose his vision of evolution upon all worlds. To him, only the strong deserve to exist—and he intends to prove that he stands above all.",
+    "imageUrl": "/assets/game/characters/wesker-card-avatar.png",
     "rarity": "legendary",
     "category": "strength",
     "costMana": 5,

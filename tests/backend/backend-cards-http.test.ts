@@ -82,7 +82,7 @@ describe('backend cards http routes', () => {
           costMana: 3,
           createdAt: '2026-04-01T00:00:00.000Z',
           fullLore: 'Fast and precise.',
-          id: '33333333-3333-3333-3333-333333333333',
+          id: '33333333-3333-4333-8333-333333333333',
           imageUrl: '/uploads/characters/agility-portrait.svg',
           inDeck: false,
           isActive: true,
@@ -107,7 +107,7 @@ describe('backend cards http routes', () => {
           direction: 'debit',
           id: 'wallet-transaction-1',
           metadataJson: {
-            characterId: '33333333-3333-3333-3333-333333333333',
+            characterId: '33333333-3333-4333-8333-333333333333',
           },
           reason: 'character_unlock',
         },
@@ -208,7 +208,7 @@ describe('backend cards http routes', () => {
     });
 
     const unlockResponse = await request(app)
-      .post('/characters/33333333-3333-3333-3333-333333333333/unlock')
+      .post('/characters/33333333-3333-4333-8333-333333333333/unlock')
       .expect(200);
     expect(unlockResponse.body.wallet).toMatchObject({
       shards: 360,
@@ -224,15 +224,15 @@ describe('backend cards http routes', () => {
       .post('/deck')
       .send({
         cards: [
-          '44444444-4444-4444-4444-444444444444',
-          '55555555-5555-5555-5555-555555555555',
+          '44444444-4444-4444-8444-444444444444',
+          '55555555-5555-4555-8555-555555555555',
         ],
       })
       .expect(200);
     expect(deckService.saveActiveDeck).toHaveBeenCalledWith('user-1', {
       cards: [
-        '44444444-4444-4444-4444-444444444444',
-        '55555555-5555-5555-5555-555555555555',
+        '44444444-4444-4444-8444-444444444444',
+        '55555555-5555-4555-8555-555555555555',
       ],
     });
     expect(saveResponse.body.deck.cards).toEqual([

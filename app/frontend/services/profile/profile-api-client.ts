@@ -43,11 +43,12 @@ export class ProfileApiClient extends BackendApiClient {
   }
 
   async getDevices(accessToken: string, deviceId: string): Promise<ProfileDevicesPayload> {
-    return this.request<ProfileDevicesPayload>('/profile/me/devices', {
+    const query = new URLSearchParams({
+      currentDeviceId: deviceId,
+    });
+
+    return this.request<ProfileDevicesPayload>(`/profile/me/devices?${query.toString()}`, {
       accessToken,
-      headers: {
-        'X-Launcher-Device-Id': deviceId,
-      },
       method: 'GET',
     }, PROFILE_REQUEST_MESSAGES);
   }
