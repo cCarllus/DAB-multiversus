@@ -101,6 +101,11 @@ export class SessionStore {
 
     window.sessionStorage.setItem(STORAGE_KEYS.authSession, JSON.stringify(storedSession));
 
+    if (!session.rememberDevice) {
+      await this.clearRememberedSession();
+      return;
+    }
+
     if (!(await this.supportsRememberedSessions())) {
       throw new AppApiError(
         'REMEMBER_DEVICE_UNAVAILABLE',

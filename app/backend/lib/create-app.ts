@@ -33,22 +33,23 @@ function isOriginAllowed(origin: string | undefined): boolean {
 
 export function createApp(options: CreateAppOptions) {
   const app = express();
+  const allowedHeaders = ['Authorization', 'Content-Type', 'X-Launcher-Device-Id'];
+  const corsOptions = {
+    origin(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
+      if (isOriginAllowed(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new AppError(403, 'CORS_FORBIDDEN', 'Origin is not allowed.'));
+    },
+    methods: ['DELETE', 'GET', 'PATCH', 'POST', 'OPTIONS'],
+    allowedHeaders,
+  } as const;
 
   app.disable('x-powered-by');
-  app.use(
-    cors({
-      origin(origin, callback) {
-        if (isOriginAllowed(origin)) {
-          callback(null, true);
-          return;
-        }
-
-        callback(new AppError(403, 'CORS_FORBIDDEN', 'Origin is not allowed.'));
-      },
-      methods: ['DELETE', 'GET', 'PATCH', 'POST', 'OPTIONS'],
-      allowedHeaders: ['Authorization', 'Content-Type', 'X-Launcher-Device-Id'],
-    }),
-  );
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
 
   app.use(express.json({ limit: '6mb' }));
   app.use('/assets', express.static(path.resolve(process.cwd(), 'assets')));

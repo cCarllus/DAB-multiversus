@@ -1,4 +1,4 @@
-import { resolveApiErrorMessage } from '@frontend/services/api/api-error';
+import { AppApiError, resolveApiErrorMessage } from '@frontend/services/api/api-error';
 import type { AuthSessionSnapshot } from '@frontend/services/auth/auth-types';
 import type { AuthUser } from '@frontend/services/auth/auth-types';
 import type { ProfileFeedback, ProfileSnapshot } from '@frontend/services/profile/profile.types';
@@ -130,17 +130,50 @@ function createCurrentProfileScreen(
     applySnapshot(cachedSnapshot);
   }
 
-  void options.profileStore
-    .load(!cachedSnapshot)
-    .then((snapshot) => {
+  let retryTimer: number | null = null;
+  const scheduleRetry = (): void => {
+    if (retryTimer !== null) {
+      return;
+    }
+
+    retryTimer = window.setTimeout(() => {
+      retryTimer = null;
+
+      if (!rootElement.isConnected) {
+        return;
+      }
+
+      void loadSnapshot(false);
+    }, 1_500);
+  };
+
+  const loadSnapshot = async (force: boolean): Promise<void> => {
+    try {
+      const snapshot = await options.profileStore.load(force);
+
+      if (!rootElement.isConnected) {
+        return;
+      }
+
       applySnapshot(snapshot);
-    })
-    .catch((error) => {
+      setFeedback(null);
+    } catch (error) {
+      if (!rootElement.isConnected) {
+        return;
+      }
+
       setFeedback({
         message: resolveApiErrorMessage(error, options.i18n),
         tone: 'error',
       });
-    });
+
+      if (error instanceof AppApiError && error.code === 'BACKEND_UNAVAILABLE') {
+        scheduleRetry();
+      }
+    }
+  };
+
+  void loadSnapshot(!cachedSnapshot);
 
   return rootElement;
 }

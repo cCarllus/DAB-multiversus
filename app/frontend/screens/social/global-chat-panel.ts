@@ -244,6 +244,12 @@ export function createGlobalChatPanel(options: CreateGlobalChatPanelOptions): HT
       return;
     }
 
+    const snapshot = options.chatStore.getSnapshot();
+
+    if (localFeedback && snapshot.isConnected && !snapshot.lastError) {
+      localFeedback = null;
+    }
+
     render();
   });
 

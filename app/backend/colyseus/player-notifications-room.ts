@@ -42,7 +42,6 @@ export class PlayerNotificationsRoom extends Room<
     this.autoDispose = false;
     this.patchRate = 0;
     this.setState({});
-    void this.setPrivate(true);
 
     this.notificationsRealtimeGateway = options.notificationsRealtimeGateway;
     this.notificationsService = options.notificationsService;

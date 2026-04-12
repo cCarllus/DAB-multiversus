@@ -160,8 +160,18 @@ export class AuthService {
       !this.currentSession.accessToken ||
       this.isAccessTokenExpiringSoon(this.currentSession.accessTokenExpiresAt)
     ) {
-      const refreshedSession = await this.refreshCurrentSession();
-      return refreshedSession.accessToken;
+      try {
+        const refreshedSession = await this.refreshCurrentSession();
+        return refreshedSession.accessToken;
+      } catch (error) {
+        if (isSessionInvalidatingError(error)) {
+          await this.sessionStore.clear();
+          this.currentSession = null;
+          return null;
+        }
+
+        throw error;
+      }
     }
 
     return this.currentSession.accessToken;
